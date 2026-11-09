@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import "./App.css";
 
+// ⚠️ ضع رقم الواتساب الخاص بك هنا بالصيغة الدولية بدون علامة + (مثال: 201012345678)
+const myWhatsAppNumber = "201097829312";
+
 const models = [
   "iPhone 18 Pro Max", "iPhone 18 Pro",
   "iPhone 17 Pro Max", "iPhone 17 Pro", "iPhone Air", "iPhone 17",
@@ -12,7 +15,7 @@ const models = [
   "iPhone 11 Pro Max", "iPhone 11 Pro", "iPhone 11", "iPhone SE"
 ];
 
-const parts = [
+const standardParts = [
   { id: "screen", nameAr: "شاشة", nameEn: "Screen" },
   { id: "battery", nameAr: "بطارية", nameEn: "Battery" },
   { id: "upper_speaker", nameAr: "سماعة علوية", nameEn: "Upper Speaker" },
@@ -22,8 +25,7 @@ const parts = [
   { id: "back_cameras", nameAr: "كاميرات خلفية", nameEn: "Back Cameras" },
   { id: "back_glass", nameAr: "ظهر", nameEn: "Back Glass" },
   { id: "flash", nameAr: "فلاش", nameEn: "Flash" },
-  { id: "socket", nameAr: "سوكت", nameEn: "Charging Socket" },
-  { id: "other", nameAr: "عطل آخر (تحديد العطل يدوياً)", nameEn: "Other Custom Issue" }
+  { id: "socket", nameAr: "سوكت", nameEn: "Charging Socket" }
 ];
 
 const partSubOptions = {
@@ -87,9 +89,6 @@ const partSubOptions = {
   socket: [
     { id: "orig_socket", nameAr: "سوكت شحن أصلي (فلتر شحن)", nameEn: "Original Charging Socket", price: 1100, descAr: "يدعم الشحن السريع ونقل البيانات", descEn: "Supports fast charging and data transfer", image: "https://images.unsplash.com/photo-1583863788434-e58a36330cf0?w=300&auto=format&fit=crop&q=60" },
     { id: "copy_socket", nameAr: "سوكت شحن تجاري", nameEn: "Commercial Charging Socket", price: 650, descAr: "شحن عادي وبكفاءة مقبولة", descEn: "Normal charging with acceptable efficiency", image: "https://images.unsplash.com/photo-1565849904461-04a58ad377e0?w=300&auto=format&fit=crop&q=60" }
-  ],
-  other: [
-    { id: "custom_issue", nameAr: "فحص عطل بالبوردة أو فيس آي دي أو غير ذلك", nameEn: "Motherboard, Face ID, or Custom Issue Check", price: 0, descAr: "يتم تحديد السعر بدقة بعد الفحص الفني الشامل", descEn: "Price is determined precisely after thorough technical inspection", image: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=300&auto=format&fit=crop&q=60" }
   ]
 };
 
@@ -109,30 +108,37 @@ const translations = {
     orderTitle: "Book Your Repair",
     orderDescription: "Choose your device model and issue to continue.",
     bannerText: "We pick up your phone from your doorstep and return it repaired without any effort from you!",
+    selectModelPlaceholder: "-- Select iPhone Model --",
     selectPartsLabel: "⚙️ Select the required parts or issues (You can select multiple):",
-    customIssueLabel: "Describe your custom issue (Motherboard, Face ID, etc.)",
-    customIssuePlaceholder: "Write details about your issue here...",
+    otherIssueLabel: "Other Issue (Manual specification)",
+    issueDetailsPlaceholder: "Please write details for this issue (Required)...",
     modelLabel: "iPhone Model",
-    partLabel: "Required Part / Issue",
-    continue: "Continue to Quality Selection",
+    continue: "Continue",
+    nextStep: "Next",
+    confirmOrderBtn: "Confirm Order",
     selectQualityTitle: "Choose Part Type & Quality",
     backButton: "Back",
-    confirmOrder: "Confirm Order",
     fullName: "Full Name",
     phone: "Phone Number",
+    whatsappNumber: "WhatsApp Number",
     address: "Full Address",
     notes: "Additional Notes (Optional)",
     namePlaceholder: "Enter your full name",
     phonePlaceholder: "01xxxxxxxxx",
+    whatsappPlaceholder: "01xxxxxxxxx (WhatsApp)",
     addressPlaceholder: "City, area, street, building number...",
     notesPlaceholder: "Tell us more about the issue...",
-    timeSlotLabel: "Preferred Pickup Time Slot",
-    timeMorning: "Morning Slot (10:00 AM - 2:00 PM)",
-    timeEvening: "Evening Slot (3:00 PM - 8:00 PM)",
+    invoiceTitle: "Order Review & Invoice",
+    deliveryLabel: "Delivery",
+    deliveryFree: "Free (0 EGP)",
     paymentLabel: "Payment Method",
-    cashOnDelivery: "Cash on Delivery (Pay after inspection)",
+    cashOnDelivery: "Cash on Delivery",
     demoDisclaimer: "Demo version: Your information is not sent to any server.",
     successTitle: "Your request has been registered!",
+    courierDispatchText: "A courier will be dispatched to pick up your device as soon as possible.",
+    customSuccessMessage: "Your inquiry has been received successfully! For faster service, you can send photos and details directly via WhatsApp.",
+    fasterWhatsAppTip: "💡 Faster communication: Send us photos of the issue and device details directly on WhatsApp for immediate support.",
+    whatsappContactBtn: "Chat via WhatsApp",
     orderNumber: "Order Number:",
     approximate: "approximately",
     currency: "EGP",
@@ -154,30 +160,37 @@ const translations = {
     orderTitle: "اطلب صيانة جهازك",
     orderDescription: "اختار نوع جهازك والعطل للانتقال لاختيار نوع القطعة.",
     bannerText: "نستلم هاتفك من باب منزلك، ونُعيده إليك مصلحاً دون أدنى مجهود منك!",
+    selectModelPlaceholder: "-- اختر موديل الآيفون --",
     selectPartsLabel: "⚙️ اختر القطع أو الأعطال المطلوبة (يمكنك اختيار أكثر من عطل):",
-    customIssueLabel: "اكتب تفاصيل العطل المخصص (بوردة، فيس آي دي، إلخ)",
-    customIssuePlaceholder: "اكتب وصفاً مفصلاً للمشكلة هنا...",
+    otherIssueLabel: "عطل آخر (تحديد العطل يدوياً)",
+    issueDetailsPlaceholder: "اكتب تفاصيل هذه المشكلة هنا (مطلوب)...",
     modelLabel: "موديل الآيفون",
-    partLabel: "القطعة المطلوبة / العطل",
     continue: "اختيار نوع القطعة والسعر ←",
+    nextStep: "التالي ←",
+    confirmOrderBtn: "تأكيد الطلب ←",
     selectQualityTitle: "اختر نوع القطعة المطلوبة",
     backButton: "رجوع",
-    confirmOrder: "تأكيد الطلب",
     fullName: "الاسم بالكامل",
-    phone: "رقم الموبايل (واتساب للتأكيد)",
+    phone: "رقم الموبايل",
+    whatsappNumber: "رقم الواتساب",
     address: "العنوان بالتفصيل",
     notes: "ملاحظات (اختياري)",
     namePlaceholder: "اكتب اسمك",
     phonePlaceholder: "01xxxxxxxxx",
+    whatsappPlaceholder: "01xxxxxxxxx (رقم الواتساب)",
     addressPlaceholder: "المحافظة، المنطقة، الشارع، رقم العمارة...",
     notesPlaceholder: "أي تفاصيل إضافية عن العطل",
-    timeSlotLabel: "ميعاد الاستلام المناسب لك",
-    timeMorning: "الفترة الصباحية (10 صباحاً - 2 ظهراً)",
-    timeEvening: "الفترة المسائية (3 عصراً - 8 مساءً)",
+    invoiceTitle: "فاتورة ومراجعة الطلب",
+    deliveryLabel: "التوصيل",
+    deliveryFree: "مجاني (0 جنيه)",
     paymentLabel: "طريقة الدفع",
-    cashOnDelivery: "نقداً عند الاستلام (الدفع بعد فحص الجهاز)",
+    cashOnDelivery: "نقداً عند الاستلام",
     demoDisclaimer: "نسخة تجريبية: البيانات لا تُرسل إلى خادم أو شركة صيانة.",
-    successTitle: "تم تسجيل طلبك!",
+    successTitle: "تم استلام استفسارك بنجاح!",
+    courierDispatchText: "سيتم تحرك المندوب في أسرع وقت لاستلام جهازك.",
+    customSuccessMessage: "سيتم التواصل مع حضرتك بخصوص العطل الخاص بك.",
+    fasterWhatsAppTip: "💡 **تواصل أسرع:** أرسل لنا صور المشكلة وتفاصيل جهازك مباشرة عبر واتساب لخدمة أسرع وأدق!",
+    whatsappContactBtn: "تواصل عبر واتساب",
     orderNumber: "رقم الطلب:",
     approximate: "تقريبًا",
     currency: "جنيه",
@@ -191,22 +204,18 @@ export default function App() {
     try { return localStorage.getItem("ifix-language") || "en"; } catch { return "en"; }
   });
 
-  const [model, setModel] = useState("iPhone 15 Pro");
-  
-  const [selectedParts, setSelectedParts] = useState(["screen"]);
-  const [partSelections, setPartSelections] = useState({
-    screen: 0
-  });
-  
+  const [model, setModel] = useState("");
+  const [selectedParts, setSelectedParts] = useState([]);
+  const [partSelections, setPartSelections] = useState({});
+  const [partNotes, setPartNotes] = useState({});
   const [step, setStep] = useState("choose");
-  const [customIssueText, setCustomIssueText] = useState("");
 
   const [details, setDetails] = useState({
     name: "",
     phone: "",
+    whatsapp: "",
     address: "",
-    notes: "",
-    timeSlot: "morning"
+    notes: ""
   });
 
   const [orderNo, setOrderNo] = useState("");
@@ -220,7 +229,12 @@ export default function App() {
     try { localStorage.setItem("ifix-language", language); } catch {}
   }, [language, isArabic]);
 
+  const isOnlyCustomIssue = useMemo(() => {
+    return selectedParts.length === 1 && selectedParts[0] === "other";
+  }, [selectedParts]);
+
   const totalPrice = useMemo(() => {
+    if (isOnlyCustomIssue || selectedParts.length === 0) return 0;
     let total = 0;
     selectedParts.forEach(partId => {
       if (partId !== "other") {
@@ -231,7 +245,7 @@ export default function App() {
       }
     });
     return total;
-  }, [selectedParts, partSelections]);
+  }, [selectedParts, partSelections, isOnlyCustomIssue]);
 
   function updateDetails(e) {
     setDetails({ ...details, [e.target.name]: e.target.value });
@@ -253,7 +267,7 @@ export default function App() {
     <main dir={isArabic ? "rtl" : "ltr"}>
       {/* HEADER */}
       <header className="header">
-        <a className="logo" href="#top"><b>i</b>Fix</a>
+        <a className="logo" href="#top"><b>i</b> Fix</a>
         <nav>
           <a href="#services">{t.navServices}</a>
           <a href="#how">{t.navHow}</a>
@@ -288,7 +302,7 @@ export default function App() {
       {/* ORDER SECTION */}
       <section className="order-section" id="order">
         <div className="section-title">
-          {step !== "done" && (
+          {step !== "done" && step !== "review" && step !== "customDone" && (
             <>
               <span className="pill">🛡️ {t.orderPill}</span>
               <h2 style={{ fontSize: '2rem', fontWeight: 900, color: '#16a34a', lineHeight: '1.3', marginBottom: '10px' }}>
@@ -299,14 +313,15 @@ export default function App() {
           )}
         </div>
 
-        {/* STEP 1 */}
+        {/* STEP 1: CHOOSE */}
         {step === "choose" && (
           <div className="card">
             <div className="fields">
               <label className="wide">
                 <span>📱 {t.modelLabel}</span>
                 <select value={model} onChange={e => setModel(e.target.value)}>
-                  {models.map(m => (<option key={m}>{m}</option>))}
+                  <option value="" disabled>{t.selectModelPlaceholder}</option>
+                  {models.map(m => (<option key={m} value={m}>{m}</option>))}
                 </select>
               </label>
             </div>
@@ -316,17 +331,15 @@ export default function App() {
                 {t.selectPartsLabel}
               </label>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '10px', marginBottom: '20px' }}>
-                {parts.map(p => {
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '10px', marginBottom: '16px' }}>
+                {standardParts.map(p => {
                   const isChecked = selectedParts.includes(p.id);
                   return (
                     <div
                       key={p.id}
                       onClick={() => {
                         if (isChecked) {
-                          if (selectedParts.length > 1) {
-                            setSelectedParts(selectedParts.filter(id => id !== p.id));
-                          }
+                          setSelectedParts(selectedParts.filter(id => id !== p.id));
                         } else {
                           setSelectedParts([...selectedParts, p.id]);
                         }
@@ -356,21 +369,70 @@ export default function App() {
                   );
                 })}
               </div>
+
+              {(() => {
+                const isCheckedOther = selectedParts.includes("other");
+                return (
+                  <div
+                    onClick={() => {
+                      if (isCheckedOther) {
+                        setSelectedParts(selectedParts.filter(id => id !== "other"));
+                      } else {
+                        setSelectedParts([...selectedParts, "other"]);
+                      }
+                    }}
+                    style={{
+                      padding: '12px 14px',
+                      border: isCheckedOther ? '2px solid black' : '1px solid #e4e4e7',
+                      borderRadius: '12px',
+                      backgroundColor: isCheckedOther ? '#f4f4f5' : '#fff',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '10px',
+                      transition: 'all 0.2s ease',
+                      width: '100%'
+                    }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={isCheckedOther}
+                      onChange={() => {}}
+                      style={{ width: '18px', height: '18px', accentColor: '#000', cursor: 'pointer' }}
+                    />
+                    <span style={{ fontSize: '0.9rem', fontWeight: isCheckedOther ? 'bold' : 'normal', color: '#111' }}>
+                      {t.otherIssueLabel}
+                    </span>
+                  </div>
+                );
+              })()}
             </div>
 
-            {selectedParts.includes("other") && (
-              <div style={{ marginTop: '16px' }}>
-                <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: 'bold', marginBottom: '6px' }}>
-                  ✏️ {t.customIssueLabel}
-                </label>
-                <textarea
-                  value={customIssueText}
-                  onChange={e => setCustomIssueText(e.target.value)}
-                  rows="3"
-                  placeholder={t.customIssuePlaceholder}
-                  style={{ width: '100%', padding: '10px', borderRadius: '10px', border: '1px solid #ccc', fontSize: '0.9rem' }}
-                  required
-                />
+            {selectedParts.length > 0 && (
+              <div style={{ marginTop: '20px' }}>
+                <h4 style={{ fontSize: '0.95rem', fontWeight: 800, marginBottom: '10px' }}>
+                  {isArabic ? "تفاصيل الأعطال المختارة (إلزامي):" : "Selected Issues Details (Required):"}
+                </h4>
+                {selectedParts.map(partId => {
+                  const pObj = standardParts.find(item => item.id === partId);
+                  const partName = partId === "other" ? t.otherIssueLabel : (isArabic ? pObj?.nameAr : pObj?.nameEn);
+                  
+                  return (
+                    <div key={partId} style={{ marginBottom: '12px', backgroundColor: '#fafafa', padding: '12px', borderRadius: '10px', border: '1px solid #e4e4e7' }}>
+                      <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '6px', color: '#333' }}>
+                        ✏️ {isArabic ? "تفاصيل عطل:" : "Issue details for:"} <span style={{ color: '#16a34a' }}>{partName}</span>
+                      </label>
+                      <textarea
+                        value={partNotes[partId] || ""}
+                        onChange={e => setPartNotes({ ...partNotes, [partId]: e.target.value })}
+                        rows="2"
+                        placeholder={t.issueDetailsPlaceholder}
+                        style={{ width: '100%', padding: '8px 10px', borderRadius: '8px', border: '1px solid #ccc', fontSize: '0.85rem' }}
+                        required
+                      />
+                    </div>
+                  );
+                })}
               </div>
             )}
 
@@ -378,15 +440,27 @@ export default function App() {
               className="black-btn full"
               style={{ marginTop: '20px' }}
               onClick={() => {
+                if (!model) {
+                  alert(isArabic ? "برجاء اختيار موديل الآيفون أولاً" : "Please select your iPhone model first");
+                  return;
+                }
                 if (selectedParts.length === 0) {
                   alert(isArabic ? "برجاء اختيار عطل واحد على الأقل" : "Please select at least one repair part");
                   return;
                 }
-                if (selectedParts.includes("other") && !customIssueText.trim()) {
-                  alert(isArabic ? "برجاء كتابة تفاصيل العطل أولاً" : "Please enter custom issue details");
-                  return;
+                for (let partId of selectedParts) {
+                  if (!partNotes[partId] || !partNotes[partId].trim()) {
+                    const pObj = standardParts.find(item => item.id === partId);
+                    const name = partId === "other" ? (isArabic ? "عطل آخر" : "Other Issue") : (isArabic ? pObj?.nameAr : pObj?.nameEn);
+                    alert(isArabic ? `برجاء كتابة تفاصيل العطل لقطعة: ${name}` : `Please enter details for: ${name}`);
+                    return;
+                  }
                 }
-                setStep("selectQuality");
+                if (isOnlyCustomIssue) {
+                  setStep("details");
+                } else {
+                  setStep("selectQuality");
+                }
               }}
             >
               {t.continue}
@@ -394,7 +468,7 @@ export default function App() {
           </div>
         )}
 
-        {/* STEP 2 */}
+        {/* STEP 2: SELECT QUALITY */}
         {step === "selectQuality" && (
           <div className="card">
             <div style={{ textAlign: 'center', marginBottom: '20px' }}>
@@ -403,24 +477,20 @@ export default function App() {
             </div>
 
             {selectedParts.map(partId => {
-              if (partId === "other") {
-                return (
-                  <div key="other" style={{ backgroundColor: '#f4f4f5', padding: '16px', borderRadius: '14px', marginBottom: '16px' }}>
-                    <h4 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '4px' }}>🔧 {isArabic ? "عطل آخر" : "Custom Issue"}: {customIssueText}</h4>
-                    <p style={{ fontSize: '0.8rem', color: '#666' }}>{isArabic ? "يحدد السعر بعد الفحص الفني" : "Price determined after inspection"}</p>
-                  </div>
-                );
-              }
+              if (partId === "other") return null;
 
-              const partObj = parts.find(p => p.id === partId);
+              const partObj = standardParts.find(p => p.id === partId);
               const options = partSubOptions[partId] || [];
               const currentSelectedIndex = partSelections[partId] || 0;
 
               return (
                 <div key={partId} style={{ marginBottom: '24px', borderBottom: '1px solid #eee', paddingBottom: '16px' }}>
-                  <h4 style={{ fontSize: '1.05rem', fontWeight: 800, marginBottom: '12px', color: '#111' }}>
+                  <h4 style={{ fontSize: '1.05rem', fontWeight: 800, marginBottom: '4px', color: '#111' }}>
                     ⚙️ {isArabic ? partObj?.nameAr : partObj?.nameEn}
                   </h4>
+                  <p style={{ fontSize: '0.8rem', color: '#666', marginBottom: '12px' }}>
+                    <strong>{isArabic ? "التفاصيل:" : "Details:"}</strong> {partNotes[partId]}
+                  </p>
 
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
                     {options.map((opt, idx) => {
@@ -488,31 +558,22 @@ export default function App() {
                 {t.backButton}
               </button>
               <button className="black-btn full" onClick={() => setStep("details")}>
-                {t.continue}
+                {t.nextStep}
               </button>
             </div>
           </div>
         )}
 
-        {/* STEP 3 */}
+        {/* STEP 3: DETAILS */}
         {step === "details" && (
-          <form className="card" onSubmit={submitOrder}>
-            <div className="summary" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#f4f4f5', padding: '14px 18px', borderRadius: '12px', marginBottom: '20px' }}>
-              <div>
-                <span style={{ fontWeight: 'bold', display: 'block' }}>{model}</span>
-                <span style={{ fontSize: '0.85rem', opacity: 0.8 }}>
-                  {selectedParts.map(id => {
-                    if (id === 'other') return customIssueText;
-                    const p = parts.find(item => item.id === id);
-                    return isArabic ? p?.nameAr : p?.nameEn;
-                  }).join(' + ')}
-                </span>
-              </div>
-              <strong style={{ fontSize: '1.2rem' }}>
-                {formatPrice(totalPrice)} {t.currency}
-              </strong>
-            </div>
-
+          <form className="card" onSubmit={e => {
+            e.preventDefault();
+            if (isOnlyCustomIssue) {
+              setStep("customDone");
+            } else {
+              setStep("review");
+            }
+          }}>
             <div className="fields">
               <label>
                 👤 {t.fullName}
@@ -525,35 +586,35 @@ export default function App() {
               </label>
 
               <label className="wide">
-                📍 {t.address}
-                <textarea name="address" value={details.address} onChange={updateDetails} required rows="2" placeholder={t.addressPlaceholder} />
+                💬 {t.whatsappNumber}
+                <input name="whatsapp" value={details.whatsapp} onChange={updateDetails} required type="tel" placeholder={t.whatsappPlaceholder} pattern="[0-9+ ]{8,16}" />
               </label>
 
-              <label className="wide">
-                ⏰ {t.timeSlotLabel}
-                <select name="timeSlot" value={details.timeSlot} onChange={updateDetails}>
-                  <option value="morning">{t.timeMorning}</option>
-                  <option value="evening">{t.timeEvening}</option>
-                </select>
-              </label>
+              {!isOnlyCustomIssue && (
+                <label className="wide">
+                  📍 {t.address}
+                  <textarea name="address" value={details.address} onChange={updateDetails} required rows="2" placeholder={t.addressPlaceholder} />
+                </label>
+              )}
 
               <label className="wide">
                 📝 {t.notes}
                 <textarea name="notes" value={details.notes} onChange={updateDetails} rows="2" placeholder={t.notesPlaceholder} />
               </label>
-
-              <div className="wide" style={{ marginTop: '5px', padding: '12px 16px', border: '1px solid #e4e4e7', borderRadius: '12px', backgroundColor: '#fafafa' }}>
-                <span style={{ fontSize: '0.85rem', fontWeight: 'bold', display: 'block', marginBottom: '4px' }}>💳 {t.paymentLabel}</span>
-                <span style={{ fontSize: '0.9rem', color: '#18181b', display: 'flex', alignItems: 'center', gap: '6px' }}>💵 <strong>{t.cashOnDelivery}</strong></span>
-              </div>
             </div>
 
             <div className="actions" style={{ marginTop: '20px' }}>
-              <button type="button" className="light-btn" onClick={() => setStep("selectQuality")}>
+              <button type="button" className="light-btn" onClick={() => {
+                if (isOnlyCustomIssue) {
+                  setStep("choose");
+                } else {
+                  setStep("selectQuality");
+                }
+              }}>
                 {t.backButton}
               </button>
               <button className="black-btn" type="submit">
-                {t.confirmOrder} ←
+                {t.nextStep}
               </button>
             </div>
 
@@ -561,18 +622,177 @@ export default function App() {
           </form>
         )}
 
-        {/* SUCCESS */}
+        {/* STEP 4: REVIEW & INVOICE */}
+        {step === "review" && (
+          <form className="card" onSubmit={submitOrder} style={{ maxWidth: '650px', margin: '0 auto', padding: '30px' }}>
+            <div style={{ textAlign: 'center', marginBottom: '24px', borderBottom: '2px solid #f0f0f0', paddingBottom: '16px' }}>
+              <h3 style={{ fontSize: '1.4rem', fontWeight: 900, color: '#111', marginBottom: '4px' }}>{t.invoiceTitle}</h3>
+              <p style={{ fontSize: '0.85rem', color: '#71717a' }}>iFix Repair Invoice & Summary</p>
+            </div>
+
+            <div style={{ backgroundColor: '#fafafa', border: '1px solid #e4e4e7', borderRadius: '16px', padding: '20px', marginBottom: '20px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', borderBottom: '1px solid #e4e4e7', paddingBottom: '12px' }}>
+                <span style={{ fontSize: '0.9rem', color: '#71717a', fontWeight: 'bold' }}>{isArabic ? "الموديل الأساسي" : "Device Model"}</span>
+                <span style={{ fontSize: '1.05rem', fontWeight: 900, color: '#111' }}>{model}</span>
+              </div>
+
+              <div style={{ marginBottom: '16px' }}>
+                <span style={{ fontSize: '0.85rem', color: '#71717a', fontWeight: 'bold', display: 'block', marginBottom: '10px' }}>
+                  {isArabic ? "قطع الغيار المطلوبة:" : "Selected Parts & Repairs:"}
+                </span>
+
+                {selectedParts.map(partId => {
+                  if (partId === "other") {
+                    return (
+                      <div key="other" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px dashed #e4e4e7' }}>
+                        <span style={{ fontSize: '0.95rem', fontWeight: 'bold', color: '#111' }}>{t.otherIssueLabel} ({partNotes["other"]})</span>
+                        <span style={{ fontSize: '0.9rem', color: '#666' }}>{isArabic ? "يحدد بعد الفحص" : "Inspection"}</span>
+                      </div>
+                    );
+                  }
+                  const pObj = standardParts.find(item => item.id === partId);
+                  const options = partSubOptions[partId] || [];
+                  const selectedIndex = partSelections[partId] || 0;
+                  const opt = options[selectedIndex] || options[0];
+                  return (
+                    <div key={partId} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px dashed #e4e4e7' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                        <span style={{ fontSize: '0.95rem', fontWeight: 'bold', color: '#111' }}>{isArabic ? pObj?.nameAr : pObj?.nameEn}</span>
+                        <span style={{ fontSize: '0.78rem', color: '#666' }}>({isArabic ? opt.nameAr : opt.nameEn})</span>
+                      </div>
+                      <span style={{ fontSize: '1rem', fontWeight: 900, color: '#111' }}>{formatPrice(opt.price)} {t.currency}</span>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid #e4e4e7' }}>
+                <span style={{ fontSize: '0.9rem', color: '#16a34a', fontWeight: 'bold' }}>🚚 {t.deliveryLabel}</span>
+                <span style={{ fontSize: '0.9rem', color: '#16a34a', fontWeight: 'bold' }}>{t.deliveryFree}</span>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px', paddingTop: '12px', borderTop: '2px solid #111' }}>
+                <span style={{ fontSize: '1rem', fontWeight: 900, color: '#111' }}>{isArabic ? "الإجمالي النهائي" : "Total Amount"}</span>
+                <span style={{ fontSize: '1.4rem', fontWeight: 900, color: '#16a34a' }}>
+                  {formatPrice(totalPrice)} {t.currency}
+                </span>
+              </div>
+            </div>
+
+            <div style={{ padding: '16px', border: '1px solid #e4e4e7', borderRadius: '14px', backgroundColor: '#fff', marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <span style={{ fontSize: '0.78rem', color: '#71717a', display: 'block', marginBottom: '2px' }}>💳 {t.paymentLabel}</span>
+                <span style={{ fontSize: '0.95rem', fontWeight: 'bold', color: '#111' }}>{t.cashOnDelivery}</span>
+              </div>
+              <span style={{ fontSize: '1.2rem' }}>💵</span>
+            </div>
+
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button type="button" className="light-btn" style={{ flex: 1, padding: '14px', borderRadius: '12px', border: '1px solid #ccc', backgroundColor: '#fff', cursor: 'pointer', fontWeight: 'bold' }} onClick={() => setStep("details")}>
+                {t.backButton}
+              </button>
+              <button className="black-btn" type="submit" style={{ flex: 2, padding: '14px', borderRadius: '12px', backgroundColor: '#000', color: '#fff', cursor: 'pointer', fontWeight: 'bold', border: 'none' }}>
+                {t.confirmOrderBtn}
+              </button>
+            </div>
+          </form>
+        )}
+
+        {/* STEP 5: SUCCESS */}
         {step === "done" && (
-          <div className="card done">
-            <b className="check">✓</b>
-            <h3>{t.successTitle}</h3>
-            <p>{t.orderNumber} <strong>{orderNo}</strong></p>
-            <p>{details.name} — {details.phone}</p>
-            <p>{model}</p>
-            <strong>{formatPrice(totalPrice)} {t.currency} {t.approximate}</strong>
-            <button className="black-btn" onClick={() => { setStep("choose"); setDetails({ name: "", phone: "", address: "", notes: "", timeSlot: "morning" }); setSelectedParts(["screen"]); setCustomIssueText(""); }}>
+          <div className="card done" style={{ textAlign: 'center', maxWidth: '550px', margin: '0 auto', padding: '40px 20px' }}>
+            <b className="check" style={{ fontSize: '2.5rem', display: 'inline-block', marginBottom: '10px' }}>✓</b>
+            <h3 style={{ fontSize: '1.6rem', fontWeight: 900, marginBottom: '10px', color: '#111' }}>{t.successTitle}</h3>
+            <p style={{ fontSize: '1rem', fontWeight: 'bold', color: '#16a34a', margin: '10px 0 20px 0', lineHeight: '1.6' }}>
+              {t.courierDispatchText}
+            </p>
+            <div style={{ backgroundColor: '#f4f4f5', padding: '16px', borderRadius: '14px', margin: '20px 0', textAlign: 'right', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: '#71717a', fontSize: '0.85rem' }}>{t.orderNumber}</span>
+                <strong style={{ color: '#111' }}>{orderNo}</strong>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: '#71717a', fontSize: '0.85rem' }}>{isArabic ? "العميل:" : "Customer:"}</span>
+                <strong style={{ color: '#111' }}>{details.name}</strong>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: '#71717a', fontSize: '0.85rem' }}>{isArabic ? "الهاتف:" : "Phone:"}</span>
+                <strong style={{ color: '#111' }}>{details.phone}</strong>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: '#71717a', fontSize: '0.85rem' }}>{isArabic ? "واتساب:" : "WhatsApp:"}</span>
+                <strong style={{ color: '#111' }}>{details.whatsapp}</strong>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: '#71717a', fontSize: '0.85rem' }}>{isArabic ? "الموديل:" : "Model:"}</span>
+                <strong style={{ color: '#111' }}>{model}</strong>
+              </div>
+            </div>
+            
+            <div style={{ fontSize: '1.2rem', fontWeight: 900, marginBottom: '24px', color: '#111' }}>
+              {formatPrice(totalPrice)} {t.currency} <span style={{ fontSize: '0.85rem', color: '#666', fontWeight: 'normal' }}>({t.approximate})</span>
+            </div>
+
+            <button className="black-btn full" style={{ padding: '14px', borderRadius: '12px', backgroundColor: '#000', color: '#fff', fontWeight: 'bold', border: 'none', cursor: 'pointer' }} onClick={() => { setStep("choose"); setModel(""); setSelectedParts([]); setPartNotes({}); setPartSelections({}); setDetails({ name: "", phone: "", whatsapp: "", address: "", notes: "" }); }}>
               {t.newOrder}
             </button>
+          </div>
+        )}
+
+        {/* STEP 6: CUSTOM ISSUE SUCCESS (عطل آخر فقط مع أيقونة واتساب أصلية وعبارة تواصل أسرع) */}
+        {step === "customDone" && (
+          <div className="card done" style={{ textAlign: 'center', maxWidth: '550px', margin: '0 auto', padding: '40px 20px' }}>
+            <div style={{ fontSize: '2.5rem', marginBottom: '8px' }}>💬</div>
+            <h3 style={{ fontSize: '1.5rem', fontWeight: 900, marginBottom: '10px', color: '#111' }}>
+              {t.successTitle}
+            </h3>
+            <p style={{ fontSize: '0.95rem', color: '#444', margin: '0 auto 16px auto', lineHeight: '1.6', maxWidth: '440px' }}>
+              {t.customSuccessMessage}
+            </p>
+
+            {/* عبارة تواصل أسرع */}
+            <div style={{ backgroundColor: '#f0fdf4', border: '1px solid #bbf7d0', padding: '12px 16px', borderRadius: '12px', marginBottom: '22px', fontSize: '0.9rem', color: '#166534', lineHeight: '1.5', textAlign: 'center' }}>
+              {t.fasterWhatsAppTip}
+            </div>
+
+            {/* زر الواتساب الاحترافي بالأيقونة الأصلية */}
+            <a
+              href={`https://wa.me/${myWhatsAppNumber}?text=${encodeURIComponent(
+                isArabic 
+                  ? `مرحباً، أنا ${details.name} (رقمي: ${details.phone} - واتساب: ${details.whatsapp})، وموديل جهازي ${model} وعطل جهازي هو: ${partNotes["other"]}`
+                  : `Hello, I am ${details.name} (Phone: ${details.phone} - WA: ${details.whatsapp}), my device is ${model} and issue is: ${partNotes["other"]}`
+              )}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '12px',
+                backgroundColor: '#25D366',
+                color: '#fff',
+                padding: '14px 28px',
+                borderRadius: '50px',
+                fontSize: '1.05rem',
+                fontWeight: 'bold',
+                textDecoration: 'none',
+                boxShadow: '0 4px 14px rgba(37, 211, 102, 0.4)',
+                transition: 'all 0.2s ease',
+                marginBottom: '24px'
+              }}
+            >
+              {/* أيقونة واتساب الأصلية SVG */}
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+              </svg>
+              {t.whatsappContactBtn}
+            </a>
+
+            <div style={{ display: 'block' }}>
+              <button className="light-btn" style={{ padding: '10px 20px', borderRadius: '10px', border: '1px solid #ccc', backgroundColor: '#fff', cursor: 'pointer', fontWeight: 'bold' }} onClick={() => { setStep("choose"); setModel(""); setSelectedParts([]); setPartNotes({}); setPartSelections({}); setDetails({ name: "", phone: "", whatsapp: "", address: "", notes: "" }); }}>
+                {t.newOrder}
+              </button>
+            </div>
           </div>
         )}
       </section>
