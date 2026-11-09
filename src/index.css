@@ -8,3 +8,37 @@ body {
   font-family: Arial, sans-serif;
   direction: rtl;
 }
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.language-toggle {
+  border: 1px solid #e5e5e5;
+  background: #fff;
+  color: #171717;
+  border-radius: 30px;
+  padding: 9px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.language-toggle:hover {
+  background: #171717;
+  color: #fff;
+  border-color: #171717;
+}
+
+@media (max-width: 600px) {
+  .header-actions {
+    gap: 6px;
+  }
+
+  .language-toggle {
+    padding: 8px 11px;
+    font-size: 12px;
+  }
+}
