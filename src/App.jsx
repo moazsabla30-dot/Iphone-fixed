@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import "./App.css";
 
 // ⚠️ ضع رقم الواتساب الخاص بك هنا بالصيغة الدولية بدون علامة + (مثال: 201012345678)
-const myWhatsAppNumber = "201000000000";
+const myWhatsAppNumber = "201097829312";
 
 const models = [
   "iPhone 18 Pro Max", "iPhone 18 Pro",
