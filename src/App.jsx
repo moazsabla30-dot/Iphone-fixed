@@ -296,7 +296,7 @@ export default function App() {
     <main dir={isArabic ? "rtl" : "ltr"}>
       {/* HEADER */}
       <header className="header">
-        <a className="logo" href="#top"><b>i</b> iFix</a>
+        <a className="logo" href="#top"><b>i</b> Fix</a>
         <nav>
           <a href="#services">{t.navServices}</a>
           <a href="#how">{t.navHow}</a>
@@ -828,7 +828,7 @@ export default function App() {
 
       {/* FOOTER */}
       <footer>
-        <a className="logo" href="#top"><b>i</b> iFix</a>
+        <a className="logo" href="#top"><b>i</b> Fix</a>
         <span>© {new Date().getFullYear()} iFix — {t.copyright}</span>
       </footer>
     </main>
