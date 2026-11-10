@@ -259,7 +259,7 @@ export default function App() {
     setOrderNo(generatedOrderNo);
 
     try {
-      const response = await fetch('http://localhost:5000/api/orders', {
+      const response = await fetch('https://iphone-fixed-r5m1-2x7eiqomk-moazsabla30-dots-projects.vercel.app/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
