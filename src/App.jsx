@@ -252,33 +252,40 @@ export default function App() {
   }
 
  async function submitOrder(e) {
-    e.preventDefault();
-    console.log("🔥 زرار التأكيد اشتغل ودالة submitOrder اتنفتحت!"); // <--- السطر ده
+  e.preventDefault();
 
-    const generatedOrderNo = "IFX-" + Math.floor(100000 + Math.random() * 900000);
-    setOrderNo(generatedOrderNo);
+  const generatedOrderNo =
+    "IFX-" + Math.floor(100000 + Math.random() * 900000);
 
-    try {
-      const response = await fetch('https://iphone-fixed-r5m1-2x7eiqomk-moazsabla30-dots-projects.vercel.app/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          orderNo: generatedOrderNo,
-          model,
-          selectedParts,
-          partNotes,
-          totalPrice,
-          details
-        })
-      });
-      const data = await response.text();
-      console.log('Server response:', data);
-    } catch (error) {
-      console.error('Error connecting to backend:', error);
+  try {
+    const response = await fetch('/api/orders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        orderNo: generatedOrderNo,
+        model,
+        selectedParts,
+        partNotes,
+        totalPrice,
+        details
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || data.success !== true) {
+      throw new Error(data.error || 'Order saving failed');
     }
 
+    setOrderNo(generatedOrderNo);
     setStep("done");
+  } catch (error) {
+    console.error('Error submitting order:', error);
+    alert(
+      'لم نتمكن من تأكيد حفظ الطلب. احتفظ ببياناتك وتواصل معنا للتأكد قبل إعادة الإرسال.'
+    );
   }
+}
   function toggleLanguage() {
     setLanguage(current => current === "en" ? "ar" : "en");
   }
