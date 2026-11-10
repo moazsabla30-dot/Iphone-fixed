@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import "./App.css";
 
 // ⚠️ ضع رقم الواتساب الخاص بك هنا بالصيغة الدولية بدون علامة + (مثال: 201012345678)
-const myWhatsAppNumber = "201097829312";
+const myWhatsAppNumber = "201000000000";
 
 const models = [
   "iPhone 18 Pro Max", "iPhone 18 Pro",
@@ -251,12 +251,34 @@ export default function App() {
     setDetails({ ...details, [e.target.name]: e.target.value });
   }
 
-  function submitOrder(e) {
+ async function submitOrder(e) {
     e.preventDefault();
-    setOrderNo("IFX-" + Math.floor(100000 + Math.random() * 900000));
+    console.log("🔥 زرار التأكيد اشتغل ودالة submitOrder اتنفتحت!"); // <--- السطر ده
+
+    const generatedOrderNo = "IFX-" + Math.floor(100000 + Math.random() * 900000);
+    setOrderNo(generatedOrderNo);
+
+    try {
+      const response = await fetch('http://localhost:5000/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          orderNo: generatedOrderNo,
+          model,
+          selectedParts,
+          partNotes,
+          totalPrice,
+          details
+        })
+      });
+      const data = await response.text();
+      console.log('Server response:', data);
+    } catch (error) {
+      console.error('Error connecting to backend:', error);
+    }
+
     setStep("done");
   }
-
   function toggleLanguage() {
     setLanguage(current => current === "en" ? "ar" : "en");
   }
@@ -267,7 +289,7 @@ export default function App() {
     <main dir={isArabic ? "rtl" : "ltr"}>
       {/* HEADER */}
       <header className="header">
-        <a className="logo" href="#top"><b>i</b> Fix</a>
+        <a className="logo" href="#top"><b>i</b> iFix</a>
         <nav>
           <a href="#services">{t.navServices}</a>
           <a href="#how">{t.navHow}</a>
@@ -799,7 +821,7 @@ export default function App() {
 
       {/* FOOTER */}
       <footer>
-        <a className="logo" href="#top"><b>i</b> Fix</a>
+        <a className="logo" href="#top"><b>i</b> iFix</a>
         <span>© {new Date().getFullYear()} iFix — {t.copyright}</span>
       </footer>
     </main>
