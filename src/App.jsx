@@ -359,7 +359,227 @@ function DevicePicture({ name, isArabic }) {
   );
 }
 
+
+function InfoSections({ isArabic }) {
+  const services = [
+    ["▣", "Screen Repair", "إصلاح الشاشة", "Help with cracked screens, touch issues, and display faults.", "إصلاح كسر الشاشة ومشاكل اللمس والعرض."],
+    ["▰", "Battery Replacement", "تغيير البطارية", "Solutions for weak battery life and charging performance.", "حلول لضعف البطارية ومشاكل كفاءة الشحن."],
+    ["◉", "Camera Repair", "إصلاح الكاميرا", "Front and rear camera troubleshooting and repair.", "فحص وإصلاح مشاكل الكاميرا الأمامية والخلفية."],
+    ["♫", "Speaker & Microphone", "السماعة والميكروفون", "Fix sound, earpiece, speaker, and microphone problems.", "إصلاح مشاكل الصوت وسماعة المكالمات والميكروفون."],
+    ["ϟ", "Charging Port", "مدخل الشحن", "Diagnose and repair charging-connector issues.", "فحص وإصلاح أعطال سوكت الشحن."],
+    ["◇", "Back Glass & Flash", "الظهر الزجاجي والفلاش", "Repair damaged back glass and flash faults.", "إصلاح الزجاج الخلفي وأعطال الفلاش."],
+    ["⚙", "Internal & Complex Faults", "الأعطال الداخلية والمعقدة", "Diagnostics for uncommon internal issues, including board-level faults, unexpected restarts, overheating, network issues, and liquid damage. Repair options depend on inspection.", "فحص الأعطال الداخلية وغير الشائعة، مثل مشاكل البوردة والدوائر الإلكترونية، وإعادة التشغيل المفاجئ، والسخونة غير الطبيعية، وفقدان الشبكة، وأضرار السوائل. ويتحدد الإصلاح المناسب بعد فحص الجهاز."]
+  ];
+  const steps = [
+    ["01", "Choose your iPhone", "اختار الآيفون", "Select your model and the repair you need.", "حدد موديل جهازك ونوع الصيانة المطلوبة."],
+    ["02", "Send your request", "ابعت طلبك", "Enter your contact details and pickup address.", "سجل بيانات التواصل وعنوان الاستلام."],
+    ["03", "Pickup from your door", "نستلم من باب البيت", "A courier collects your iPhone from your address.", "المندوب يستلم الآيفون من عنوانك."],
+    ["04", "We repair your iPhone", "نصلّح جهازك", "Your device is inspected and repaired at our repair location.", "نفحص جهازك ونصلحه في مكان الصيانة."],
+    ["05", "Delivery back to you", "نوصله لحد عندك", "A courier returns your iPhone to your doorstep.", "المندوب يرجعلك الآيفون لحد باب البيت."]
+  ];
+  return (
+    <>
+      <section className="ifix-info-section ifix-how-section" id="how" aria-labelledby="ifix-how-title">
+        <div className="ifix-info-inner">
+          <div className="ifix-info-heading">
+            <span className="ifix-info-tag">{isArabic ? "من باب بيتك لباب بيتك" : "DOOR-TO-DOOR REPAIR"}</span>
+            <h2 id="ifix-how-title">{isArabic ? "إزاي بنشتغل؟" : "How it works"}</h2>
+            <p>{isArabic ? "خمس خطوات بسيطة من طلب الصيانة لحد ما جهازك يرجعلك." : "Five simple steps, from booking to getting your iPhone back."}</p>
+          </div>
+          <div className="ifix-steps-grid">
+            {steps.map(([number, en, ar, enDesc, arDesc]) => (
+              <article className="ifix-step-card" key={number}>
+                <span className="ifix-step-number">{number}</span>
+                <h3>{isArabic ? ar : en}</h3>
+                <p>{isArabic ? arDesc : enDesc}</p>
+              </article>
+            ))}
+          </div>
+          <a className="black-btn ifix-info-cta" href="#order">{isArabic ? "ابدأ طلب الصيانة" : "Start Your Repair"} <span aria-hidden="true">↗</span></a>
+        </div>
+      </section>
+      <section className="ifix-info-section" id="services" aria-labelledby="ifix-services-title">
+        <div className="ifix-info-inner">
+          <div className="ifix-info-heading">
+            <span className="ifix-info-tag">{isArabic ? "خدمات صيانة الآيفون" : "IPHONE REPAIR SERVICES"}</span>
+            <h2 id="ifix-services-title">{isArabic ? "كل اللي آيفونك محتاجه" : "Everything your iPhone needs"}</h2>
+            <p>{isArabic ? "اختار نوع العطل واطلب الصيانة بسهولة، وإحنا نستلم الجهاز من عندك ونرجعهولك بعد الصيانة." : "Choose the repair you need. We pick up your iPhone and bring it back after repair."}</p>
+          </div>
+          <div className="ifix-services-grid">
+            {services.map(([icon, en, ar, enDesc, arDesc]) => (
+              <article className="ifix-service-card" key={en}>
+                <span className="ifix-service-icon" aria-hidden="true">{icon}</span>
+                <h3>{isArabic ? ar : en}</h3>
+                <p>{isArabic ? arDesc : enDesc}</p>
+              </article>
+            ))}
+          </div>
+          <div className="ifix-other-faults">
+            <span className="ifix-other-faults-badge" aria-hidden="true">✦</span>
+            <div>
+              <h3>{isArabic ? "عطل جهازك مش موجود ضمن الخدمات؟" : "Don't see your iPhone issue listed?"}</h3>
+              <p>{isArabic
+                ? "خدماتنا مش مقتصرة على الأعطال المذكورة. بنفحص مشاكل الآيفون الظاهرة والداخلية، البسيطة والمعقدة، ونحدد سبب العطل وخيارات الإصلاح المناسبة بعد التشخيص."
+                : "Our services go beyond the issues listed above. We inspect visible and internal iPhone faults, from simple to complex, and recommend suitable repair options after diagnosis."}</p>
+            </div>
+          </div>
+          <a className="black-btn ifix-info-cta" href="#order">{isArabic ? "احجز صيانة الآن" : "Book a Repair Now"} <span aria-hidden="true">↗</span></a>
+        </div>
+      </section>
+    </>
+  );
+}
+
+
+function PoliciesSection({ isArabic }) {
+  const policies = isArabic ? [
+    { title: "الشروط والأحكام", items: [
+      ["نطاق الخدمة", "تقدم iFix خدمة استقبال طلبات صيانة أجهزة iPhone واستلام الجهاز من العنوان المتفق عليه، وفحصه في مقر الصيانة، ثم إعادته بعد الانتهاء وفق الترتيبات المتفق عليها."],
+      ["طلب الصيانة والتشخيص", "إرسال الطلب لا يعني تأكيد الإصلاح أو توفر قطعة الغيار. يتحدد نوع العطل وإمكانية إصلاحه بعد الفحص، ويتم إبلاغ العميل بأي تغيير جوهري في نطاق العمل أو التكلفة قبل تنفيذه."],
+      ["الأسعار والمواعيد", "الأسعار المعروضة تقديرية أو مرتبطة بالاختيارات المحددة في الموقع، ويُؤكد السعر النهائي قبل تنفيذ الإصلاح. تتوقف مدة التنفيذ على التشخيص وتوفر القطع وظروف الاستلام والتسليم، ولا يُعد أي موعد ضمانًا إلا إذا تم تأكيده للعميل."],
+      ["بيانات الجهاز", "يُنصح بعمل نسخة احتياطية من البيانات قبل تسليم الجهاز وإزالة أي معلومات شديدة الحساسية متى أمكن. قد تتطلب بعض الاختبارات فتح قفل الجهاز بموافقة العميل؛ ولا ينبغي مشاركة كلمة مرور حساب Apple ID."],
+      ["حالة الجهاز", "يُفضّل توثيق الحالة الظاهرة للجهاز وملحقاته عند الاستلام، وإبلاغ العميل بالأعطال أو التلفيات المكتشفة أثناء الفحص قبل أي عمل إضافي."],
+      ["الإلغاء والتواصل", "يمكن طلب إلغاء الصيانة قبل بدء العمل. وتُوضَّح للعميل أي رسوم فحص أو انتقال أو أعمال نُفذت بالفعل، إن وُجدت، قبل تحصيلها وبما يتفق مع القانون."],
+    ]},
+    { title: "سياسة الخصوصية", items: [
+      ["البيانات التي نجمعها", "قد نطلب الاسم ورقم الهاتف ورقم واتساب وعنوان الاستلام وموديل الجهاز ولونه ووصف العطل وملاحظات الطلب؛ وذلك لمعالجة طلب الصيانة والتواصل بشأنه."],
+      ["كيفية استخدام البيانات", "نستخدم البيانات لتنظيم الاستلام والتسليم، وتشخيص طلب الصيانة، وتحديث حالة الطلب، وخدمة العملاء، والالتزام بالمتطلبات القانونية عند انطباقها."],
+      ["مشاركة البيانات", "قد نشارك الحد الأدنى اللازم من بيانات التواصل والعنوان مع مندوب الاستلام أو التسليم أو مزود الخدمة الذي يساعد في تنفيذ الطلب، ولا ينبغي استخدام هذه البيانات لغرض مستقل غير مرتبط بالخدمة."],
+      ["حماية البيانات والاحتفاظ بها", "نتخذ إجراءات مناسبة للحد من الوصول غير المصرح به. يجب تحديد مدة الاحتفاظ الفعلية بالبيانات وآلية حذفها قبل نشر هذه السياسة بصورة نهائية."],
+      ["حقوق العميل والتواصل", "يمكن للعميل طلب الاستفسار عن بياناته أو تصحيحها أو طلب حذفها حيث يسمح القانون. يجب إضافة وسيلة تواصل رسمية مخصصة لطلبات الخصوصية قبل النشر النهائي."],
+      ["الخدمات الخارجية", "عند انتقال العميل إلى واتساب أو استخدام خدمات طرف ثالث، قد تنطبق سياسات الخصوصية الخاصة بتلك الخدمات أيضًا."],
+    ]},
+    { title: "سياسة الصيانة والضمان", items: [
+      ["الموافقة قبل الإصلاح", "نوضح للعميل نتيجة التشخيص والإصلاح المقترح وتكلفته قبل بدء أي عمل يتجاوز ما تمت الموافقة عليه."],
+      ["قطع الغيار", "يتم توضيح فئة قطعة الغيار المتاحة للعميل قبل التركيب، بما في ذلك أي اختلافات مؤثرة في الجودة أو الأداء أو السعر."],
+      ["الضمان", "تُحدد مدة الضمان ونطاقه واستثناءاته كتابةً في فاتورة أو مستند الصيانة بحسب نوع الإصلاح والقطعة المستخدمة. لا يُفترض وجود مدة ضمان موحدة ما لم تُعلن وتُعتمد رسميًا."],
+      ["العودة بسبب نفس العطل", "إذا تكرر العطل بعد الصيانة، يتواصل العميل معنا لبحث الحالة وفحصها وتحديد ما إذا كانت مشمولة بالضمان الموثق، مع مراعاة حقوقه القانونية."],
+      ["الأضرار والسوائل", "قد تتسبب السوائل أو الأضرار السابقة أو الأعطال المتداخلة في ظهور مشكلات إضافية؛ ويتم شرح ما يظهر أثناء الفحص وأثره المحتمل على نتيجة الإصلاح."],
+      ["الاستلام والتسليم", "يُراجع العميل الجهاز عند استلامه قدر الإمكان، ويُبلغ عن أي ملاحظة ليتم توثيقها ومتابعتها. ولا تنتقص هذه السياسة من الحقوق التي يقررها القانون للمستهلك."],
+    ]},
+  ] : [
+    { title: "Terms & Conditions", items: [
+      ["Service scope", "iFix accepts iPhone repair requests, arranges collection from the agreed address, inspects devices at its repair location, and coordinates return delivery."],
+      ["Inspection and approval", "Submitting a request does not guarantee repair or parts availability. We explain material changes to the work or price and seek approval before proceeding."],
+      ["Prices and timing", "Displayed prices depend on the selected service and may require confirmation after inspection. Timing depends on diagnosis, parts availability, and pickup and delivery arrangements."],
+      ["Your data", "Back up important data before handing over your phone. Device access for testing may require your consent. Never share your Apple ID password."],
+      ["Device condition", "Visible device condition and any accessories should be documented at collection. Additional issues discovered during inspection should be disclosed before extra work."],
+      ["Cancellation", "You may request cancellation before work begins. Any applicable inspection, transport, or completed-work charges should be disclosed in advance and comply with the law."],
+    ]},
+    { title: "Privacy Policy", items: [
+      ["Information collected", "We may collect your name, phone number, WhatsApp number, pickup address, device model and color, issue description, and order notes."],
+      ["Purpose", "We use this information to process requests, arrange collection and return, communicate repair updates, and meet applicable legal obligations."],
+      ["Sharing", "Necessary contact and address details may be shared with couriers or service providers involved in fulfilling your request."],
+      ["Security and retention", "Appropriate access controls should protect your information. The actual data retention period and deletion process must be confirmed before final publication."],
+      ["Your rights", "You may ask about, correct, or request deletion of your data where applicable law allows. A verified privacy contact channel must be added before publication."],
+      ["Third-party services", "External services such as WhatsApp may have their own privacy terms."],
+    ]},
+    { title: "Repair & Warranty Policy", items: [
+      ["Repair approval", "We explain the diagnosis, proposed work, and price before performing work beyond your approval."],
+      ["Replacement parts", "We explain the category and relevant characteristics of replacement parts before installation."],
+      ["Warranty", "Warranty period, coverage, and exclusions should be stated in writing on the repair receipt or invoice for each repair. No universal warranty period is promised here."],
+      ["Repeat issues", "If an issue returns, contact us for an assessment of whether it falls within the documented warranty, without limiting your statutory rights."],
+      ["Liquid or prior damage", "Previous damage or liquid exposure can complicate diagnosis and repair. Any additional findings should be explained."],
+      ["Return delivery", "Please inspect your device upon return where possible and report concerns for documentation and follow-up. Your statutory consumer rights remain unaffected."],
+    ]},
+  ];
+  return (
+    <section className="ifix-policies" id="policies" aria-labelledby="ifix-policies-title">
+      <div className="ifix-policies-inner">
+        <span className="ifix-info-tag">{isArabic ? "معلومات مهمة قبل طلب الصيانة" : "IMPORTANT INFORMATION"}</span>
+        <h2 id="ifix-policies-title">{isArabic ? "السياسات والشروط" : "Policies & Terms"}</h2>
+        <p className="ifix-policies-intro">{isArabic ? "اعرف تفاصيل الخدمة وخصوصية بياناتك وشروط الصيانة والضمان." : "Learn about our service terms, your privacy, and repair and warranty conditions."}</p>
+        <div className="ifix-policies-grid">
+          {policies.map((policy) => (
+            <details className="ifix-policy-card" key={policy.title}>
+              <summary>{policy.title}<span aria-hidden="true">＋</span></summary>
+              <div className="ifix-policy-content">
+                {policy.items.map(([heading, description]) => (
+                  <div key={heading}><h3>{heading}</h3><p>{description}</p></div>
+                ))}
+              </div>
+            </details>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 const wizardStyles = `
+/* iFix policies: scoped styles, no changes to existing order UI */
+.ifix-policies{padding:72px 24px 86px;background:#f7f7f9;scroll-margin-top:85px}
+.ifix-policies-inner{max-width:1200px;margin:auto}
+.ifix-policies h2{font-size:clamp(28px,4vw,44px);color:#161619;margin:12px 0}
+.ifix-policies-intro{color:#686a75;line-height:1.9;margin:0 0 30px}
+.ifix-policies-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;align-items:start}
+.ifix-policy-card{background:white;border:1px solid #e5e6eb;border-radius:18px;overflow:hidden;box-shadow:0 12px 30px rgba(20,20,30,.035)}
+.ifix-policy-card summary{cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:23px;font-weight:800;color:#19191e;list-style:none}
+.ifix-policy-card summary::-webkit-details-marker{display:none}
+.ifix-policy-card summary span{font-size:23px;font-weight:400;color:#555;transition:transform .2s ease}
+.ifix-policy-card[open] summary span{transform:rotate(45deg)}
+.ifix-policy-content{padding:0 23px 24px;border-top:1px solid #f0f0f2}
+.ifix-policy-content h3{font-size:15px;margin:19px 0 5px;color:#222}
+.ifix-policy-content p{font-size:13px;line-height:1.95;color:#666b77;margin:0}
+.ifix-footer-policy-links{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
+.ifix-footer-policy-links a{color:inherit;font-size:13px;text-decoration:underline;text-underline-offset:4px}
+@media(max-width:850px){.ifix-policies-grid{grid-template-columns:1fr}.ifix-policies{padding:54px 18px}}
+
+/* Subtle entrance animation on each page load (hero only) */
+@keyframes ifix-enter-from-right{from{opacity:0;transform:translate3d(46px,0,0)}to{opacity:1;transform:translate3d(0,0,0)}}
+@keyframes ifix-enter-from-left{from{opacity:0;transform:translate3d(-46px,0,0)}to{opacity:1;transform:translate3d(0,0,0)}}
+@keyframes ifix-enter-from-top{from{opacity:0;transform:translate3d(0,-16px,0)}to{opacity:1;transform:translate3d(0,0,0)}}
+@keyframes ifix-enter-up{from{opacity:0;transform:translate3d(0,14px,0)}to{opacity:1;transform:translate3d(0,0,0)}}
+.header .logo{animation:ifix-enter-from-top .65s ease-out both}
+.header .ifix-desktop-nav,.header .ifix-mobile-toggle{animation:ifix-enter-from-top .65s .10s ease-out both}
+.header .header-actions{animation:ifix-enter-from-top .65s .18s ease-out both}
+.hero .hero-copy{animation:ifix-enter-from-right .85s .12s cubic-bezier(.2,.7,.2,1) both}
+.hero > :not(.hero-copy){animation:ifix-enter-from-left .95s .20s cubic-bezier(.2,.7,.2,1) both}
+@media(max-width:768px){.hero .hero-copy{animation:ifix-enter-up .7s .08s ease-out both}.hero > :not(.hero-copy){animation:ifix-enter-up .8s .18s ease-out both}}
+@media(prefers-reduced-motion:reduce){.header .logo,.header .ifix-desktop-nav,.header .ifix-mobile-toggle,.header .header-actions,.hero .hero-copy,.hero > :not(.hero-copy){animation:none!important}}
+/* iFix informational sections and responsive navigation */
+html{scroll-behavior:smooth}
+#services,#how{scroll-margin-top:100px}
+.ifix-info-section{padding:90px 24px;background:#fff;color:#171717}
+.ifix-how-section{background:#f7f8f8}
+.ifix-info-inner{max-width:1160px;margin:auto;text-align:center}
+.ifix-info-heading{max-width:720px;margin:0 auto 38px}
+.ifix-info-tag{display:inline-block;color:#16a34a;font-size:12px;font-weight:800;letter-spacing:.08em;margin-bottom:12px}
+.ifix-info-heading h2{font-size:clamp(28px,4vw,44px);line-height:1.25;margin:0 0 14px;font-weight:900;color:#171717}
+.ifix-info-heading p{color:#686b70;font-size:16px;line-height:1.9;margin:0}
+.ifix-services-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;text-align:start}
+.ifix-service-card,.ifix-step-card{background:#fff;border:1px solid #e9eaec;border-radius:22px;padding:27px;box-shadow:0 8px 30px rgba(0,0,0,.035)}
+.ifix-service-icon{display:grid;place-items:center;width:54px;height:54px;background:#eaf8ee;color:#159947;font-size:25px;font-weight:800;border-radius:16px;margin-bottom:18px}
+.ifix-service-card h3,.ifix-step-card h3{font-size:18px;line-height:1.5;font-weight:800;color:#171717;margin:0 0 9px}
+.ifix-service-card p,.ifix-step-card p{font-size:14px;line-height:1.85;color:#70737a;margin:0}
+.ifix-steps-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:13px;text-align:start}
+.ifix-step-card{padding:22px 17px}
+.ifix-step-number{display:inline-block;color:#16a34a;font-size:30px;font-weight:900;margin-bottom:18px}
+.ifix-other-faults{display:flex;align-items:flex-start;gap:18px;text-align:start;margin-top:24px;padding:26px 28px;border:1px solid #ccebd7;border-radius:20px;background:linear-gradient(135deg,#f1fbf4,#ffffff)}
+.ifix-other-faults-badge{display:grid;place-items:center;flex-shrink:0;width:48px;height:48px;border-radius:14px;background:#dcf6e4;color:#139848;font-size:26px}
+.ifix-other-faults h3{margin:0 0 8px;color:#151515;font-size:20px;font-weight:850}
+.ifix-other-faults p{margin:0;color:#626b66;font-size:15px;line-height:1.9}
+@media(max-width:480px){.ifix-other-faults{padding:20px;gap:12px}.ifix-other-faults-badge{width:40px;height:40px}.ifix-other-faults h3{font-size:17px}.ifix-other-faults p{font-size:14px}}
+.ifix-info-cta{display:inline-flex;align-items:center;justify-content:center;gap:12px;background:#303034;color:white!important;text-decoration:none;border-radius:16px;font-weight:800;padding:20px 40px;margin-top:32px;transition:transform .2s,background .2s,box-shadow .2s;box-shadow:0 12px 25px rgba(0,0,0,.10)}
+.ifix-info-cta:hover,.ifix-info-cta:focus-visible{background:#26262a;color:#fff!important;transform:translateY(-2px);box-shadow:0 15px 28px rgba(0,0,0,.16)}
+.ifix-mobile-toggle,.ifix-mobile-nav{display:none}
+.ifix-desktop-nav{display:flex;align-items:center;gap:24px}
+@media(max-width:1000px){.ifix-steps-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:768px){
+ .ifix-info-section{padding:62px 18px}
+ .ifix-services-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .ifix-steps-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .header{position:relative;z-index:30}
+ .ifix-desktop-nav{display:none!important}
+ .ifix-mobile-toggle{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:5px;width:42px;height:42px;border:1px solid #e5e7eb;background:#fff;border-radius:10px;cursor:pointer;flex-shrink:0}
+ .ifix-mobile-toggle span{display:block;width:19px;height:2px;background:#151515;border-radius:2px}
+ .ifix-mobile-nav{position:absolute;display:flex;flex-direction:column;gap:0;top:calc(100% + 5px);left:14px;right:14px;padding:10px;background:white;border:1px solid #e7e7e7;border-radius:14px;box-shadow:0 14px 35px rgba(0,0,0,.13);z-index:100}
+ .ifix-mobile-nav a{display:block;padding:13px 15px;text-decoration:none;color:#202020;font-weight:700;border-radius:9px}
+ .ifix-mobile-nav a:hover{background:#f1f8f3}
+ .ifix-mobile-nav .ifix-mobile-book{background:#151515;color:#fff;text-align:center;margin-top:5px}
+}
+@media(max-width:480px){.ifix-services-grid,.ifix-steps-grid{grid-template-columns:1fr}.ifix-service-card,.ifix-step-card{padding:22px}.ifix-info-heading p{font-size:14px}.header .header-actions .header-btn{display:none}}
+
 .ifix-progress{
   display:flex;justify-content:center;gap:24px;list-style:none;
   padding:0;margin:0 auto 24px;max-width:700px;font-family:inherit
@@ -489,6 +709,7 @@ const wizardStyles = `
 `;
 
 export default function App() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [language, setLanguage] = useState(() => {
     try {
       return localStorage.getItem("ifix-language") === "ar" ? "ar" : "en";
@@ -671,11 +892,22 @@ export default function App() {
           <b>i</b> Fix
         </a>
 
-        <nav>
+        <nav className="ifix-desktop-nav" aria-label={isArabic ? "القائمة الرئيسية" : "Main navigation"}>
           <a href="#services">{t.navServices}</a>
           <a href="#how">{t.navHow}</a>
           <a href="#order">{t.navOrder}</a>
         </nav>
+
+        <button type="button" className="ifix-mobile-toggle" aria-label={isArabic ? "فتح القائمة" : "Open menu"} aria-expanded={mobileMenuOpen} aria-controls="ifix-mobile-nav" onClick={() => setMobileMenuOpen(open => !open)}>
+          <span /><span /><span />
+        </button>
+        {mobileMenuOpen && (
+          <nav id="ifix-mobile-nav" className="ifix-mobile-nav" aria-label={isArabic ? "قائمة الموبايل" : "Mobile navigation"}>
+            <a href="#services" onClick={() => setMobileMenuOpen(false)}>{t.navServices}</a>
+            <a href="#how" onClick={() => setMobileMenuOpen(false)}>{t.navHow}</a>
+            <a className="ifix-mobile-book" href="#order" onClick={() => setMobileMenuOpen(false)}>{t.navOrder}</a>
+          </nav>
+        )}
 
         <div className="header-actions">
           <button
@@ -2162,7 +2394,15 @@ export default function App() {
         )}
       </section>
 
+      <InfoSections isArabic={isArabic} />
+      <PoliciesSection isArabic={isArabic} />
+
       <footer>
+        <div className="ifix-footer-policy-links">
+          <a href="#policies">{isArabic ? "الشروط والأحكام" : "Terms & Conditions"}</a>
+          <a href="#policies">{isArabic ? "سياسة الخصوصية" : "Privacy Policy"}</a>
+          <a href="#policies">{isArabic ? "سياسة الصيانة والضمان" : "Repair & Warranty"}</a>
+        </div>
         <a className="logo" href="#top">
           <b>i</b> Fix
         </a>
