@@ -846,7 +846,8 @@ export default function App() {
                         </span>
 
                         <DevicePicture name={m} isArabic={isArabic} />
-<span className="ifix-device-name" dir="ltr">
+
+                        <span className="ifix-device-name" dir="ltr">
   {m}
 </span>
 
@@ -1286,7 +1287,7 @@ export default function App() {
 
               const partObj = standardParts.find(p => p.id === partId);
               const options = partSubOptions[partId] || [];
-              const currentSelectedIndex = partSelections[partId];
+              const currentSelectedIndex = partSelections[partId] || 0;
 
               return (
                 <div
