@@ -576,6 +576,102 @@ const adminPage = `
       gap: 18px;
     }
 
+    /* ---------- عرض الإصلاحات المطلوبة ---------- */
+
+    .repairs-section {
+      margin-top: 22px;
+    }
+
+    .repairs-title {
+      display: block;
+      margin-bottom: 11px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .repairs-list {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .repair-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 11px;
+      padding: 13px 15px;
+      border: 1px solid #d9e9e1;
+      border-radius: 11px;
+      background: #f7fcf9;
+      min-width: 0;
+    }
+
+    .repair-number {
+      flex: 0 0 auto;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 27px;
+      height: 27px;
+      border-radius: 8px;
+      background: #e0f4e9;
+      color: #087f55;
+      font-size: 13px;
+      font-weight: bold;
+    }
+
+    .repair-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .repair-name {
+      display: block;
+      color: #087f55;
+      font-size: 14px;
+      font-weight: bold;
+      overflow-wrap: anywhere;
+    }
+
+    .repair-note-label {
+      display: block;
+      margin-top: 7px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .repair-note-value {
+      margin-top: 2px;
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: normal;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .extra-notes {
+      margin-top: 18px;
+      padding: 15px;
+      border-radius: 11px;
+      background: #f7f9fc;
+      display: grid;
+      grid-template-columns: repeat(2,minmax(0,1fr));
+      gap: 18px;
+    }
+
+    .extra-note-box {
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .device-color-value {
+      color: var(--ink);
+      font-size: 14px;
+      font-weight: bold;
+      white-space: pre-wrap;
+    }
+
     .card-foot {
       padding: 17px 22px;
       border-top: 1px solid var(--line);
@@ -626,6 +722,7 @@ const adminPage = `
       .stat-value.small { font-size: 13px; }
       .grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
       .notes { grid-template-columns: 1fr; }
+      .extra-notes { grid-template-columns: 1fr; }
       .card-head, .card-body, .card-foot { padding: 17px; }
       .card-foot { align-items: stretch; }
       .actions { width: 100%; }
@@ -729,23 +826,114 @@ const adminPage = `
     const lastUpdated = document.getElementById('lastUpdated');
     const listStatus = document.getElementById('listStatus');
 
+    // ---------- أسماء قطع الغيار بالعربي والإنجليزي ----------
+
     const partNames = {
-      screen: 'الشاشة',
-      battery: 'البطارية',
-      socket: 'سوكت الشحن',
-      usp: 'سماعة المكالمات',
-      lsp: 'السماعة الخارجية',
-      mic: 'الميكروفون',
-      fcam: 'الكاميرا الأمامية',
-      bcam: 'الكاميرا الخلفية',
-      back: 'الظهر',
-      flash: 'الفلاش',
-      other: 'عطل آخر'
+      screen: {
+        ar: 'الشاشة',
+        en: 'Display'
+      },
+      display: {
+        ar: 'الشاشة',
+        en: 'Display'
+      },
+      battery: {
+        ar: 'البطارية',
+        en: 'Battery'
+      },
+      socket: {
+        ar: 'سوكت الشحن',
+        en: 'Charging Port'
+      },
+      charging_port: {
+        ar: 'سوكت الشحن',
+        en: 'Charging Port'
+      },
+      usp: {
+        ar: 'سماعة المكالمات',
+        en: 'Earpiece Speaker'
+      },
+      upper_speaker: {
+        ar: 'السماعة العلوية',
+        en: 'Upper Speaker'
+      },
+      lsp: {
+        ar: 'السماعة الخارجية',
+        en: 'Loudspeaker'
+      },
+      lower_speaker: {
+        ar: 'السماعة السفلية',
+        en: 'Lower Speaker'
+      },
+      mic: {
+        ar: 'الميكروفون',
+        en: 'Microphone'
+      },
+      microphone: {
+        ar: 'الميكروفون',
+        en: 'Microphone'
+      },
+      fcam: {
+        ar: 'الكاميرا الأمامية',
+        en: 'Front Camera'
+      },
+      front_camera: {
+        ar: 'الكاميرا الأمامية',
+        en: 'Front Camera'
+      },
+      bcam: {
+        ar: 'الكاميرا الخلفية',
+        en: 'Back Camera'
+      },
+      back_camera: {
+        ar: 'الكاميرا الخلفية',
+        en: 'Back Camera'
+      },
+      back: {
+        ar: 'الظهر',
+        en: 'Back Glass'
+      },
+      flash: {
+        ar: 'الفلاش',
+        en: 'Flash'
+      },
+      other: {
+        ar: 'عطل آخر',
+        en: 'Other Repair'
+      }
     };
 
-    function partLabel(value) {
-      return partNames[value] || String(value || '');
+    function currentLanguage() {
+      const lang = String(
+        document.documentElement.lang || 'ar'
+      ).toLowerCase();
+
+      return lang.startsWith('en') ? 'en' : 'ar';
     }
+
+    function translate(ar, en) {
+      return currentLanguage() === 'en' ? en : ar;
+    }
+
+    function normalizePart(value) {
+      return String(value || '')
+        .trim()
+        .toLowerCase()
+        .replace(/[\\s-]+/g, '_');
+    }
+
+    function partLabel(value) {
+      const key = normalizePart(value);
+      const item = partNames[key];
+
+      if (item) {
+        return item[currentLanguage()];
+      }
+
+      return String(value || '').replace(/_/g, ' ');
+    }
+
+    // ---------- أدوات إنشاء العناصر ----------
 
     function element(tag, className, text) {
       const node = document.createElement(tag);
@@ -818,6 +1006,213 @@ const adminPage = `
         : '—';
     }
 
+    // ---------- فصل لون الجهاز عن ملاحظات العميل ----------
+
+    function extractDeviceColor(details) {
+      const d = details || {};
+
+      const directColor =
+        d.deviceColor ||
+        d.device_color ||
+        d.color ||
+        d.phoneColor ||
+        '';
+
+      let customerNotes = String(d.notes || '');
+      let deviceColor = String(directColor || '').trim();
+
+      const lines = customerNotes.split(/\\r?\\n/);
+      const remainingLines = [];
+
+      for (const line of lines) {
+        const match = line.match(
+          /^\\s*(?:لون\\s*الجهاز|device[\\s_-]*colou?r|phone[\\s_-]*colou?r)\\s*[:：=-]\\s*(.*?)\\s*$/i
+        );
+
+        if (match) {
+          if (!deviceColor) {
+            deviceColor = match[1].trim();
+          }
+        } else {
+          remainingLines.push(line);
+        }
+      }
+
+      customerNotes = remainingLines
+        .join('\\n')
+        .trim();
+
+      return {
+        deviceColor,
+        customerNotes
+      };
+    }
+
+    // ---------- عرض الإصلاحات وملاحظات كل إصلاح ----------
+
+    function createRepairItem(part, index, note) {
+      const item = element('div', 'repair-item');
+
+      const number = element(
+        'span',
+        'repair-number',
+        String(index + 1)
+      );
+
+      const content = element('div', 'repair-content');
+
+      const name = element(
+        'span',
+        'repair-name',
+        partLabel(part)
+      );
+
+      content.append(name);
+
+      if (
+        note !== undefined &&
+        note !== null &&
+        String(note).trim() !== ''
+      ) {
+        const noteLabel = element(
+          'span',
+          'repair-note-label',
+          translate('ملاحظات الإصلاح', 'Repair Notes')
+        );
+
+        const noteValue = element(
+          'div',
+          'repair-note-value',
+          String(note)
+        );
+
+        content.append(noteLabel, noteValue);
+      }
+
+      item.append(number, content);
+
+      return item;
+    }
+
+    function createRepairsSection(order) {
+      const selectedParts = Array.isArray(order.selectedParts)
+        ? order.selectedParts
+        : [];
+
+      const partNotes = order.partNotes || {};
+
+      const section = element('div', 'repairs-section');
+
+      const title = element(
+        'span',
+        'repairs-title',
+        translate('الإصلاحات المطلوبة', 'Required Repairs')
+      );
+
+      section.append(title);
+
+      if (!selectedParts.length) {
+        section.append(
+          element('div', 'field-value', '—')
+        );
+
+        return section;
+      }
+
+      const list = element('div', 'repairs-list');
+
+      selectedParts.forEach((part, index) => {
+        const key = normalizePart(part);
+
+        let note = partNotes[part];
+
+        if (note === undefined) {
+          note = partNotes[key];
+        }
+
+        if (note === undefined) {
+          const matchingKey = Object.keys(partNotes).find(
+            noteKey => normalizePart(noteKey) === key
+          );
+
+          if (matchingKey !== undefined) {
+            note = partNotes[matchingKey];
+          }
+        }
+
+        list.append(
+          createRepairItem(part, index, note)
+        );
+      });
+
+      section.append(list);
+
+      return section;
+    }
+
+    // ---------- عرض ملاحظات العميل ولون الجهاز ----------
+
+    function createExtraNotes(details) {
+      const extracted = extractDeviceColor(details);
+
+      const customerNotes = extracted.customerNotes;
+      const deviceColor = extracted.deviceColor;
+
+      if (!customerNotes && !deviceColor) {
+        return null;
+      }
+
+      const notes = element('div', 'extra-notes');
+
+      if (customerNotes) {
+        const customerBox = element(
+          'div',
+          'extra-note-box'
+        );
+
+        customerBox.append(
+          element(
+            'span',
+            'field-label',
+            translate('ملاحظات العميل', 'Customer Notes')
+          ),
+          element(
+            'div',
+            'field-value',
+            customerNotes
+          )
+        );
+
+        notes.append(customerBox);
+      }
+
+      if (deviceColor) {
+        const colorBox = element(
+          'div',
+          'extra-note-box'
+        );
+
+        colorBox.append(
+          element(
+            'span',
+            'field-label',
+            translate('لون الجهاز', 'Device Color')
+          ),
+          element(
+            'div',
+            'device-color-value',
+            deviceColor
+          )
+        );
+
+        notes.append(colorBox);
+      }
+
+      return notes;
+    }
+
+    // ---------- عرض الطلبات ----------
+
     function render() {
       container.replaceChildren();
 
@@ -881,6 +1276,7 @@ const adminPage = `
         );
 
         const body = element('div', 'card-body');
+
         body.append(
           element('h2', 'customer-name', d.name || 'عميل بدون اسم')
         );
@@ -889,33 +1285,19 @@ const adminPage = `
 
         field(grid, 'رقم الهاتف', d.phone);
         field(grid, 'رقم واتساب', d.whatsapp);
-
-        const parts = Array.isArray(order.selectedParts)
-          ? order.selectedParts.map(partLabel).join('، ')
-          : '';
-
-        field(grid, 'الإصلاحات المطلوبة', parts);
         field(grid, 'العنوان', d.address, true);
 
         body.append(grid);
 
-        const repairNotes = Object.entries(order.partNotes || {})
-          .filter(([, value]) => value !== '' && value != null)
-          .map(([key, value]) => partLabel(key) + ': ' + String(value))
-          .join('\\n');
+        // الإصلاحات المطلوبة مرقمة، وكل ملاحظة تحت إصلاحها
+        const repairsSection = createRepairsSection(order);
+        body.append(repairsSection);
 
-        if (repairNotes || d.notes) {
-          const notes = element('div', 'notes');
+        // ملاحظات العميل ولون الجهاز في خانات مستقلة
+        const extraNotes = createExtraNotes(d);
 
-          if (repairNotes) {
-            field(notes, 'ملاحظات الإصلاح', repairNotes);
-          }
-
-          if (d.notes) {
-            field(notes, 'ملاحظات العميل', d.notes);
-          }
-
-          body.append(notes);
+        if (extraNotes) {
+          body.append(extraNotes);
         }
 
         const foot = element('div', 'card-foot');
@@ -966,6 +1348,8 @@ const adminPage = `
 
       clearAll.disabled = busy || !loaded || total === 0;
     }
+
+    // ---------- الاتصال بالسيرفر ----------
 
     async function api(options) {
       const response = await fetch('/api/orders?format=json', {
@@ -1025,6 +1409,8 @@ const adminPage = `
         setBusy(false);
       }
     }
+
+    // ---------- حذف الطلبات ----------
 
     async function performDelete(payload) {
       if (busy) return;
@@ -1117,6 +1503,8 @@ const adminPage = `
         confirmation
       });
     }
+
+    // ---------- تشغيل الصفحة ----------
 
     search.addEventListener('input', render);
     refresh.addEventListener('click', loadOrders);
