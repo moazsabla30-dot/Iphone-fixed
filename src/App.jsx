@@ -1,5 +1,7 @@
+
 import { useEffect, useMemo, useRef, useState } from "react";
 import "./App.css";
+import RepairComparison from "./RepairComparison";
 
 const myWhatsAppNumber = "201097829312";
 
@@ -695,7 +697,9 @@ export default function App() {
           <span className="pill">{t.heroPill}</span>
 
           <h1>
-            <span className="english">iPhone Repair</span>
+            <span className="english">
+  {isArabic ? "صيانة الآيفون" : "iPhone Repair"}
+</span>
             <br />
             {t.heroTitle}
           </h1>
@@ -713,9 +717,7 @@ export default function App() {
           </div>
         </div>
 
-        <div className="hero-picture">
-          <img src="/IMG_5564.PNG" alt="Two silver iPhones" />
-        </div>
+       <RepairComparison isArabic={isArabic} />
       </section>
 
       <section
@@ -844,10 +846,31 @@ export default function App() {
                         </span>
 
                         <DevicePicture name={m} isArabic={isArabic} />
+<span className="ifix-device-name" dir="ltr">
+  {m}
+</span>
 
-                        <span className="ifix-device-name" dir="ltr">
-                          {m}
-                        </span>
+{model === m && (
+  <button
+    type="button"
+    className="black-btn"
+    style={{
+      margin: "10px",
+      width: "calc(100% - 20px)",
+      minHeight: "44px",
+      padding: "10px 12px",
+      borderRadius: "10px",
+      fontSize: "13px"
+    }}
+    onClick={event => {
+      event.preventDefault();
+      event.stopPropagation();
+      setStep("choose");
+    }}
+  >
+    {isArabic ? "التالي ←" : "Next →"}
+  </button>
+)}
                       </label>
                     ))}
                 </fieldset>
@@ -1263,7 +1286,7 @@ export default function App() {
 
               const partObj = standardParts.find(p => p.id === partId);
               const options = partSubOptions[partId] || [];
-              const currentSelectedIndex = partSelections[partId] || 0;
+              const currentSelectedIndex = partSelections[partId];
 
               return (
                 <div
