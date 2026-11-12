@@ -578,6 +578,21 @@ html{scroll-behavior:smooth}
  .ifix-mobile-nav a:hover{background:#f1f8f3}
  .ifix-mobile-nav .ifix-mobile-book{background:#151515;color:#fff;text-align:center;margin-top:5px}
 }
+/* Stable mobile header layout: logo + menu together, language on opposite edge */
+.ifix-brand-menu{display:contents}
+@media(max-width:768px){
+ .header{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;flex-wrap:nowrap!important;position:relative!important;isolation:isolate}
+ .header .ifix-brand-menu{display:flex!important;align-items:center!important;gap:12px!important;flex:0 0 auto!important;min-width:0}
+ .header .ifix-brand-menu .logo{flex:0 0 auto!important;margin:0!important}
+ .header .ifix-desktop-nav{display:none!important}
+ .header .ifix-mobile-toggle{display:flex!important;position:static!important;visibility:visible!important;opacity:1!important;flex:0 0 42px!important;order:initial!important;margin:0!important;padding:0!important;appearance:none!important;z-index:2!important;pointer-events:auto!important}
+ .header .ifix-mobile-toggle span{display:block!important;flex:none!important}
+ .header .header-actions{display:flex!important;align-items:center!important;flex:0 0 auto!important;margin:0!important;gap:8px!important}
+ .header .ifix-mobile-nav{display:flex!important;position:absolute!important;top:calc(100% + 8px)!important;left:12px!important;right:12px!important;width:auto!important;max-width:none!important;flex-direction:column!important;visibility:visible!important;opacity:1!important;transform:none!important;z-index:9999!important;pointer-events:auto!important}
+ .header .ifix-mobile-nav a{display:block!important}
+}
+@media(max-width:480px){.header .header-actions .header-btn{display:none!important}.header .ifix-brand-menu{gap:8px!important}.header .ifix-mobile-toggle{flex-basis:40px!important;width:40px!important;height:40px!important}}
+
 @media(max-width:480px){.ifix-services-grid,.ifix-steps-grid{grid-template-columns:1fr}.ifix-service-card,.ifix-step-card{padding:22px}.ifix-info-heading p{font-size:14px}.header .header-actions .header-btn{display:none}}
 
 .ifix-progress{
@@ -888,9 +903,14 @@ export default function App() {
       <style>{wizardStyles}</style>
 
       <header className="header">
-        <a className="logo" href="#top">
-          <b>i</b> Fix
-        </a>
+        <div className="ifix-brand-menu">
+          <a className="logo" href="#top">
+            <b>i</b> Fix
+          </a>
+          <button type="button" className="ifix-mobile-toggle" aria-label={isArabic ? "فتح القائمة" : "Open menu"} aria-expanded={mobileMenuOpen} aria-controls="ifix-mobile-nav" onClick={() => setMobileMenuOpen(open => !open)}>
+            <span /><span /><span />
+          </button>
+        </div>
 
         <nav className="ifix-desktop-nav" aria-label={isArabic ? "القائمة الرئيسية" : "Main navigation"}>
           <a href="#services">{t.navServices}</a>
@@ -898,9 +918,6 @@ export default function App() {
           <a href="#order">{t.navOrder}</a>
         </nav>
 
-        <button type="button" className="ifix-mobile-toggle" aria-label={isArabic ? "فتح القائمة" : "Open menu"} aria-expanded={mobileMenuOpen} aria-controls="ifix-mobile-nav" onClick={() => setMobileMenuOpen(open => !open)}>
-          <span /><span /><span />
-        </button>
         {mobileMenuOpen && (
           <nav id="ifix-mobile-nav" className="ifix-mobile-nav" aria-label={isArabic ? "قائمة الموبايل" : "Mobile navigation"}>
             <a href="#services" onClick={() => setMobileMenuOpen(false)}>{t.navServices}</a>
