@@ -21,9 +21,7 @@ function adminOnly(req, res, next) {
   const password = process.env.ADMIN_PASSWORD;
 
   if (!username || !password) {
-    return res.status(503).send(
-      'Admin login is not configured.'
-    );
+    return res.status(503).send('Admin login is not configured.');
   }
 
   const authorization = req.headers.authorization || '';
@@ -48,17 +46,13 @@ function adminOnly(req, res, next) {
   const validPassword = matches(suppliedPassword, password);
 
   if (!validUser || !validPassword) {
-    res.set(
-      'WWW-Authenticate',
-      'Basic realm="iFix Admin"'
-    );
+    res.set('WWW-Authenticate', 'Basic realm="iFix Admin"');
     return res.status(401).send('Login required.');
   }
 
   next();
 }
 
-// منع مواقع أخرى من إرسال أوامر حذف باستخدام جلسة المتصفح
 function requireSameOrigin(req, res, next) {
   try {
     const origin = new URL(req.headers.origin || '');
@@ -104,59 +98,432 @@ async function connectDatabase() {
   await connectionPromise;
 }
 
-// ---------- عرض اللوحة وقراءة الطلبات ----------
+// ---------- حساب المندوب وحالات الطلبات ----------
 
-app.get('/api/orders', adminOnly, async (req, res) => {
-  if (req.query.format !== 'json') {
-    return res.type('html').send(adminPage);
+const COURIER_ID = 'primary';
+const STATUSES = ['new', 'repair', 'delivery', 'completed', 'failed'];
+const PAGE_SIZE = 50;
+
+function courierOnly(req, res, next) {
+  res.set('Cache-Control', 'no-store');
+  res.set('X-Content-Type-Options', 'nosniff');
+  res.set('X-Frame-Options', 'DENY');
+  res.set('Referrer-Policy', 'no-referrer');
+
+  const username = process.env.COURIER_USERNAME;
+  const password = process.env.COURIER_PASSWORD;
+
+  if (
+    !username ||
+    !password ||
+    username === process.env.ADMIN_USERNAME
+  ) {
+    return res.status(503).send(
+      'Configure a separate courier username and password.'
+    );
   }
 
+  const authorization = req.headers.authorization || '';
+
+  const decoded = authorization.startsWith('Basic ')
+    ? Buffer.from(authorization.slice(6), 'base64').toString('utf8')
+    : '';
+
+  const separator = decoded.indexOf(':');
+  const user = separator < 0 ? '' : decoded.slice(0, separator);
+  const pass = separator < 0 ? '' : decoded.slice(separator + 1);
+
+  const validUser = matches(user, username);
+  const validPassword = matches(pass, password);
+
+  if (!validUser || !validPassword) {
+    res.set('WWW-Authenticate', 'Basic realm="iFix Courier"');
+    return res.status(401).send('Login required.');
+  }
+
+  next();
+}
+
+function panelOnly(req, res, next) {
+  req.panelRole = req.path === '/api/courier' ? 'courier' : 'admin';
+
+  return req.panelRole === 'courier'
+    ? courierOnly(req, res, next)
+    : adminOnly(req, res, next);
+}
+
+function workflowOrigin(req, res, next) {
   try {
-    await connectDatabase();
+    const origin = new URL(req.headers.origin || '');
 
-    const collection =
-      mongoose.connection.collection('orders');
+    if (
+      origin.protocol !== 'https:' ||
+      origin.host !== req.headers.host ||
+      req.get('X-Admin-Action') !== 'update-workflow'
+    ) {
+      throw new Error();
+    }
 
-    const [orders, total] = await Promise.all([
-      collection
-        .find(
-          {},
+    next();
+  } catch {
+    res.status(403).json({
+      success: false,
+      error: 'عملية غير مسموح بها.'
+    });
+  }
+}
+
+function statusOf(order) {
+  return order.workflowStatus || 'new';
+}
+
+function nextWorkflow(order, action, role, reason) {
+  const status = statusOf(order);
+
+  if (role === 'admin') {
+    if (
+      action === 'assign' &&
+      status === 'new' &&
+      !order.assignedCourier
+    ) {
+      return {
+        workflowStatus: 'new',
+        assignedCourier: COURIER_ID,
+        failureReason: '',
+        failedStage: ''
+      };
+    }
+
+    if (action === 'dispatch' && status === 'repair') {
+      return {
+        workflowStatus: 'delivery',
+        assignedCourier: COURIER_ID,
+        failureReason: '',
+        failedStage: ''
+      };
+    }
+
+    if (
+      action === 'retry' &&
+      status === 'failed' &&
+      ['pickup', 'delivery'].includes(order.failedStage)
+    ) {
+      return {
+        workflowStatus:
+          order.failedStage === 'pickup' ? 'new' : 'delivery',
+        assignedCourier: COURIER_ID,
+        failureReason: '',
+        failedStage: ''
+      };
+    }
+  }
+
+  if (
+    role === 'courier' &&
+    order.assignedCourier === COURIER_ID
+  ) {
+    if (action === 'pickup' && status === 'new') {
+      return { workflowStatus: 'repair' };
+    }
+
+    if (action === 'deliver' && status === 'delivery') {
+      return { workflowStatus: 'completed' };
+    }
+
+    if (
+      action === 'fail' &&
+      ['new', 'delivery'].includes(status) &&
+      reason
+    ) {
+      return {
+        workflowStatus: 'failed',
+        failureReason: reason,
+        failedStage: status === 'new' ? 'pickup' : 'delivery'
+      };
+    }
+  }
+
+  return null;
+}
+
+// ---------- عرض اللوحتين وقراءة الطلبات ----------
+
+app.get(
+  ['/api/orders', '/api/courier'],
+  panelOnly,
+  async (req, res) => {
+    if (req.query.format !== 'json') {
+      return res.type('html').send(adminPage);
+    }
+
+    try {
+      await connectDatabase();
+
+      const collection = mongoose.connection.collection('orders');
+
+      const scope = req.panelRole === 'courier'
+        ? { assignedCourier: COURIER_ID }
+        : {};
+
+      const status = String(req.query.status || 'new');
+
+      if (!STATUSES.includes(status)) {
+        return res.status(400).json({
+          success: false,
+          error: 'حالة غير صحيحة.'
+        });
+      }
+
+      const query = String(req.query.q || '').trim().slice(0, 120);
+      const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+      const conditions = [
+        scope,
+        status === 'new'
+          ? {
+              $or: [
+                { workflowStatus: 'new' },
+                { workflowStatus: { $exists: false } },
+                { workflowStatus: null }
+              ]
+            }
+          : { workflowStatus: status }
+      ];
+
+      if (query) {
+        conditions.push({
+          $or: [
+            'orderNo',
+            'model',
+            'details.name',
+            'details.phone',
+            'details.whatsapp',
+            'details.address'
+          ].map(key => ({
+            [key]: {
+              $regex: escaped,
+              $options: 'i'
+            }
+          }))
+        });
+      }
+
+      const filter = { $and: conditions };
+
+      const [groups, filteredTotal] = await Promise.all([
+        collection.aggregate([
+          { $match: scope },
           {
-            projection: {
-              orderNo: 1,
-              model: 1,
-              selectedParts: 1,
-              partNotes: 1,
-              totalPrice: 1,
-              details: 1,
-              createdAt: 1
+            $group: {
+              _id: { $ifNull: ['$workflowStatus', 'new'] },
+              count: { $sum: 1 }
             }
           }
-        )
+        ]).toArray(),
+        collection.countDocuments(filter)
+      ]);
+
+      const counts = Object.fromEntries(
+        STATUSES.map(key => [key, 0])
+      );
+
+      for (const group of groups) {
+        if (STATUSES.includes(group._id)) {
+          counts[group._id] = group.count;
+        }
+      }
+
+      const total = groups.reduce(
+        (sum, group) => sum + group.count,
+        0
+      );
+
+      const pages = Math.max(
+        1,
+        Math.ceil(filteredTotal / PAGE_SIZE)
+      );
+
+      const page = Math.min(
+        pages,
+        Math.max(1, Number.parseInt(req.query.page, 10) || 1)
+      );
+
+      const orders = await collection.find(filter, {
+        projection: {
+          orderNo: 1,
+          model: 1,
+          selectedParts: 1,
+          partNotes: 1,
+          totalPrice: 1,
+          details: 1,
+          createdAt: 1,
+          workflowStatus: 1,
+          assignedCourier: 1,
+          workflowVersion: 1,
+          workflowUpdatedAt: 1,
+          failureReason: 1,
+          failedStage: 1
+        }
+      })
         .sort({ createdAt: -1, _id: -1 })
-        .limit(100)
-        .toArray(),
+        .skip((page - 1) * PAGE_SIZE)
+        .limit(PAGE_SIZE)
+        .toArray();
 
-      collection.countDocuments({})
-    ]);
+      res.json({
+        success: true,
+        orders,
+        total,
+        counts,
+        filteredTotal,
+        page,
+        pages
+      });
+    } catch (error) {
+      console.error('Orders read error:', error);
 
-    return res.json({
-      success: true,
-      orders,
-      total
-    });
-  } catch (error) {
-    console.error('Admin orders read error:', error);
-
-    return res.status(500).json({
-      success: false,
-      error: 'تعذر تحميل الطلبات. حاول مرة أخرى.'
-    });
+      res.status(500).json({
+        success: false,
+        error: 'تعذر تحميل الطلبات. حاول مرة أخرى.'
+      });
+    }
   }
-});
+);
+
+// ---------- تغيير الحالة وإسناد الطلبات ----------
+
+app.patch(
+  ['/api/orders', '/api/courier'],
+  panelOnly,
+  workflowOrigin,
+  async (req, res) => {
+    const { action, items } = req.body || {};
+
+    const allowed = req.panelRole === 'admin'
+      ? ['assign', 'dispatch', 'retry']
+      : ['pickup', 'deliver', 'fail'];
+
+    const reason = typeof req.body?.reason === 'string'
+      ? req.body.reason.trim()
+      : '';
+
+    if (
+      !allowed.includes(action) ||
+      !Array.isArray(items) ||
+      !items.length ||
+      items.length > PAGE_SIZE ||
+      (req.panelRole === 'courier' && items.length !== 1) ||
+      items.some(item =>
+        !item ||
+        typeof item.id !== 'string' ||
+        !/^[a-f\d]{24}$/i.test(item.id) ||
+        !Number.isSafeInteger(item.version) ||
+        item.version < 0
+      ) ||
+      new Set(items.map(item => item.id)).size !== items.length ||
+      (action === 'fail' && (!reason || reason.length > 500))
+    ) {
+      return res.status(400).json({
+        success: false,
+        error:
+          'بيانات غير صحيحة. سبب التعذّر مطلوب وبحد أقصى 500 حرف.'
+      });
+    }
+
+    try {
+      await connectDatabase();
+
+      const collection = mongoose.connection.collection('orders');
+      let changedCount = 0;
+      const conflicts = [];
+
+      for (const item of items) {
+        const scope = {
+          _id: new mongoose.Types.ObjectId(item.id)
+        };
+
+        if (req.panelRole === 'courier') {
+          scope.assignedCourier = COURIER_ID;
+        }
+
+        const order = await collection.findOne(scope);
+
+        const change = order && nextWorkflow(
+          order,
+          action,
+          req.panelRole,
+          reason
+        );
+
+        if (
+          !change ||
+          (order.workflowVersion || 0) !== item.version
+        ) {
+          conflicts.push(item.id);
+          continue;
+        }
+
+        const filter = { ...scope };
+
+        if (item.version === 0) {
+          filter.$or = [
+            { workflowVersion: 0 },
+            { workflowVersion: { $exists: false } }
+          ];
+        } else {
+          filter.workflowVersion = item.version;
+        }
+
+        const at = new Date();
+
+        const result = await collection.updateOne(filter, {
+          $set: {
+            ...change,
+            workflowUpdatedAt: at
+          },
+          $inc: {
+            workflowVersion: 1
+          },
+          $push: {
+            workflowHistory: {
+              $each: [{
+                action,
+                role: req.panelRole,
+                at,
+                from: statusOf(order),
+                to: change.workflowStatus,
+                reason: action === 'fail' ? reason : ''
+              }],
+              $slice: -100
+            }
+          }
+        });
+
+        if (result.modifiedCount) {
+          changedCount++;
+        } else {
+          conflicts.push(item.id);
+        }
+      }
+
+      res.json({
+        success: true,
+        changedCount,
+        conflicts
+      });
+    } catch (error) {
+      console.error('Workflow update error:', error);
+
+      res.status(500).json({
+        success: false,
+        error:
+          'تعذر تأكيد تحديث الطلبات. اضغط تحديث للتحقق قبل المحاولة مجددًا.'
+      });
+    }
+  }
+);
 
 // ---------- حذف طلب أو جميع الطلبات ----------
-// استقبال طلبات العملاء POST يظل كما هو داخل index.js.
 
 app.delete(
   '/api/orders',
@@ -228,15 +595,14 @@ app.delete(
   }
 );
 
-// ---------- واجهة لوحة الإدارة ----------
+// ---------- واجهة اللوحة ----------
 
 const adminPage = `
 <!doctype html>
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport"
-        content="width=device-width,initial-scale=1">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="robots" content="noindex,nofollow">
   <title>iFix | إدارة الطلبات</title>
 
@@ -268,7 +634,6 @@ const adminPage = `
     }
 
     button, input { font: inherit; }
-
     button, a { touch-action: manipulation; }
 
     button:focus-visible,
@@ -313,7 +678,10 @@ const adminPage = `
       direction: ltr;
     }
 
-    .brand-title { font-weight: bold; font-size: 17px; }
+    .brand-title {
+      font-weight: bold;
+      font-size: 17px;
+    }
 
     .brand-subtitle {
       font-size: 12px;
@@ -433,7 +801,10 @@ const adminPage = `
       border-radius: 15px;
     }
 
-    .stat-label { color: var(--muted); font-size: 12px; }
+    .stat-label {
+      color: var(--muted);
+      font-size: 12px;
+    }
 
     .stat-value {
       margin-top: 3px;
@@ -442,7 +813,10 @@ const adminPage = `
       color: var(--ink);
     }
 
-    .stat-value.small { font-size: 17px; padding-top: 9px; }
+    .stat-value.small {
+      font-size: 17px;
+      padding-top: 9px;
+    }
 
     .search-box {
       background: white;
@@ -576,11 +950,7 @@ const adminPage = `
       gap: 18px;
     }
 
-    /* ---------- عرض الإصلاحات المطلوبة ---------- */
-
-    .repairs-section {
-      margin-top: 22px;
-    }
+    .repairs-section { margin-top: 22px; }
 
     .repairs-title {
       display: block;
@@ -682,7 +1052,10 @@ const adminPage = `
       gap: 16px;
     }
 
-    .total-label { color: var(--muted); font-size: 11px; }
+    .total-label {
+      color: var(--muted);
+      font-size: 11px;
+    }
 
     .total-value {
       font-size: 21px;
@@ -734,6 +1107,101 @@ const adminPage = `
       .btn { transition: none; }
       .btn:hover { transform: none; }
     }
+
+    [hidden] { display: none !important; }
+
+    .status-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+      margin: 18px 0;
+    }
+
+    .status-tab {
+      background: #fff;
+      border-color: var(--line);
+      color: var(--ink);
+    }
+
+    .status-tab.active {
+      background: var(--blue);
+      color: #fff;
+      border-color: var(--blue);
+    }
+
+    .batch {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 15px;
+      padding: 15px;
+      background: #edf3ff;
+      border-radius: 12px;
+    }
+
+    .batch label, .order-select {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    .batch input, .order-select input {
+      width: 19px;
+      height: 19px;
+      accent-color: var(--blue);
+    }
+
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      margin-top: 20px;
+    }
+
+    .workflow-info { margin-bottom: 18px; }
+
+    .status-badge {
+      display: inline-block;
+      border-radius: 8px;
+      padding: 5px 10px;
+      background: #eaf0ff;
+      color: #234eae;
+    }
+
+    .failure-reason {
+      margin-top: 8px;
+      color: var(--red);
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .state-completed,
+    .state-completed .card-head,
+    .state-completed .card-body,
+    .state-completed .card-foot {
+      background: #eaf8f1;
+      border-color: #bfe6d2;
+    }
+
+    .state-completed .status-badge {
+      background: #c8edd9;
+      color: #086942;
+    }
+
+    .state-failed,
+    .state-failed .card-head,
+    .state-failed .card-body,
+    .state-failed .card-foot {
+      background: #fff0f2;
+      border-color: #f0ced5;
+    }
+
+    .state-failed .status-badge {
+      background: #fbd6dd;
+      color: #a8273b;
+    }
   </style>
 </head>
 
@@ -757,7 +1225,9 @@ const adminPage = `
     <div class="page-heading">
       <div>
         <h1>الطلبات</h1>
-        <div class="muted">راجع بيانات العملاء وتواصل معهم بسهولة.</div>
+        <div class="muted">
+          راجع بيانات العملاء وتواصل معهم بسهولة.
+        </div>
       </div>
 
       <div class="toolbar">
@@ -793,16 +1263,50 @@ const adminPage = `
         type="search"
         autocomplete="off"
         placeholder="ابحث باسم العميل، الهاتف، العنوان أو رقم الطلب…"
-        aria-label="البحث في آخر 100 طلب"
+        aria-label="البحث في طلبات القسم الحالي"
       >
     </div>
 
+    <div
+      id="statusTabs"
+      class="status-tabs"
+      role="group"
+      aria-label="حالة الطلبات"
+    ></div>
+
+    <div id="batch" class="batch" hidden>
+      <label>
+        <input id="selectPage" type="checkbox">
+        تحديد المتاح في هذه الصفحة
+      </label>
+      <span id="selectionCount">تم تحديد 0 طلب</span>
+      <button
+        id="batchAction"
+        class="btn btn-primary"
+        disabled
+      >
+        إسناد للمندوب للاستلام
+      </button>
+    </div>
+
     <div class="list-meta">
-      <span>الأحدث أولًا · البحث داخل آخر 100 طلب</span>
+      <span>
+        الأحدث أولًا · البحث داخل القسم الحالي · تحديث تلقائي كل 15 ثانية
+      </span>
       <span id="listStatus">جاري التحميل…</span>
     </div>
 
     <section id="orders" aria-label="قائمة الطلبات"></section>
+
+    <div class="pagination">
+      <button id="prevPage" class="btn btn-call" disabled>
+        السابق
+      </button>
+      <span id="pageLabel"></span>
+      <button id="nextPage" class="btn btn-call" disabled>
+        التالي
+      </button>
+    </div>
 
     <div class="footnote">
       الحذف نهائي من قاعدة البيانات.
@@ -826,81 +1330,396 @@ const adminPage = `
     const lastUpdated = document.getElementById('lastUpdated');
     const listStatus = document.getElementById('listStatus');
 
-    // ---------- أسماء قطع الغيار بالعربي والإنجليزي ----------
+    const isCourier = location.pathname === '/api/courier';
+    const endpoint = isCourier ? '/api/courier' : '/api/orders';
+
+    const labels = {
+      new: 'طلبات جديدة',
+      repair: 'في الصيانة',
+      delivery: 'جاري التوصيل',
+      completed: 'مكتملة',
+      failed: 'متعذّرة'
+    };
+
+    let activeStatus = 'new';
+    let counts = {};
+    let filteredTotal = 0;
+    let page = 1;
+    let pages = 1;
+    let searchTimer;
+    let searchPending = false;
+
+    const selected = new Map();
+    const tabs = document.getElementById('statusTabs');
+    const batch = document.getElementById('batch');
+    const selectPage = document.getElementById('selectPage');
+    const batchAction = document.getElementById('batchAction');
+    const selectionCount = document.getElementById('selectionCount');
+    const prevPage = document.getElementById('prevPage');
+    const nextPage = document.getElementById('nextPage');
+    const pageLabel = document.getElementById('pageLabel');
+
+    if (isCourier) {
+      document.title = 'iFix | مهام المندوب';
+
+      document.querySelector('.brand-title').textContent =
+        'لوحة مندوب التوصيل';
+
+      document.querySelector('.brand-subtitle').textContent =
+        'استلام الأجهزة وتسليمها للعملاء';
+
+      document.querySelector('.private-label').textContent =
+        'دخول خاص بالمندوب';
+
+      document.querySelector('h1').textContent =
+        'المهام المسندة إليك';
+
+      document.querySelector('.page-heading .muted').textContent =
+        'سجّل الاستلام أو التسليم بعد تنفيذه فعليًا.';
+
+      document.querySelector('.stat-label').textContent =
+        'كل الطلبات المسندة إليك';
+
+      document.querySelector('.footnote').textContent =
+        'اللون الأخضر يعني تسليم الجهاز للعميل، والأحمر يعني تعذّر المهمة.';
+
+      clearAll.hidden = true;
+    }
+
+    function eligible(order) {
+      if (isCourier) return false;
+
+      const status = order.workflowStatus || 'new';
+
+      return (
+        (status === 'new' && !order.assignedCourier) ||
+        status === 'repair'
+      );
+    }
+
+    function updateControls() {
+      tabs.querySelectorAll('button').forEach(button => {
+        button.disabled = busy;
+      });
+
+      prevPage.disabled = busy || page <= 1;
+      nextPage.disabled = busy || page >= pages;
+
+      batch.hidden =
+        isCourier ||
+        !['new', 'repair'].includes(activeStatus);
+
+      const eligibleOrders = orders.filter(eligible);
+
+      selectPage.disabled = busy || !eligibleOrders.length;
+
+      selectPage.checked =
+        eligibleOrders.length > 0 &&
+        eligibleOrders.every(order => selected.has(order._id));
+
+      selectPage.indeterminate =
+        selected.size > 0 &&
+        !selectPage.checked;
+
+      selectionCount.textContent =
+        'تم تحديد ' + selected.size + ' طلب';
+
+      batchAction.textContent = activeStatus === 'repair'
+        ? 'جاهز للتسليم — إسناد للمندوب'
+        : 'إسناد للمندوب للاستلام';
+
+      batchAction.disabled = busy || selected.size === 0;
+
+      container
+        .querySelectorAll('input[type="checkbox"]')
+        .forEach(input => {
+          input.disabled = busy;
+        });
+    }
+
+    function renderTabs() {
+      tabs.replaceChildren();
+
+      Object.entries(labels).forEach(([key, label]) => {
+        const button = element(
+          'button',
+          'btn status-tab' + (activeStatus === key ? ' active' : ''),
+          label + ' · ' + (counts[key] || 0)
+        );
+
+        button.type = 'button';
+        button.setAttribute(
+          'aria-pressed',
+          String(activeStatus === key)
+        );
+
+        button.addEventListener('click', () => {
+          if (busy) return;
+
+          activeStatus = key;
+          page = 1;
+          selected.clear();
+          loadOrders();
+        });
+
+        tabs.append(button);
+      });
+
+      pageLabel.textContent =
+        'صفحة ' + page + ' من ' + pages;
+
+      updateControls();
+    }
+
+    function workflowDetails(order, card, head, body, actions) {
+      const status = order.workflowStatus || 'new';
+
+      card.classList.add('state-' + status);
+
+      const info = element('div', 'workflow-info');
+      let text = labels[status] || status;
+
+      if (status === 'new' && order.assignedCourier) {
+        text += ' — بانتظار استلام المندوب';
+      }
+
+      if (status === 'repair') {
+        text += ' — تم الاستلام من العميل';
+      }
+
+      info.append(element('strong', 'status-badge', text));
+
+      if (order.workflowUpdatedAt) {
+        info.append(
+          element(
+            'div',
+            'order-date',
+            'آخر تغيير: ' + dateText(order.workflowUpdatedAt)
+          )
+        );
+      }
+
+      if (order.failureReason) {
+        info.append(
+          element(
+            'div',
+            'failure-reason',
+            (
+              order.failedStage === 'pickup'
+                ? 'تعذّر الاستلام: '
+                : 'تعذّر التسليم: '
+            ) + order.failureReason
+          )
+        );
+      }
+
+      body.prepend(info);
+
+      if (eligible(order)) {
+        const label = element('label', 'order-select');
+        const checkbox = element('input');
+
+        checkbox.type = 'checkbox';
+        checkbox.checked = selected.has(order._id);
+        checkbox.disabled = busy;
+
+        checkbox.addEventListener('change', () => {
+          if (checkbox.checked) {
+            selected.set(
+              order._id,
+              order.workflowVersion || 0
+            );
+          } else {
+            selected.delete(order._id);
+          }
+
+          updateControls();
+        });
+
+        label.append(
+          checkbox,
+          document.createTextNode(' تحديد الطلب')
+        );
+
+        head.append(label);
+      }
+
+      function actionButton(label, action, style) {
+        const button = element(
+          'button',
+          'btn ' + style,
+          label
+        );
+
+        button.type = 'button';
+        button.disabled = busy;
+
+        button.addEventListener('click', () => {
+          changeWorkflow(action, [order]);
+        });
+
+        actions.append(button);
+      }
+
+      if (!isCourier) {
+        if (status === 'new' && !order.assignedCourier) {
+          actionButton(
+            'إسناد للمندوب للاستلام',
+            'assign',
+            'btn-primary'
+          );
+        }
+
+        if (status === 'repair') {
+          actionButton(
+            'جاهز للتسليم — إسناد للمندوب',
+            'dispatch',
+            'btn-primary'
+          );
+        }
+
+        if (status === 'failed') {
+          actionButton(
+            'إعادة المحاولة',
+            'retry',
+            'btn-primary'
+          );
+        }
+      } else {
+        if (status === 'new') {
+          actionButton(
+            'استلمت الجهاز من العميل',
+            'pickup',
+            'btn-whatsapp'
+          );
+        }
+
+        if (status === 'delivery') {
+          actionButton(
+            'تم التسليم للعميل',
+            'deliver',
+            'btn-whatsapp'
+          );
+        }
+
+        if (status === 'new' || status === 'delivery') {
+          actionButton(
+            status === 'new'
+              ? 'تعذّر الاستلام'
+              : 'تعذّر التسليم',
+            'fail',
+            'btn-delete'
+          );
+        }
+      }
+    }
+
+    async function changeWorkflow(action, chosen) {
+      if (busy || !chosen.length) return;
+
+      let reason = '';
+
+      if (action === 'fail') {
+        const value = window.prompt(
+          'اكتب سبب تعذّر المهمة (حتى 500 حرف):'
+        );
+
+        if (value === null) return;
+
+        reason = value.trim();
+
+        if (!reason || reason.length > 500) {
+          notify('اكتب السبب من 1 إلى 500 حرف.', 'error');
+          return;
+        }
+      } else {
+        const messages = {
+          assign:
+            'إسناد الطلبات المحددة للمندوب ليستلم الأجهزة من العملاء؟',
+          dispatch:
+            'هل الأجهزة المحددة جاهزة لإرجاعها للعملاء؟ سيتم إسنادها للمندوب.',
+          retry:
+            'إعادة إسناد المهمة المتعذّرة للمندوب؟',
+          pickup:
+            'هل استلمت الجهاز من العميل فعليًا؟ سينتقل الطلب إلى في الصيانة.',
+          deliver:
+            'هل سلّمت الجهاز للعميل فعليًا؟ سيتم إكمال الطلب.'
+        };
+
+        if (!window.confirm(messages[action])) return;
+      }
+
+      setBusy(true);
+      notify('');
+
+      let result;
+
+      try {
+        result = await api({
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Admin-Action': 'update-workflow'
+          },
+          body: JSON.stringify({
+            action,
+            reason,
+            items: chosen.map(order => ({
+              id: order._id,
+              version: order.workflowVersion || 0
+            }))
+          })
+        });
+
+        selected.clear();
+        await readOrders();
+
+        notify(
+          'تم تحديث ' + result.changedCount + ' طلب.' +
+          (
+            result.conflicts.length
+              ? ' لم يتم تغيير ' + result.conflicts.length +
+                ' طلب لأن حالتها تغيّرت أو العملية غير متاحة؛ راجع القائمة.'
+              : ''
+          ),
+          result.conflicts.length ? 'error' : 'success'
+        );
+      } catch (error) {
+        notify(
+          (
+            result
+              ? 'تم حفظ تحديث ' + result.changedCount +
+                ' طلب، لكن تعذّر تحديث العرض. '
+              : ''
+          ) + error.message,
+          'error'
+        );
+      } finally {
+        setBusy(false);
+      }
+    }
+
+    // ---------- أسماء قطع الغيار ----------
 
     const partNames = {
-      screen: {
-        ar: 'الشاشة',
-        en: 'Display'
-      },
-      display: {
-        ar: 'الشاشة',
-        en: 'Display'
-      },
-      battery: {
-        ar: 'البطارية',
-        en: 'Battery'
-      },
-      socket: {
-        ar: 'سوكت الشحن',
-        en: 'Charging Port'
-      },
-      charging_port: {
-        ar: 'سوكت الشحن',
-        en: 'Charging Port'
-      },
-      usp: {
-        ar: 'سماعة المكالمات',
-        en: 'Earpiece Speaker'
-      },
-      upper_speaker: {
-        ar: 'السماعة العلوية',
-        en: 'Upper Speaker'
-      },
-      lsp: {
-        ar: 'السماعة الخارجية',
-        en: 'Loudspeaker'
-      },
-      lower_speaker: {
-        ar: 'السماعة السفلية',
-        en: 'Lower Speaker'
-      },
-      mic: {
-        ar: 'الميكروفون',
-        en: 'Microphone'
-      },
-      microphone: {
-        ar: 'الميكروفون',
-        en: 'Microphone'
-      },
-      fcam: {
-        ar: 'الكاميرا الأمامية',
-        en: 'Front Camera'
-      },
-      front_camera: {
-        ar: 'الكاميرا الأمامية',
-        en: 'Front Camera'
-      },
-      bcam: {
-        ar: 'الكاميرا الخلفية',
-        en: 'Back Camera'
-      },
-      back_camera: {
-        ar: 'الكاميرا الخلفية',
-        en: 'Back Camera'
-      },
-      back: {
-        ar: 'الظهر',
-        en: 'Back Glass'
-      },
-      flash: {
-        ar: 'الفلاش',
-        en: 'Flash'
-      },
-      other: {
-        ar: 'عطل آخر',
-        en: 'Other Repair'
-      }
+      screen: { ar: 'الشاشة', en: 'Display' },
+      display: { ar: 'الشاشة', en: 'Display' },
+      battery: { ar: 'البطارية', en: 'Battery' },
+      socket: { ar: 'سوكت الشحن', en: 'Charging Port' },
+      charging_port: { ar: 'سوكت الشحن', en: 'Charging Port' },
+      usp: { ar: 'سماعة المكالمات', en: 'Earpiece Speaker' },
+      upper_speaker: { ar: 'السماعة العلوية', en: 'Upper Speaker' },
+      lsp: { ar: 'السماعة الخارجية', en: 'Loudspeaker' },
+      lower_speaker: { ar: 'السماعة السفلية', en: 'Lower Speaker' },
+      mic: { ar: 'الميكروفون', en: 'Microphone' },
+      microphone: { ar: 'الميكروفون', en: 'Microphone' },
+      fcam: { ar: 'الكاميرا الأمامية', en: 'Front Camera' },
+      front_camera: { ar: 'الكاميرا الأمامية', en: 'Front Camera' },
+      bcam: { ar: 'الكاميرا الخلفية', en: 'Back Camera' },
+      back_camera: { ar: 'الكاميرا الخلفية', en: 'Back Camera' },
+      back: { ar: 'الظهر', en: 'Back Glass' },
+      flash: { ar: 'الفلاش', en: 'Flash' },
+      other: { ar: 'عطل آخر', en: 'Other Repair' }
     };
 
     function currentLanguage() {
@@ -937,8 +1756,10 @@ const adminPage = `
 
     function element(tag, className, text) {
       const node = document.createElement(tag);
+
       if (className) node.className = className;
       if (text !== undefined) node.textContent = text;
+
       return node;
     }
 
@@ -955,6 +1776,15 @@ const adminPage = `
       container.querySelectorAll('button').forEach(button => {
         button.disabled = value;
       });
+
+      updateControls();
+
+      if (!value && searchPending) {
+        searchPending = false;
+        page = 1;
+        selected.clear();
+        loadOrders();
+      }
     }
 
     function phoneDigits(value) {
@@ -962,7 +1792,11 @@ const adminPage = `
     }
 
     function field(parent, label, value, wide) {
-      const box = element('div', 'field' + (wide ? ' wide' : ''));
+      const box = element(
+        'div',
+        'field' + (wide ? ' wide' : '')
+      );
+
       const title = element('span', 'field-label', label);
 
       const content = element(
@@ -980,7 +1814,9 @@ const adminPage = `
     function dateText(value) {
       const date = new Date(value);
 
-      if (Number.isNaN(date.getTime())) return 'تاريخ غير متاح';
+      if (Number.isNaN(date.getTime())) {
+        return 'تاريخ غير متاح';
+      }
 
       return date.toLocaleString('ar-EG', {
         timeZone: 'Africa/Cairo',
@@ -993,7 +1829,11 @@ const adminPage = `
     }
 
     function money(value) {
-      if (value === null || value === undefined || value === '') {
+      if (
+        value === null ||
+        value === undefined ||
+        value === ''
+      ) {
         return '—';
       }
 
@@ -1006,7 +1846,7 @@ const adminPage = `
         : '—';
     }
 
-    // ---------- فصل لون الجهاز عن ملاحظات العميل ----------
+    // ---------- فصل لون الجهاز عن الملاحظات ----------
 
     function extractDeviceColor(details) {
       const d = details || {};
@@ -1038,9 +1878,7 @@ const adminPage = `
         }
       }
 
-      customerNotes = remainingLines
-        .join('\\n')
-        .trim();
+      customerNotes = remainingLines.join('\\n').trim();
 
       return {
         deviceColor,
@@ -1048,7 +1886,7 @@ const adminPage = `
       };
     }
 
-    // ---------- عرض الإصلاحات وملاحظات كل إصلاح ----------
+    // ---------- الإصلاحات وملاحظاتها ----------
 
     function createRepairItem(part, index, note) {
       const item = element('div', 'repair-item');
@@ -1100,7 +1938,6 @@ const adminPage = `
         : [];
 
       const partNotes = order.partNotes || {};
-
       const section = element('div', 'repairs-section');
 
       const title = element(
@@ -1112,10 +1949,7 @@ const adminPage = `
       section.append(title);
 
       if (!selectedParts.length) {
-        section.append(
-          element('div', 'field-value', '—')
-        );
-
+        section.append(element('div', 'field-value', '—'));
         return section;
       }
 
@@ -1123,7 +1957,6 @@ const adminPage = `
 
       selectedParts.forEach((part, index) => {
         const key = normalizePart(part);
-
         let note = partNotes[part];
 
         if (note === undefined) {
@@ -1140,9 +1973,7 @@ const adminPage = `
           }
         }
 
-        list.append(
-          createRepairItem(part, index, note)
-        );
+        list.append(createRepairItem(part, index, note));
       });
 
       section.append(list);
@@ -1150,11 +1981,8 @@ const adminPage = `
       return section;
     }
 
-    // ---------- عرض ملاحظات العميل ولون الجهاز ----------
-
     function createExtraNotes(details) {
       const extracted = extractDeviceColor(details);
-
       const customerNotes = extracted.customerNotes;
       const deviceColor = extracted.deviceColor;
 
@@ -1165,10 +1993,7 @@ const adminPage = `
       const notes = element('div', 'extra-notes');
 
       if (customerNotes) {
-        const customerBox = element(
-          'div',
-          'extra-note-box'
-        );
+        const customerBox = element('div', 'extra-note-box');
 
         customerBox.append(
           element(
@@ -1176,21 +2001,14 @@ const adminPage = `
             'field-label',
             translate('ملاحظات العميل', 'Customer Notes')
           ),
-          element(
-            'div',
-            'field-value',
-            customerNotes
-          )
+          element('div', 'field-value', customerNotes)
         );
 
         notes.append(customerBox);
       }
 
       if (deviceColor) {
-        const colorBox = element(
-          'div',
-          'extra-note-box'
-        );
+        const colorBox = element('div', 'extra-note-box');
 
         colorBox.append(
           element(
@@ -1198,11 +2016,7 @@ const adminPage = `
             'field-label',
             translate('لون الجهاز', 'Device Color')
           ),
-          element(
-            'div',
-            'device-color-value',
-            deviceColor
-          )
+          element('div', 'device-color-value', deviceColor)
         );
 
         notes.append(colorBox);
@@ -1216,27 +2030,17 @@ const adminPage = `
     function render() {
       container.replaceChildren();
 
-      const query = search.value.trim().toLowerCase();
+      const query = search.value.trim();
+      const visible = orders;
 
-      const visible = orders.filter(order => {
-        const d = order.details || {};
-
-        return [
-          order.orderNo,
-          order.model,
-          d.name,
-          d.phone,
-          d.whatsapp,
-          d.address
-        ].join(' ').toLowerCase().includes(query);
-      });
+      renderTabs();
 
       totalCount.textContent = total;
-      visibleCount.textContent = visible.length;
+      visibleCount.textContent = filteredTotal;
 
       listStatus.textContent =
-        'عرض ' + visible.length + ' من ' + orders.length +
-        ' طلب محمّل';
+        'عرض ' + visible.length + ' من ' + filteredTotal +
+        ' طلب في هذا القسم';
 
       if (!visible.length) {
         container.append(
@@ -1253,7 +2057,6 @@ const adminPage = `
       for (const order of visible) {
         const d = order.details || {};
         const card = element('article', 'order-card');
-
         const head = element('div', 'card-head');
         const identity = element('div');
 
@@ -1272,13 +2075,21 @@ const adminPage = `
 
         head.append(
           identity,
-          element('span', 'model-badge', order.model || 'جهاز غير محدد')
+          element(
+            'span',
+            'model-badge',
+            order.model || 'جهاز غير محدد'
+          )
         );
 
         const body = element('div', 'card-body');
 
         body.append(
-          element('h2', 'customer-name', d.name || 'عميل بدون اسم')
+          element(
+            'h2',
+            'customer-name',
+            d.name || 'عميل بدون اسم'
+          )
         );
 
         const grid = element('div', 'grid');
@@ -1288,12 +2099,8 @@ const adminPage = `
         field(grid, 'العنوان', d.address, true);
 
         body.append(grid);
+        body.append(createRepairsSection(order));
 
-        // الإصلاحات المطلوبة مرقمة، وكل ملاحظة تحت إصلاحها
-        const repairsSection = createRepairsSection(order);
-        body.append(repairsSection);
-
-        // ملاحظات العميل ولون الجهاز في خانات مستقلة
         const extraNotes = createExtraNotes(d);
 
         if (extraNotes) {
@@ -1312,7 +2119,12 @@ const adminPage = `
         const phone = phoneDigits(d.phone);
 
         if (phone) {
-          const call = element('a', 'btn btn-call', 'اتصال بالعميل');
+          const call = element(
+            'a',
+            'btn btn-call',
+            'اتصال بالعميل'
+          );
+
           call.href = 'tel:' + phone;
           actions.append(call);
         }
@@ -1323,23 +2135,45 @@ const adminPage = `
           whatsapp = whatsapp.slice(2);
         }
 
-        if (whatsapp.length === 11 && whatsapp.startsWith('01')) {
+        if (
+          whatsapp.length === 11 &&
+          whatsapp.startsWith('01')
+        ) {
           whatsapp = '2' + whatsapp;
         }
 
         if (whatsapp) {
-          const link = element('a', 'btn btn-whatsapp', 'فتح واتساب');
+          const link = element(
+            'a',
+            'btn btn-whatsapp',
+            'فتح واتساب'
+          );
+
           link.href = 'https://wa.me/' + whatsapp;
           link.target = '_blank';
           link.rel = 'noopener noreferrer';
+
           actions.append(link);
         }
 
-        const remove = element('button', 'btn btn-delete', 'حذف الطلب');
-        remove.type = 'button';
-        remove.disabled = busy;
-        remove.addEventListener('click', () => deleteOne(order));
-        actions.append(remove);
+        if (!isCourier) {
+          const remove = element(
+            'button',
+            'btn btn-delete',
+            'حذف الطلب'
+          );
+
+          remove.type = 'button';
+          remove.disabled = busy;
+
+          remove.addEventListener('click', () => {
+            deleteOne(order);
+          });
+
+          actions.append(remove);
+        }
+
+        workflowDetails(order, card, head, body, actions);
 
         foot.append(amount, actions);
         card.append(head, body, foot);
@@ -1347,31 +2181,46 @@ const adminPage = `
       }
 
       clearAll.disabled = busy || !loaded || total === 0;
+      updateControls();
     }
 
     // ---------- الاتصال بالسيرفر ----------
 
     async function api(options) {
-      const response = await fetch('/api/orders?format=json', {
+      const params = new URLSearchParams({
+        format: 'json',
+        status: activeStatus,
+        q: search.value.trim(),
+        page: String(page)
+      });
+
+      const response = await fetch(endpoint + '?' + params, {
         cache: 'no-store',
         credentials: 'same-origin',
         ...options
       });
 
-      const contentType = response.headers.get('content-type') || '';
+      const contentType =
+        response.headers.get('content-type') || '';
 
       if (!contentType.includes('application/json')) {
         if (response.status === 401) {
-          throw new Error('يلزم تسجيل الدخول. أعد فتح لوحة الإدارة.');
+          throw new Error(
+            'يلزم تسجيل الدخول. أعد فتح لوحة الإدارة.'
+          );
         }
 
-        throw new Error('رد غير متوقع من السيرفر. حدّث الصفحة للتحقق.');
+        throw new Error(
+          'رد غير متوقع من السيرفر. حدّث الصفحة للتحقق.'
+        );
       }
 
       const data = await response.json();
 
       if (!response.ok || !data.success) {
-        throw new Error(data.error || 'تعذر إتمام العملية.');
+        throw new Error(
+          data.error || 'تعذر إتمام العملية.'
+        );
       }
 
       return data;
@@ -1382,22 +2231,42 @@ const adminPage = `
 
       orders = data.orders;
       total = data.total;
+      counts = data.counts;
+      filteredTotal = data.filteredTotal;
+      page = data.page;
+      pages = data.pages;
+
+      for (const [id, version] of selected) {
+        const order = orders.find(item => item._id === id);
+
+        if (
+          !order ||
+          !eligible(order) ||
+          (order.workflowVersion || 0) !== version
+        ) {
+          selected.delete(id);
+        }
+      }
+
       loaded = true;
 
-      lastUpdated.textContent = new Date().toLocaleTimeString('ar-EG', {
-        timeZone: 'Africa/Cairo',
-        hour: '2-digit',
-        minute: '2-digit'
-      });
+      lastUpdated.textContent =
+        new Date().toLocaleTimeString('ar-EG', {
+          timeZone: 'Africa/Cairo',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
 
       render();
     }
 
-    async function loadOrders() {
+    async function loadOrders(silent = false) {
       if (busy) return;
 
       setBusy(true);
-      notify('');
+
+      if (!silent) notify('');
+
       listStatus.textContent = 'جاري تحديث الطلبات…';
 
       try {
@@ -1428,11 +2297,12 @@ const adminPage = `
           body: JSON.stringify(payload)
         });
 
-        // إزالة العناصر المحذوفة من العرض بعد تأكيد السيرفر فقط
         if (payload.action === 'all') {
           orders = [];
         } else {
-          orders = orders.filter(order => order._id !== payload.id);
+          orders = orders.filter(
+            order => order._id !== payload.id
+          );
         }
 
         total = Math.max(0, total - result.deletedCount);
@@ -1463,9 +2333,10 @@ const adminPage = `
     }
 
     function deleteOne(order) {
-      if (busy) return;
+      if (busy || isCourier) return;
 
-      const name = (order.details || {}).name || 'بدون اسم';
+      const name =
+        (order.details || {}).name || 'بدون اسم';
 
       const approved = window.confirm(
         'حذف الطلب ' + (order.orderNo || '') +
@@ -1482,7 +2353,14 @@ const adminPage = `
     }
 
     function deleteAll() {
-      if (busy || !loaded || total === 0) return;
+      if (
+        busy ||
+        isCourier ||
+        !loaded ||
+        total === 0
+      ) {
+        return;
+      }
 
       const confirmation = window.prompt(
         'سيتم حذف جميع الطلبات الموجودة في قاعدة البيانات وقت التنفيذ،' +
@@ -1493,8 +2371,12 @@ const adminPage = `
 
       if (confirmation !== 'حذف الكل') {
         if (confirmation !== null) {
-          notify('لم يحدث حذف؛ عبارة التأكيد غير مطابقة.', 'error');
+          notify(
+            'لم يحدث حذف؛ عبارة التأكيد غير مطابقة.',
+            'error'
+          );
         }
+
         return;
       }
 
@@ -1506,8 +2388,73 @@ const adminPage = `
 
     // ---------- تشغيل الصفحة ----------
 
-    search.addEventListener('input', render);
-    refresh.addEventListener('click', loadOrders);
+    search.addEventListener('input', () => {
+      clearTimeout(searchTimer);
+
+      searchTimer = setTimeout(() => {
+        if (busy) {
+          searchPending = true;
+          return;
+        }
+
+        page = 1;
+        selected.clear();
+        loadOrders();
+      }, 350);
+    });
+
+    refresh.addEventListener('click', () => {
+      loadOrders();
+    });
+
+    selectPage.addEventListener('change', () => {
+      selected.clear();
+
+      if (selectPage.checked) {
+        orders.filter(eligible).forEach(order => {
+          selected.set(
+            order._id,
+            order.workflowVersion || 0
+          );
+        });
+      }
+
+      render();
+    });
+
+    batchAction.addEventListener('click', () => {
+      changeWorkflow(
+        activeStatus === 'repair' ? 'dispatch' : 'assign',
+        orders.filter(order => selected.has(order._id))
+      );
+    });
+
+    prevPage.addEventListener('click', () => {
+      if (!busy && page > 1) {
+        page--;
+        selected.clear();
+        loadOrders();
+      }
+    });
+
+    nextPage.addEventListener('click', () => {
+      if (!busy && page < pages) {
+        page++;
+        selected.clear();
+        loadOrders();
+      }
+    });
+
+    setInterval(() => {
+      if (
+        !busy &&
+        !document.hidden &&
+        document.activeElement !== search
+      ) {
+        loadOrders(true);
+      }
+    }, 15000);
+
     clearAll.addEventListener('click', deleteAll);
 
     loadOrders();
