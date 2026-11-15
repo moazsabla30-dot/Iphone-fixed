@@ -194,9 +194,14 @@ function nextWorkflow(order, action, role, reason) {
       };
     }
 
-    if (action === 'dispatch' && status === 'repair') {
+    if (
+      action === 'dispatch' &&
+      status === 'repair' &&
+      order.courierStage === 'in_center'
+    ) {
       return {
         workflowStatus: 'delivery',
+        courierStage: 'awaiting_center',
         assignedCourier: COURIER_ID,
         failureReason: '',
         failedStage: ''
@@ -246,10 +251,10 @@ function nextWorkflow(order, action, role, reason) {
   return null;
 }
 
-// ---------- عرض اللوحتين وقراءة الطلبات ----------
+// ---------- عرض لوحة الإدارة وقراءة الطلبات ----------
 
 app.get(
-  ['/api/orders', '/api/courier'],
+  '/api/orders',
   panelOnly,
   async (req, res) => {
     if (req.query.format !== 'json') {
@@ -362,7 +367,8 @@ app.get(
           workflowVersion: 1,
           workflowUpdatedAt: 1,
           failureReason: 1,
-          failedStage: 1
+          failedStage: 1,
+          courierStage: 1
         }
       })
         .sort({ createdAt: -1, _id: -1 })
@@ -393,7 +399,7 @@ app.get(
 // ---------- تغيير الحالة وإسناد الطلبات ----------
 
 app.patch(
-  ['/api/orders', '/api/courier'],
+  '/api/orders',
   panelOnly,
   workflowOrigin,
   async (req, res) => {
@@ -1393,7 +1399,7 @@ const adminPage = `
 
       return (
         (status === 'new' && !order.assignedCourier) ||
-        status === 'repair'
+        (status === 'repair' && order.courierStage === 'in_center')
       );
     }
 
@@ -1484,7 +1490,9 @@ const adminPage = `
       }
 
       if (status === 'repair') {
-        text += ' — تم الاستلام من العميل';
+        text += order.courierStage === 'in_center'
+          ? ' — وصل مركز الصيانة'
+          : ' — مع المندوب في طريقه للصيانة';
       }
 
       info.append(element('strong', 'status-badge', text));
@@ -1570,7 +1578,10 @@ const adminPage = `
           );
         }
 
-        if (status === 'repair') {
+        if (
+          status === 'repair' &&
+          order.courierStage === 'in_center'
+        ) {
           actionButton(
             'جاهز للتسليم — إسناد للمندوب',
             'dispatch',
