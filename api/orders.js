@@ -56,11 +56,10 @@ function adminOnly(req, res, next) {
 function requireSameOrigin(req, res, next) {
   try {
     const origin = new URL(req.headers.origin || '');
-    const host = req.headers.host;
 
     if (
       origin.protocol !== 'https:' ||
-      origin.host !== host ||
+      origin.host !== req.headers.host ||
       req.get('X-Admin-Action') !== 'delete-orders'
     ) {
       return res.status(403).json({
@@ -98,11 +97,50 @@ async function connectDatabase() {
   await connectionPromise;
 }
 
-// ---------- حساب المندوب وحالات الطلبات ----------
+// ---------- أقسام الإدارة ----------
 
 const COURIER_ID = 'primary';
-const STATUSES = ['new', 'repair', 'delivery', 'completed', 'failed'];
 const PAGE_SIZE = 50;
+
+const VIEW_FILTERS = {
+  new: {
+    $or: [
+      { workflowStatus: 'new' },
+      { workflowStatus: { $exists: false } },
+      { workflowStatus: null }
+    ]
+  },
+
+  with_courier: {
+    workflowStatus: 'repair',
+    courierStage: { $ne: 'in_center' }
+  },
+
+  repair: {
+    workflowStatus: 'repair',
+    courierStage: 'in_center'
+  },
+
+  ready: {
+    workflowStatus: 'delivery',
+    courierStage: { $ne: 'to_customer' }
+  },
+
+  delivery: {
+    workflowStatus: 'delivery',
+    courierStage: 'to_customer'
+  },
+
+  completed: {
+    workflowStatus: 'completed'
+  },
+
+  failed: {
+    workflowStatus: 'failed'
+  }
+};
+
+const STATUSES = Object.keys(VIEW_FILTERS);
 
 function courierOnly(req, res, next) {
   res.set('Cache-Control', 'no-store');
@@ -176,6 +214,8 @@ function workflowOrigin(req, res, next) {
 function statusOf(order) {
   return order.workflowStatus || 'new';
 }
+
+// ---------- إجراءات الإدارة ----------
 
 function nextWorkflow(order, action, role, reason) {
   const status = statusOf(order);
@@ -251,152 +291,126 @@ function nextWorkflow(order, action, role, reason) {
   return null;
 }
 
-// ---------- عرض لوحة الإدارة وقراءة الطلبات ----------
+// ---------- عرض الإدارة وقراءة الطلبات ----------
 
-app.get(
-  '/api/orders',
-  panelOnly,
-  async (req, res) => {
-    if (req.query.format !== 'json') {
-      return res.type('html').send(adminPage);
-    }
-
-    try {
-      await connectDatabase();
-
-      const collection = mongoose.connection.collection('orders');
-
-      const scope = req.panelRole === 'courier'
-        ? { assignedCourier: COURIER_ID }
-        : {};
-
-      const status = String(req.query.status || 'new');
-
-      if (!STATUSES.includes(status)) {
-        return res.status(400).json({
-          success: false,
-          error: 'حالة غير صحيحة.'
-        });
-      }
-
-      const query = String(req.query.q || '').trim().slice(0, 120);
-      const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
-      const conditions = [
-        scope,
-        status === 'new'
-          ? {
-              $or: [
-                { workflowStatus: 'new' },
-                { workflowStatus: { $exists: false } },
-                { workflowStatus: null }
-              ]
-            }
-          : { workflowStatus: status }
-      ];
-
-      if (query) {
-        conditions.push({
-          $or: [
-            'orderNo',
-            'model',
-            'details.name',
-            'details.phone',
-            'details.whatsapp',
-            'details.address'
-          ].map(key => ({
-            [key]: {
-              $regex: escaped,
-              $options: 'i'
-            }
-          }))
-        });
-      }
-
-      const filter = { $and: conditions };
-
-      const [groups, filteredTotal] = await Promise.all([
-        collection.aggregate([
-          { $match: scope },
-          {
-            $group: {
-              _id: { $ifNull: ['$workflowStatus', 'new'] },
-              count: { $sum: 1 }
-            }
-          }
-        ]).toArray(),
-        collection.countDocuments(filter)
-      ]);
-
-      const counts = Object.fromEntries(
-        STATUSES.map(key => [key, 0])
-      );
-
-      for (const group of groups) {
-        if (STATUSES.includes(group._id)) {
-          counts[group._id] = group.count;
-        }
-      }
-
-      const total = groups.reduce(
-        (sum, group) => sum + group.count,
-        0
-      );
-
-      const pages = Math.max(
-        1,
-        Math.ceil(filteredTotal / PAGE_SIZE)
-      );
-
-      const page = Math.min(
-        pages,
-        Math.max(1, Number.parseInt(req.query.page, 10) || 1)
-      );
-
-      const orders = await collection.find(filter, {
-        projection: {
-          orderNo: 1,
-          model: 1,
-          selectedParts: 1,
-          partNotes: 1,
-          totalPrice: 1,
-          details: 1,
-          createdAt: 1,
-          workflowStatus: 1,
-          assignedCourier: 1,
-          workflowVersion: 1,
-          workflowUpdatedAt: 1,
-          failureReason: 1,
-          failedStage: 1,
-          courierStage: 1
-        }
-      })
-        .sort({ createdAt: -1, _id: -1 })
-        .skip((page - 1) * PAGE_SIZE)
-        .limit(PAGE_SIZE)
-        .toArray();
-
-      res.json({
-        success: true,
-        orders,
-        total,
-        counts,
-        filteredTotal,
-        page,
-        pages
-      });
-    } catch (error) {
-      console.error('Orders read error:', error);
-
-      res.status(500).json({
-        success: false,
-        error: 'تعذر تحميل الطلبات. حاول مرة أخرى.'
-      });
-    }
+app.get('/api/orders', panelOnly, async (req, res) => {
+  if (req.query.format !== 'json') {
+    return res.type('html').send(adminPage);
   }
-);
 
-// ---------- تغيير الحالة وإسناد الطلبات ----------
+  try {
+    await connectDatabase();
+
+    const collection = mongoose.connection.collection('orders');
+
+    const scope = req.panelRole === 'courier'
+      ? { assignedCourier: COURIER_ID }
+      : {};
+
+    const status = String(req.query.status || 'new');
+
+    if (!STATUSES.includes(status)) {
+      return res.status(400).json({
+        success: false,
+        error: 'حالة غير صحيحة.'
+      });
+    }
+
+    const query = String(req.query.q || '').trim().slice(0, 120);
+    const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+    const conditions = [scope, VIEW_FILTERS[status]];
+
+    if (query) {
+      conditions.push({
+        $or: [
+          'orderNo',
+          'model',
+          'details.name',
+          'details.phone',
+          'details.whatsapp',
+          'details.address'
+        ].map(key => ({
+          [key]: {
+            $regex: escaped,
+            $options: 'i'
+          }
+        }))
+      });
+    }
+
+    const filter = { $and: conditions };
+
+    const [totals, filteredTotal] = await Promise.all([
+      Promise.all(
+        STATUSES.map(key =>
+          collection.countDocuments({
+            $and: [scope, VIEW_FILTERS[key]]
+          })
+        )
+      ),
+      collection.countDocuments(filter)
+    ]);
+
+    const counts = Object.fromEntries(
+      STATUSES.map((key, index) => [key, totals[index]])
+    );
+
+    const total = totals.reduce((sum, count) => sum + count, 0);
+
+    const pages = Math.max(
+      1,
+      Math.ceil(filteredTotal / PAGE_SIZE)
+    );
+
+    const page = Math.min(
+      pages,
+      Math.max(1, Number.parseInt(req.query.page, 10) || 1)
+    );
+
+    const orders = await collection.find(filter, {
+      projection: {
+        orderNo: 1,
+        model: 1,
+        selectedParts: 1,
+        partNotes: 1,
+        totalPrice: 1,
+        details: 1,
+        createdAt: 1,
+        workflowStatus: 1,
+        assignedCourier: 1,
+        workflowVersion: 1,
+        workflowUpdatedAt: 1,
+        failureReason: 1,
+        failedStage: 1,
+        courierStage: 1
+      }
+    })
+      .sort({ createdAt: -1, _id: -1 })
+      .skip((page - 1) * PAGE_SIZE)
+      .limit(PAGE_SIZE)
+      .toArray();
+
+    res.json({
+      success: true,
+      orders,
+      total,
+      counts,
+      filteredTotal,
+      page,
+      pages
+    });
+  } catch (error) {
+    console.error('Orders read error:', error);
+
+    res.status(500).json({
+      success: false,
+      error: 'تعذر تحميل الطلبات. حاول مرة أخرى.'
+    });
+  }
+});
+
+// ---------- إسناد الطلبات وتغيير الحالة ----------
 
 app.patch(
   '/api/orders',
@@ -529,7 +543,7 @@ app.patch(
   }
 );
 
-// ---------- حذف طلب أو جميع الطلبات ----------
+// ---------- حذف الطلبات ----------
 
 app.delete(
   '/api/orders',
@@ -601,7 +615,7 @@ app.delete(
   }
 );
 
-// ---------- واجهة اللوحة ----------
+// ---------- واجهة الإدارة ----------
 
 const adminPage = `
 <!doctype html>
@@ -614,13 +628,13 @@ const adminPage = `
 
   <style>
     :root {
-      --bg: #f4f6fa;
+      --bg: #f3f6f3;
       --card: #ffffff;
-      --ink: #172338;
-      --muted: #738096;
-      --line: #e5eaf1;
-      --blue: #275df2;
-      --green: #087f55;
+      --ink: #17322d;
+      --muted: #718278;
+      --line: #dce5df;
+      --blue: #174d40;
+      --green: #187246;
       --red: #bd3044;
     }
 
@@ -645,14 +659,14 @@ const adminPage = `
     button:focus-visible,
     a:focus-visible,
     input:focus-visible {
-      outline: 3px solid #93b4ff;
+      outline: 3px solid #56bba2;
       outline-offset: 3px;
     }
 
     .topbar {
-      background: #132039;
+      background: #133e35;
       color: white;
-      border-bottom: 4px solid #497bff;
+      border-bottom: 4px solid #56bba2;
     }
 
     .topbar-inner {
@@ -673,7 +687,7 @@ const adminPage = `
 
     .brand-mark {
       background: #ffffff;
-      color: #132039;
+      color: #133e35;
       border-radius: 14px;
       width: 54px;
       height: 54px;
@@ -691,15 +705,15 @@ const adminPage = `
 
     .brand-subtitle {
       font-size: 12px;
-      color: #bdc9df;
+      color: #b7dacb;
       margin-top: 2px;
     }
 
     .private-label {
       padding: 6px 13px;
-      border: 1px solid #43516a;
+      border: 1px solid #70998b;
       border-radius: 30px;
-      color: #dce5f4;
+      color: #d3e5de;
       font-size: 12px;
     }
 
@@ -765,7 +779,7 @@ const adminPage = `
       background: var(--blue);
     }
 
-    .btn-primary:hover { background: #174bd5; }
+    .btn-primary:hover { background: #103c31; }
 
     .btn-clear, .btn-delete {
       background: #fff4f5;
@@ -778,20 +792,20 @@ const adminPage = `
     }
 
     .btn-call {
-      color: #234eae;
-      background: #eef4ff;
-      border-color: #d3e1ff;
+      color: #375d4c;
+      background: #f5f9f6;
+      border-color: #d9e6dd;
     }
 
-    .btn-call:hover { background: #dfeaff; }
+    .btn-call:hover { background: #e1eee5; }
 
     .btn-whatsapp {
       color: var(--green);
-      background: #eaf8f1;
-      border-color: #bfe6d2;
+      background: #e8f6ec;
+      border-color: #b9ddc5;
     }
 
-    .btn-whatsapp:hover { background: #d7f2e4; }
+    .btn-whatsapp:hover { background: #ccecd7; }
 
     .stats {
       display: grid;
@@ -860,7 +874,7 @@ const adminPage = `
     #notice:empty { display: none; }
 
     #notice.success {
-      background: #eaf8f1;
+      background: #e8f6ec;
       color: #086942;
       border: 1px solid #c5e8d6;
     }
@@ -877,7 +891,7 @@ const adminPage = `
       border: 1px solid var(--line);
       border-radius: 18px;
       overflow: hidden;
-      box-shadow: 0 5px 20px rgba(20,35,60,.035);
+      box-shadow: 0 5px 20px rgba(23,59,41,.045);
     }
 
     .card-head {
@@ -888,7 +902,7 @@ const adminPage = `
       justify-content: space-between;
       flex-wrap: wrap;
       gap: 12px;
-      background: #fcfdff;
+      background: #fbfdfb;
     }
 
     .order-number {
@@ -897,7 +911,7 @@ const adminPage = `
       text-align: right;
       font-size: 17px;
       font-weight: bold;
-      color: #254b96;
+      color: #174d40;
     }
 
     .order-date {
@@ -907,8 +921,8 @@ const adminPage = `
     }
 
     .model-badge {
-      background: #edf1f7;
-      color: #41516c;
+      background: #edf3ef;
+      color: #3c6352;
       border-radius: 8px;
       padding: 6px 11px;
       font-size: 12px;
@@ -950,7 +964,7 @@ const adminPage = `
       margin-top: 20px;
       padding: 15px;
       border-radius: 11px;
-      background: #f7f9fc;
+      background: #f5f8f5;
       display: grid;
       grid-template-columns: repeat(2,minmax(0,1fr));
       gap: 18px;
@@ -992,7 +1006,7 @@ const adminPage = `
       height: 27px;
       border-radius: 8px;
       background: #e0f4e9;
-      color: #087f55;
+      color: #187246;
       font-size: 13px;
       font-weight: bold;
     }
@@ -1004,7 +1018,7 @@ const adminPage = `
 
     .repair-name {
       display: block;
-      color: #087f55;
+      color: #187246;
       font-size: 14px;
       font-weight: bold;
       overflow-wrap: anywhere;
@@ -1030,7 +1044,7 @@ const adminPage = `
       margin-top: 18px;
       padding: 15px;
       border-radius: 11px;
-      background: #f7f9fc;
+      background: #f5f8f5;
       display: grid;
       grid-template-columns: repeat(2,minmax(0,1fr));
       gap: 18px;
@@ -1066,7 +1080,7 @@ const adminPage = `
     .total-value {
       font-size: 21px;
       font-weight: bold;
-      color: #172e57;
+      color: #17322d;
     }
 
     .actions {
@@ -1078,7 +1092,7 @@ const adminPage = `
     .empty {
       text-align: center;
       padding: 55px 20px;
-      border: 1px dashed #cbd5e4;
+      border: 1px dashed #c8d8cd;
       background: white;
       border-radius: 16px;
       color: var(--muted);
@@ -1124,15 +1138,16 @@ const adminPage = `
     }
 
     .status-tab {
+      flex: 1 1 160px;
       background: #fff;
       border-color: var(--line);
       color: var(--ink);
     }
 
     .status-tab.active {
-      background: var(--blue);
+      background: #133e35;
       color: #fff;
-      border-color: var(--blue);
+      border-color: #133e35;
     }
 
     .batch {
@@ -1141,7 +1156,7 @@ const adminPage = `
       align-items: center;
       gap: 15px;
       padding: 15px;
-      background: #edf3ff;
+      background: #e6f1e9;
       border-radius: 12px;
     }
 
@@ -1172,8 +1187,19 @@ const adminPage = `
       display: inline-block;
       border-radius: 8px;
       padding: 5px 10px;
-      background: #eaf0ff;
-      color: #234eae;
+      background: #edf3ef;
+      color: #375d4c;
+    }
+
+    .state-with_courier .status-badge,
+    .state-delivery .status-badge {
+      background: #dceee5;
+      color: #174d40;
+    }
+
+    .state-ready .status-badge {
+      background: #fff2d8;
+      color: #806022;
     }
 
     .failure-reason {
@@ -1187,8 +1213,8 @@ const adminPage = `
     .state-completed .card-head,
     .state-completed .card-body,
     .state-completed .card-foot {
-      background: #eaf8f1;
-      border-color: #bfe6d2;
+      background: #e8f6ec;
+      border-color: #b9ddc5;
     }
 
     .state-completed .status-badge {
@@ -1219,7 +1245,7 @@ const adminPage = `
         <div>
           <div class="brand-title">لوحة إدارة الطلبات</div>
           <div class="brand-subtitle">
-            بيانات العملاء وطلبات الصيانة
+            كل جهاز في مكانه، وكل خطوة مسجّلة
           </div>
         </div>
       </div>
@@ -1232,7 +1258,7 @@ const adminPage = `
       <div>
         <h1>الطلبات</h1>
         <div class="muted">
-          راجع بيانات العملاء وتواصل معهم بسهولة.
+          تابع الجهاز من استلامه من العميل حتى رجوعه إليه.
         </div>
       </div>
 
@@ -1251,10 +1277,12 @@ const adminPage = `
         <div class="stat-label">كل الطلبات المحفوظة</div>
         <div id="totalCount" class="stat-value">—</div>
       </div>
+
       <div class="stat">
         <div class="stat-label">نتائج العرض</div>
         <div id="visibleCount" class="stat-value">—</div>
       </div>
+
       <div class="stat">
         <div class="stat-label">آخر تحديث · القاهرة</div>
         <div id="lastUpdated" class="stat-value small">—</div>
@@ -1285,7 +1313,9 @@ const adminPage = `
         <input id="selectPage" type="checkbox">
         تحديد المتاح في هذه الصفحة
       </label>
+
       <span id="selectionCount">تم تحديد 0 طلب</span>
+
       <button
         id="batchAction"
         class="btn btn-primary"
@@ -1341,8 +1371,10 @@ const adminPage = `
 
     const labels = {
       new: 'طلبات جديدة',
-      repair: 'في الصيانة',
-      delivery: 'جاري التوصيل',
+      with_courier: 'مع المندوب — للصيانة',
+      repair: 'في مركز الصيانة',
+      ready: 'جاهز — بانتظار المندوب',
+      delivery: 'مع المندوب — للتسليم',
       completed: 'مكتملة',
       failed: 'متعذّرة'
     };
@@ -1390,6 +1422,25 @@ const adminPage = `
         'اللون الأخضر يعني تسليم الجهاز للعميل، والأحمر يعني تعذّر المهمة.';
 
       clearAll.hidden = true;
+    }
+
+    // تحويل حالة قاعدة البيانات إلى القسم المناسب في الإدارة.
+    function viewOf(order) {
+      const status = order.workflowStatus || 'new';
+
+      if (status === 'repair') {
+        return order.courierStage === 'in_center'
+          ? 'repair'
+          : 'with_courier';
+      }
+
+      if (status === 'delivery') {
+        return order.courierStage === 'to_customer'
+          ? 'delivery'
+          : 'ready';
+      }
+
+      return status;
     }
 
     function eligible(order) {
@@ -1454,6 +1505,7 @@ const adminPage = `
         );
 
         button.type = 'button';
+
         button.setAttribute(
           'aria-pressed',
           String(activeStatus === key)
@@ -1478,7 +1530,7 @@ const adminPage = `
     }
 
     function workflowDetails(order, card, head, body, actions) {
-      const status = order.workflowStatus || 'new';
+      const status = viewOf(order);
 
       card.classList.add('state-' + status);
 
@@ -1489,13 +1541,17 @@ const adminPage = `
         text += ' — بانتظار استلام المندوب';
       }
 
-      if (status === 'repair') {
-        text += order.courierStage === 'in_center'
-          ? ' — وصل مركز الصيانة'
-          : ' — مع المندوب في طريقه للصيانة';
+      if (status === 'ready') {
+        text += ' — الجهاز ما زال في المركز';
       }
 
-      info.append(element('strong', 'status-badge', text));
+      if (status === 'with_courier') {
+        text += ' — استلمه من العميل ولم يؤكد تسليمه للمركز';
+      }
+
+      info.append(
+        element('strong', 'status-badge', text)
+      );
 
       if (order.workflowUpdatedAt) {
         info.append(
@@ -1648,7 +1704,7 @@ const adminPage = `
           assign:
             'إسناد الطلبات المحددة للمندوب ليستلم الأجهزة من العملاء؟',
           dispatch:
-            'هل الأجهزة المحددة جاهزة لإرجاعها للعملاء؟ سيتم إسنادها للمندوب.',
+            'هل الأجهزة المحددة جاهزة لإرجاعها للعملاء؟ ستظهر للمندوب، وتظل في المركز حتى يؤكد استلامها.',
           retry:
             'إعادة إسناد المهمة المتعذّرة للمندوب؟',
           pickup:
@@ -1763,7 +1819,7 @@ const adminPage = `
       return String(value || '').replace(/_/g, ' ');
     }
 
-    // ---------- أدوات إنشاء العناصر ----------
+    // ---------- أدوات الواجهة ----------
 
     function element(tag, className, text) {
       const node = document.createElement(tag);
@@ -1910,32 +1966,27 @@ const adminPage = `
 
       const content = element('div', 'repair-content');
 
-      const name = element(
-        'span',
-        'repair-name',
-        partLabel(part)
+      content.append(
+        element('span', 'repair-name', partLabel(part))
       );
-
-      content.append(name);
 
       if (
         note !== undefined &&
         note !== null &&
         String(note).trim() !== ''
       ) {
-        const noteLabel = element(
-          'span',
-          'repair-note-label',
-          translate('ملاحظات الإصلاح', 'Repair Notes')
+        content.append(
+          element(
+            'span',
+            'repair-note-label',
+            translate('ملاحظات الإصلاح', 'Repair Notes')
+          ),
+          element(
+            'div',
+            'repair-note-value',
+            String(note)
+          )
         );
-
-        const noteValue = element(
-          'div',
-          'repair-note-value',
-          String(note)
-        );
-
-        content.append(noteLabel, noteValue);
       }
 
       item.append(number, content);
@@ -1951,13 +2002,13 @@ const adminPage = `
       const partNotes = order.partNotes || {};
       const section = element('div', 'repairs-section');
 
-      const title = element(
-        'span',
-        'repairs-title',
-        translate('الإصلاحات المطلوبة', 'Required Repairs')
+      section.append(
+        element(
+          'span',
+          'repairs-title',
+          translate('الإصلاحات المطلوبة', 'Required Repairs')
+        )
       );
-
-      section.append(title);
 
       if (!selectedParts.length) {
         section.append(element('div', 'field-value', '—'));
