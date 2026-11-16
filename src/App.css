@@ -1445,3 +1445,55 @@ footer > span {
     text-align: center;
   }
 }
+.reset-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  direction: ltr;
+  flex-shrink: 0;
+
+  color: #000;
+  font: 800 28px Arial, sans-serif;
+  text-decoration: none;
+}
+
+.reset-brand .reset-brand-icon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+
+  width: 46px;
+  height: 46px;
+  padding: 7px;
+
+  background: #fff;
+  border: 1px solid #e8e8e8;
+  border-radius: 13px;
+}
+
+.reset-brand .reset-brand-icon img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.reset-brand .reset-brand-name {
+  color: #000;
+  background: #fff;
+  border-radius: 6px;
+  padding: 3px 5px;
+  font: inherit;
+}
+
+@media (max-width: 480px) {
+  .reset-brand {
+    font-size: 24px;
+    gap: 7px;
+  }
+
+  .reset-brand .reset-brand-icon {
+    width: 40px;
+    height: 40px;
+  }
+}

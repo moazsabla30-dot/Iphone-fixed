@@ -1004,7 +1004,13 @@ h1 { margin: 0 0 5px; font-size: 28px; letter-spacing: -.7px; }
 <div class="topbar">
   <div class="topbar-inner">
     <div class="brand">
-      <div class="brand-mark">iFix</div>
+     <div class="reset-brand">
+  <span class="reset-brand-icon">
+    <img src="/reset-logo.svg" alt="" />
+  </span>
+
+  <span class="reset-brand-name">Reset</span>
+</div>
       <div>
         <div class="brand-title">لوحة إدارة الطلبات</div>
         <div class="brand-subtitle">كل جهاز في مكانه، وكل خطوة مسجّلة</div>

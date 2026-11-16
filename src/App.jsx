@@ -904,9 +904,13 @@ export default function App() {
 
       <header className="header">
         <div className="ifix-brand-menu">
-          <a className="logo" href="#top">
-            <b>i</b> Fix
-          </a>
+<a className="reset-brand" href="#top" aria-label="Reset">
+  <span className="reset-brand-icon">
+    <img src="/reset-logo.svg" alt="" />
+  </span>
+
+  <span className="reset-brand-name">Reset</span>
+</a>
           <button type="button" className="ifix-mobile-toggle" aria-label={isArabic ? "فتح القائمة" : "Open menu"} aria-expanded={mobileMenuOpen} aria-controls="ifix-mobile-nav" onClick={() => setMobileMenuOpen(open => !open)}>
             <span /><span /><span />
           </button>

@@ -719,9 +719,13 @@ input:focus-visible {
 <body>
 <main class="shell">
   <header class="brand">
-    <div class="logo">
-      iFix <span style="font-weight:normal;font-size:13px">Courier</span>
-    </div>
+    <div class="reset-brand">
+  <span class="reset-brand-icon">
+    <img src="/reset-logo.svg" alt="" />
+  </span>
+
+  <span class="reset-brand-name">Reset</span>
+</div>
     <span class="badge">مساحة المندوب الخاصة</span>
   </header>
 
