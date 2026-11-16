@@ -1497,3 +1497,15 @@ footer > span {
     height: 40px;
   }
 }
+.reset-brand .reset-brand-icon {
+  background: #000;
+  border: 0;
+  padding: 0;
+  border-radius: 13px;
+  overflow: hidden;
+}
+
+.reset-brand .reset-brand-name {
+  color: #000;
+  background: transparent;
+}
