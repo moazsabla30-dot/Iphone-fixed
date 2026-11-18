@@ -62,6 +62,9 @@ const standardParts = [
   { id: "socket", nameAr: "سوكت", nameEn: "Charging Socket" }
 ];
 
+// Real replacement-part product photos (iFixit and specialist parts suppliers).
+// The same component photo is intentionally reused for quality tiers: a photo alone
+// cannot prove whether a replacement part is genuine, pulled, or aftermarket.
 const partSubOptions = {
   screen: [
     {
@@ -71,7 +74,7 @@ const partSubOptions = {
       price: 2900,
       descAr: "أصلية 100% مخلوعة من جهاز آيفون آخر مطابقة لمواصفات المصنع",
       descEn: "100% original pulled from another iPhone, factory matching",
-      image: "/WhatsApp Image 2026-11-09 at 7.19.50 PM (2).jpeg"
+      image: "https://cart-products.cdn.ifixit.com/cart-products/DIiI4jEvMccgQ5eP.large"
     },
     {
       id: "gx3",
@@ -80,7 +83,7 @@ const partSubOptions = {
       price: 2100,
       descAr: "أفضل وأعلى درجة بديلة للشاشة الأصلية بألوان وجودة فائقة",
       descEn: "Best and highest grade alternative to original screen with superb colors",
-      image: "/WhatsApp Image 2026-11-09 at 7.19.50 PM (1).jpeg"
+      image: "https://cart-products.cdn.ifixit.com/cart-products/DIiI4jEvMccgQ5eP.large"
     },
     {
       id: "copy",
@@ -89,7 +92,7 @@ const partSubOptions = {
       price: 1600,
       descAr: "جودة مقبولة وسعر اقتصادي مناسب",
       descEn: "Acceptable quality and suitable economic price",
-      image: "/WhatsApp Image 2026-11-09 at 7.19.50 PM.jpeg"
+      image: "https://cart-products.cdn.ifixit.com/cart-products/DIiI4jEvMccgQ5eP.large"
     }
   ],
   battery: [
@@ -100,7 +103,7 @@ const partSubOptions = {
       price: 1500,
       descAr: "عمر افتراضي طويل وأداء ممتاز وبتجيب رساله قطعه اصليه من apple",
       descEn: "Long battery life, excellent performance, shows genuine Apple part message",
-      image: "/WhatsApp Image 2026-11-09 at 8.08.21 PM.jpeg"
+      image: "https://cart-products.cdn.ifixit.com/cart-products/U3wVlnahpeOKUBEQ.large"
     },
     {
       id: "high_batt",
@@ -109,7 +112,7 @@ const partSubOptions = {
       price: 1300,
       descAr: "أداء أعلى من السعة العادية وبتجيب رساله used داخل الاعدادات",
       descEn: "Higher performance than standard capacity, shows 'used' message in settings",
-      image: "/WhatsApp Image 2026-11-09 at 8.08.21 PM.jpeg"
+      image: "https://cart-products.cdn.ifixit.com/cart-products/U3wVlnahpeOKUBEQ.large"
     },
     {
       id: "copy_batt",
@@ -118,7 +121,7 @@ const partSubOptions = {
       price: 900,
       descAr: "اقتصادية وبأداء جيد",
       descEn: "Economical with good performance",
-      image: "/WhatsApp Image 2026-11-09 at 8.08.21 PM.jpeg"
+      image: "https://cart-products.cdn.ifixit.com/cart-products/U3wVlnahpeOKUBEQ.large"
     }
   ],
   upper_speaker: [
@@ -129,17 +132,9 @@ const partSubOptions = {
       price: 800,
       descAr: "صوت مكالمات نقي وواضح",
       descEn: "Pure and clear call sound",
-      image: "https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=300&auto=format&fit=crop&q=60"
+      image: "https://cart-products.cdn.ifixit.com/cart-products/gilVJUDvZDByFuFW.large"
     },
-    {
-      id: "copy_usp",
-      nameAr: "سماعة علوية تجارية",
-      nameEn: "Commercial Upper Speaker",
-      price: 500,
-      descAr: "أداء قياسي",
-      descEn: "Standard performance",
-      image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=300&auto=format&fit=crop&q=60"
-    }
+    
   ],
   lower_speaker: [
     {
@@ -149,7 +144,7 @@ const partSubOptions = {
       price: 900,
       descAr: "صوت موسيقى قوي بدون تشويش",
       descEn: "Strong music sound without distortion",
-      image: "https://images.unsplash.com/photo-1545454675-3531b543be5d?w=300&auto=format&fit=crop&q=60"
+      image: "https://cart-products.cdn.ifixit.com/cart-products/QLvCOcyXxOUcUxda.large"
     }
   ],
   mic: [
@@ -160,7 +155,7 @@ const partSubOptions = {
       price: 700,
       descAr: "نقاء تام في تسجيل الصوت والمكالمات",
       descEn: "Total clarity in audio recording and calls",
-      image: "https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=300&auto=format&fit=crop&q=60"
+      image: "https://cart-products.cdn.ifixit.com/cart-products/PacEDPBxe1f4UPE4.large"
     }
   ],
   front_camera: [
@@ -171,7 +166,7 @@ const partSubOptions = {
       price: 1400,
       descAr: "وضوح عالي ودعم كامل للـ Face ID",
       descEn: "High clarity and full Face ID support",
-      image: "https://images.unsplash.com/photo-1512790182412-b19e6d62bc39?w=300&auto=format&fit=crop&q=60"
+      image: "https://www.cellspare.com/image/cache/catalog/data/Accessories%20Villa/Product%20image/apple-iphone-16-pro-max-front-camera-module-500x500w.jpg"
     }
   ],
   back_cameras: [
@@ -182,7 +177,7 @@ const partSubOptions = {
       price: 2200,
       descAr: "تصوير احترافي وبدون مشاكل تركيز",
       descEn: "Professional shooting without focus issues",
-      image: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=300&auto=format&fit=crop&q=60"
+      image: "https://cart-products.cdn.ifixit.com/cart-products/UEflVuCV2KT2oqLk.large"
     }
   ],
   back_glass: [
@@ -193,7 +188,7 @@ const partSubOptions = {
       price: 2200,
       descAr: "مطابق تماماً لظهر المصنع",
       descEn: "Exact match to factory back glass",
-      image: "https://images.unsplash.com/photo-1541872703-74c5e44368f9?w=300&auto=format&fit=crop&q=60"
+      image: "https://www.koopjeonderdelen.nl/cdn/shop/files/iphone-16-pro-max-origineel-achterkant_1_800x.jpg?v=1747581172"
     },
     {
       id: "copy_back",
@@ -202,7 +197,7 @@ const partSubOptions = {
       price: 1300,
       descAr: "خامة جيدة ومظهر أنيق",
       descEn: "Good material and elegant look",
-      image: "https://images.unsplash.com/photo-1550009158-9ebf69173e03?w=300&auto=format&fit=crop&q=60"
+      image: "https://www.koopjeonderdelen.nl/cdn/shop/files/iphone-16-pro-max-origineel-achterkant_1_800x.jpg?v=1747581172"
     }
   ],
   flash: [
@@ -213,7 +208,7 @@ const partSubOptions = {
       price: 600,
       descAr: "إضاءة قوية متوافقة مع النظام",
       descEn: "Strong lighting compatible with system",
-      image: "https://images.unsplash.com/photo-1513506003901-1e6a229e2d15?w=300&auto=format&fit=crop&q=60"
+      image: "https://d57avc95tvxyg.cloudfront.net/images/detailed/12502/flash_light_flex_cable_for_apple_iphone_16_pro_max_by_maxbhi_com_47855.jpg?t=1762425550"
     }
   ],
   socket: [
@@ -224,19 +219,1554 @@ const partSubOptions = {
       price: 1100,
       descAr: "يدعم الشحن السريع ونقل البيانات",
       descEn: "Supports fast charging and data transfer",
-      image: "https://images.unsplash.com/photo-1583863788434-e58a36330cf0?w=300&auto=format&fit=crop&q=60"
+      image: "https://cart-products.cdn.ifixit.com/cart-products/Okn1dXKXByepIHtc.large"
     },
-    {
-      id: "copy_socket",
-      nameAr: "سوكت شحن تجاري",
-      nameEn: "Commercial Charging Socket",
-      price: 650,
-      descAr: "شحن عادي وبكفاءة مقبولة",
-      descEn: "Normal charging with acceptable efficiency",
-      image: "https://images.unsplash.com/photo-1565849904461-04a58ad377e0?w=300&auto=format&fit=crop&q=60"
-    }
+    
   ]
 };
+
+// ============================================================
+// MODEL-SPECIFIC PRICES (EDIT PRICES HERE IN THE CODE)
+// ============================================================
+// Every iPhone model has a separate price for every repair part and every quality option.
+// Change only the number you need. The website price, order summary and total update automatically.
+// Initial values below are copied from the original shared prices; replace them with your actual model-specific prices.
+
+const MODEL_PRICES = {
+  "iPhone 18 Pro Max": {
+    screen: {
+      pulled: "سيتوفر قريبا",
+      gx3: "سيتوفر قريبا",
+      copy: "سيتوفر قريبا"
+    },
+    battery: {
+      orig_batt: "سيتوفر قريبا",
+      high_batt: "سيتوفر قريبا",
+      copy_batt: "سيتوفر قريبا"
+    },
+    upper_speaker: {
+      orig_usp: "سيتوفر قريبا",
+      copy_usp: "سيتوفر قريبا"
+    },
+    lower_speaker: {
+      orig_lsp: "سيتوفر قريبا"
+    },
+    mic: {
+      orig_mic: "سيتوفر قريبا"
+    },
+    front_camera: {
+      orig_fcam: "سيتوفر قريبا"
+    },
+    back_cameras: {
+      orig_bcam: "سيتوفر قريبا"
+    },
+    back_glass: {
+      orig_back: "سيتوفر قريبا",
+      copy_back: "سيتوفر قريبا"
+    },
+    flash: {
+      orig_flash: "سيتوفر قريبا"
+    },
+    socket: {
+      orig_socket: "سيتوفر قريبا",
+      copy_socket: "سيتوفر قريبا"
+    }
+  },
+  "iPhone 18 Pro": {
+    screen: {
+      pulled: "سيتوفر قريبا",
+      gx3: "سيتوفر قريبا",
+      copy: "سيتوفر قريبا"
+    },
+    battery: {
+      orig_batt: "سيتوفر قريبا",
+      high_batt: "سيتوفر قريبا",
+      copy_batt: "سيتوفر قريبا"
+    },
+    upper_speaker: {
+      orig_usp: "سيتوفر قريبا",
+      copy_usp: "سيتوفر قريبا"
+    },
+    lower_speaker: {
+      orig_lsp: "سيتوفر قريبا"
+    },
+    mic: {
+      orig_mic: "سيتوفر قريبا"
+    },
+    front_camera: {
+      orig_fcam: "سيتوفر قريبا"
+    },
+    back_cameras: {
+      orig_bcam: "سيتوفر قريبا"
+    },
+    back_glass: {
+      orig_back: "سيتوفر قريبا",
+      copy_back: "سيتوفر قريبا"
+    },
+    flash: {
+      orig_flash: "سيتوفر قريبا"
+    },
+    socket: {
+      orig_socket: "سيتوفر قريبا",
+      copy_socket: "سيتوفر قريبا"
+    }
+  },
+  "iPhone 17e": {
+    screen: {
+      pulled: 2900,
+      gx3: 2100,
+      copy: 1600
+    },
+    battery: {
+      orig_batt: 5800,
+      high_batt: 4300,
+      copy_batt: 3000
+    },
+    upper_speaker: {
+      orig_usp: 1700,
+      copy_usp: 500
+    },
+    lower_speaker: {
+      orig_lsp: 1700
+    },
+    mic: {
+      orig_mic: 1700
+    },
+    front_camera: {
+      orig_fcam: 1400
+    },
+    back_cameras: {
+      orig_bcam: 2200
+    },
+    back_glass: {
+      orig_back: 2840,
+      copy_back: 1840
+    },
+    flash: {
+      orig_flash: 1000
+    },
+    socket: {
+      orig_socket: 1700,
+      copy_socket: 650
+    }
+  },
+  "iPhone 17 Pro Max": {
+    screen: {
+      pulled: 2900,
+      gx3: 2100,
+      copy: 1600
+    },
+    battery: {
+      orig_batt: 5800,
+      high_batt: 4300,
+      copy_batt: 3000
+    },
+    upper_speaker: {
+      orig_usp: 2000,
+      copy_usp: 500
+    },
+    lower_speaker: {
+      orig_lsp: 2000
+    },
+    mic: {
+      orig_mic: 2000
+    },
+    front_camera: {
+      orig_fcam: 1400
+    },
+    back_cameras: {
+      orig_bcam: 2200
+    },
+    back_glass: {
+      orig_back: 2840,
+      copy_back: 1840
+    },
+    flash: {
+      orig_flash: 1000
+    },
+    socket: {
+      orig_socket: 1800,
+      copy_socket: 650
+    }
+  },
+  "iPhone 17 Pro": {
+    screen: {
+      pulled: 2900,
+      gx3: 2100,
+      copy: 1600
+    },
+    battery: {
+     orig_batt: 5800,
+      high_batt: 4300,
+      copy_batt: 3000
+    },
+    upper_speaker: {
+      orig_usp: 2000,
+      copy_usp: 500
+    },
+    lower_speaker: {
+      orig_lsp: 2000
+    },
+    mic: {
+      orig_mic: 1900
+    },
+    front_camera: {
+      orig_fcam: 1400
+    },
+    back_cameras: {
+      orig_bcam: 2200
+    },
+    back_glass: {
+      orig_back: 2840,
+      copy_back: 1840
+    },
+    flash: {
+      orig_flash: 1000
+    },
+    socket: {
+      orig_socket: 1800,
+      copy_socket: 650
+    }
+  },
+  "iPhone 17": {
+    screen: {
+      pulled: 2900,
+      gx3: 2100,
+      copy: 1600
+    },
+    battery: {
+      orig_batt: 5800,
+      high_batt: 4300,
+      copy_batt: 3000
+    },
+    upper_speaker: {
+      orig_usp: 2000,
+      copy_usp: 500
+    },
+    lower_speaker: {
+      orig_lsp: 2000
+    },
+    mic: {
+      orig_mic: 1900
+    },
+    front_camera: {
+      orig_fcam: 1400
+    },
+    back_cameras: {
+      orig_bcam: 2200
+    },
+    back_glass: {
+      orig_back: 2840,
+      copy_back: 1840
+    },
+    flash: {
+      orig_flash: 1000
+    },
+    socket: {
+      orig_socket: 1700,
+      copy_socket: 650
+    }
+  },
+  "iPhone Air": {
+    screen: {
+      pulled: 2900,
+      gx3: 2100,
+      copy: 1600
+    },
+    battery: {
+      orig_batt: 5800,
+      high_batt: 4300,
+      copy_batt: 3000
+    },
+    upper_speaker: {
+      orig_usp: 2000,
+      copy_usp: 500
+    },
+    lower_speaker: {
+      orig_lsp: 2000
+    },
+    mic: {
+      orig_mic: 2000
+    },
+    front_camera: {
+      orig_fcam: 1400
+    },
+    back_cameras: {
+      orig_bcam: 2200
+    },
+    back_glass: {
+      orig_back: 2840,
+      copy_back: 1840
+    },
+    flash: {
+      orig_flash: 1000
+    },
+    socket: {
+      orig_socket: 1500,
+      copy_socket: 650
+    }
+  },
+  "iPhone 16e": {
+    screen: {
+      pulled: 2900,
+      gx3: 2100,
+      copy: 1600
+    },
+    battery: {
+      orig_batt: 4750,
+      high_batt: 3200,
+      copy_batt: 2500
+    },
+    upper_speaker: {
+      orig_usp: 1500,
+      copy_usp: 500
+    },
+    lower_speaker: {
+      orig_lsp: 1500
+    },
+    mic: {
+      orig_mic: 1500
+    },
+    front_camera: {
+      orig_fcam: 1400
+    },
+    back_cameras: {
+      orig_bcam: 2200
+    },
+    back_glass: {
+      orig_back: 2300,
+      copy_back: 1550
+    },
+    flash: {
+      orig_flash: 1000
+    },
+    socket: {
+      orig_socket: 1400,
+      copy_socket: 650
+    }
+  },
+  "iPhone 16 Pro Max": {
+    screen: {
+      pulled: 2900,
+      gx3: 2100,
+      copy: 1600
+    },
+    battery: {
+      orig_batt: 4750,
+      high_batt: 3200,
+      copy_batt: 2500
+    },
+    upper_speaker: {
+      orig_usp: 1500,
+      copy_usp: 500
+    },
+    lower_speaker: {
+      orig_lsp: 1500
+    },
+    mic: {
+      orig_mic: 1500
+    },
+    front_camera: {
+      orig_fcam: 1400
+    },
+    back_cameras: {
+      orig_bcam: 2200
+    },
+    back_glass: {
+      orig_back: 2300,
+      copy_back: 1550
+    },
+    flash: {
+      orig_flash: 1000
+    },
+    socket: {
+      orig_socket: 1400,
+      copy_socket: 650
+    }
+  },
+  "iPhone 16 Pro": {
+    screen: {
+      pulled: 2900,
+      gx3: 2100,
+      copy: 1600
+    },
+    battery: {
+      orig_batt: 4750,
+      high_batt: 3200,
+      copy_batt: 2500
+    },
+    upper_speaker: {
+      orig_usp: 1500,
+      copy_usp: 500
+    },
+    lower_speaker: {
+      orig_lsp: 1500
+    },
+    mic: {
+      orig_mic: 1500
+    },
+    front_camera: {
+      orig_fcam: 1400
+    },
+    back_cameras: {
+      orig_bcam: 2200
+    },
+    back_glass: {
+      orig_back: 2300,
+      copy_back: 1550
+    },
+    flash: {
+      orig_flash: 1000
+    },
+    socket: {
+      orig_socket: 1400,
+      copy_socket: 650
+    }
+  },
+  "iPhone 16 Plus": {
+    screen: {
+      pulled: 2900,
+      gx3: 2100,
+      copy: 1600
+    },
+    battery: {
+     orig_batt: 4750,
+      high_batt: 3200,
+      copy_batt: 2500
+    },
+    upper_speaker: {
+      orig_usp: 1500,
+      copy_usp: 500
+    },
+    lower_speaker: {
+      orig_lsp: 1500
+    },
+    mic: {
+      orig_mic: 1500
+    },
+    front_camera: {
+      orig_fcam: 1400
+    },
+    back_cameras: {
+      orig_bcam: 2200
+    },
+    back_glass: {
+      orig_back: 2300,
+      copy_back: 1550
+    },
+    flash: {
+      orig_flash: 1000
+    },
+    socket: {
+      orig_socket: 1400,
+      copy_socket: 650
+    }
+  },
+  "iPhone 16": {
+    screen: {
+      pulled: 2900,
+      gx3: 2100,
+      copy: 1600
+    },
+    battery: {
+      orig_batt: 4750,
+      high_batt: 3200,
+      copy_batt: 2500
+    },
+    upper_speaker: {
+      orig_usp: 1500,
+      copy_usp: 500
+    },
+    lower_speaker: {
+      orig_lsp: 1500
+    },
+    mic: {
+      orig_mic: 1500
+    },
+    front_camera: {
+      orig_fcam: 1400
+    },
+    back_cameras: {
+      orig_bcam: 2200
+    },
+    back_glass: {
+      orig_back: 2300,
+      copy_back: 1550
+    },
+    flash: {
+      orig_flash: 1000
+    },
+    socket: {
+      orig_socket: 1400,
+      copy_socket: 650
+    }
+  },
+  "iPhone 15 Pro Max": {
+    screen: {
+      pulled: 2900,
+      gx3: 2100,
+      copy: 1600
+    },
+    battery: {
+      orig_batt: 4500,
+      high_batt: 2800,
+      copy_batt: 2200
+    },
+    upper_speaker: {
+      orig_usp: 1500,
+      copy_usp: 500
+    },
+    lower_speaker: {
+      orig_lsp: 1500
+    },
+    mic: {
+      orig_mic: 1500
+    },
+    front_camera: {
+      orig_fcam: 1400
+    },
+    back_cameras: {
+      orig_bcam: 2200
+    },
+    back_glass: {
+      orig_back: 2300,
+      copy_back: 1550
+    },
+    flash: {
+      orig_flash: 1000
+    },
+    socket: {
+      orig_socket: 1400,
+      copy_socket: 650
+    }
+  },
+  "iPhone 15 Pro": {
+    screen: {
+      pulled: 2900,
+      gx3: 2100,
+      copy: 1600
+    },
+    battery: {
+      orig_batt: 4500,
+      high_batt: 2800,
+      copy_batt: 2200
+    },
+    upper_speaker: {
+      orig_usp: 1500,
+      copy_usp: 500
+    },
+    lower_speaker: {
+      orig_lsp: 1500
+    },
+    mic: {
+      orig_mic: 1500
+    },
+    front_camera: {
+      orig_fcam: 1400
+    },
+    back_cameras: {
+      orig_bcam: 2200
+    },
+    back_glass: {
+      orig_back: 2300,
+      copy_back: 1550
+    },
+    flash: {
+      orig_flash: 1000
+    },
+    socket: {
+      orig_socket: 1400,
+      copy_socket: 650
+    }
+  },
+  "iPhone 15 Plus": {
+    screen: {
+      pulled: 2900,
+      gx3: 2100,
+      copy: 1600
+    },
+    battery: {
+      orig_batt: 4500,
+      high_batt: 2800,
+      copy_batt: 2200
+    },
+    upper_speaker: {
+      orig_usp: 1500,
+      copy_usp: 500
+    },
+    lower_speaker: {
+      orig_lsp: 1500
+    },
+    mic: {
+      orig_mic: 1500
+    },
+    front_camera: {
+      orig_fcam: 1400
+    },
+    back_cameras: {
+      orig_bcam: 2200
+    },
+    back_glass: {
+      orig_back: 2300,
+      copy_back: 1550
+    },
+    flash: {
+      orig_flash: 1000
+    },
+    socket: {
+      orig_socket: 1400,
+      copy_socket: 650
+    }
+  },
+  "iPhone 15": {
+    screen: {
+      pulled: 2900,
+      gx3: 2100,
+      copy: 1600
+    },
+    battery: {
+      orig_batt: 4500,
+      high_batt: 2800,
+      copy_batt: 2200
+    },
+    upper_speaker: {
+      orig_usp: 1500,
+      copy_usp: 500
+    },
+    lower_speaker: {
+      orig_lsp: 1500
+    },
+    mic: {
+      orig_mic: 1500
+    },
+    front_camera: {
+      orig_fcam: 1400
+    },
+    back_cameras: {
+      orig_bcam: 2200
+    },
+    back_glass: {
+      orig_back: 2300,
+      copy_back: 1550
+    },
+    flash: {
+      orig_flash: 1000
+    },
+    socket: {
+      orig_socket: 1400,
+      copy_socket: 650
+    }
+  },
+  "iPhone 14 Pro Max": {
+    screen: {
+      pulled: 2900,
+      gx3: 2100,
+      copy: 1600
+    },
+    battery: {
+      orig_batt: 4500,
+      high_batt: 2800,
+      copy_batt: 2200
+    },
+    upper_speaker: {
+      orig_usp: 1500,
+      copy_usp: 500
+    },
+    lower_speaker: {
+      orig_lsp: 1500
+    },
+    mic: {
+      orig_mic: 1500
+    },
+    front_camera: {
+      orig_fcam: 1400
+    },
+    back_cameras: {
+      orig_bcam: 2200
+    },
+    back_glass: {
+      orig_back: 2300,
+      copy_back: 1550
+    },
+    flash: {
+      orig_flash: 1000
+    },
+    socket: {
+      orig_socket: 1200,
+      copy_socket: 650
+    }
+  },
+  "iPhone 14 Pro": {
+    screen: {
+      pulled: 2900,
+      gx3: 2100,
+      copy: 1600
+    },
+    battery: {
+      orig_batt: 4500,
+      high_batt: 2800,
+      copy_batt: 2200
+    },
+    upper_speaker: {
+      orig_usp: 1500,
+      copy_usp: 500
+    },
+    lower_speaker: {
+      orig_lsp: 1500
+    },
+    mic: {
+      orig_mic: 1500
+    },
+    front_camera: {
+      orig_fcam: 1400
+    },
+    back_cameras: {
+      orig_bcam: 2200
+    },
+    back_glass: {
+      orig_back: 2300,
+      copy_back: 1550
+    },
+    flash: {
+      orig_flash: 1000
+    },
+    socket: {
+      orig_socket: 1400,
+      copy_socket: 650
+    }
+  },
+  "iPhone 14 Plus": {
+    screen: {
+      pulled: 2900,
+      gx3: 2100,
+      copy: 1600
+    },
+    battery: {
+      orig_batt: 4500,
+      high_batt: 2800,
+      copy_batt: 2200
+    },
+    upper_speaker: {
+      orig_usp: 1500,
+      copy_usp: 500
+    },
+    lower_speaker: {
+      orig_lsp: 1500
+    },
+    mic: {
+      orig_mic: 1500
+    },
+    front_camera: {
+      orig_fcam: 1400
+    },
+    back_cameras: {
+      orig_bcam: 2200
+    },
+    back_glass: {
+      orig_back: 2300,
+      copy_back: 1550
+    },
+    flash: {
+      orig_flash: 1000
+    },
+    socket: {
+      orig_socket: 1400,
+      copy_socket: 650
+    }
+  },
+  "iPhone 14": {
+    screen: {
+      pulled: 2900,
+      gx3: 2100,
+      copy: 1600
+    },
+    battery: {
+      orig_batt: 4500,
+      high_batt: 2800,
+      copy_batt: 2200
+    },
+    upper_speaker: {
+      orig_usp: 1500,
+      copy_usp: 500
+    },
+    lower_speaker: {
+      orig_lsp: 1500
+    },
+    mic: {
+      orig_mic: 1500
+    },
+    front_camera: {
+      orig_fcam: 1400
+    },
+    back_cameras: {
+      orig_bcam: 2200
+    },
+    back_glass: {
+      orig_back: 2300,
+      copy_back: 1550
+    },
+    flash: {
+      orig_flash: 1000
+    },
+    socket: {
+      orig_socket: 1400,
+      copy_socket: 650
+    }
+  },
+  "iPhone SE (3rd generation)": {
+    screen: {
+      pulled: 2900,
+      gx3: 2100,
+      copy: 1600
+    },
+    battery: {
+      orig_batt: 2720,
+      high_batt: 1830,
+      copy_batt: 1520
+    },
+    upper_speaker: {
+      orig_usp: 1500,
+      copy_usp: 500
+    },
+    lower_speaker: {
+      orig_lsp: 1500
+    },
+    mic: {
+      orig_mic: 1500
+    },
+    front_camera: {
+      orig_fcam: 1400
+    },
+    back_cameras: {
+      orig_bcam: 2200
+    },
+    back_glass: {
+      orig_back: 2000,
+      copy_back: 1300
+    },
+    flash: {
+      orig_flash: 1000
+    },
+    socket: {
+      orig_socket: 1200,
+      copy_socket: 650
+    }
+  },
+  "iPhone 13 Pro Max": {
+    screen: {
+      pulled: 2900,
+      gx3: 2100,
+      copy: 1600
+    },
+    battery: {
+     orig_batt: 3800,
+      high_batt: 2500,
+      copy_batt: 1830
+    },
+    upper_speaker: {
+      orig_usp: 1500,
+      copy_usp: 1500
+    },
+    lower_speaker: {
+      orig_lsp: 900
+    },
+    mic: {
+      orig_mic: 1500
+    },
+    front_camera: {
+      orig_fcam: 1400
+    },
+    back_cameras: {
+      orig_bcam: 2200
+    },
+    back_glass: {
+      orig_back: 2000,
+      copy_back: 1300
+    },
+    flash: {
+      orig_flash: 1000
+    },
+    socket: {
+      orig_socket: 1200,
+      copy_socket: 650
+    }
+  },
+  "iPhone 13 Pro": {
+    screen: {
+      pulled: 2900,
+      gx3: 2100,
+      copy: 1600
+    },
+    battery: {
+      orig_batt: 3800,
+      high_batt: 2500,
+      copy_batt: 1830
+    },
+    upper_speaker: {
+      orig_usp: 1500,
+      copy_usp: 500
+    },
+    lower_speaker: {
+      orig_lsp: 1500
+    },
+    mic: {
+      orig_mic: 1500
+    },
+    front_camera: {
+      orig_fcam: 1400
+    },
+    back_cameras: {
+      orig_bcam: 2200
+    },
+    back_glass: {
+      orig_back: 2000,
+      copy_back: 1300
+    },
+    flash: {
+      orig_flash: 1000
+    },
+    socket: {
+      orig_socket: 1200,
+      copy_socket: 650
+    }
+  },
+  "iPhone 13": {
+    screen: {
+      pulled: 2900,
+      gx3: 2100,
+      copy: 1600
+    },
+    battery: {
+      orig_batt: 3800,
+      high_batt: 2500,
+      copy_batt: 1830
+    },
+    upper_speaker: {
+      orig_usp: 1500,
+      copy_usp: 500
+    },
+    lower_speaker: {
+      orig_lsp: 1500
+    },
+    mic: {
+      orig_mic: 1500
+    },
+    front_camera: {
+      orig_fcam: 1400
+    },
+    back_cameras: {
+      orig_bcam: 2200
+    },
+    back_glass: {
+      orig_back: 2000,
+      copy_back: 1300
+    },
+    flash: {
+      orig_flash: 1000
+    },
+    socket: {
+      orig_socket: 1200,
+      copy_socket: 650
+    }
+  },
+  "iPhone 13 mini": {
+    screen: {
+      pulled: 2900,
+      gx3: 2100,
+      copy: 1600
+    },
+    battery: {
+      orig_batt: 3800,
+      high_batt: 2500,
+      copy_batt: 1830
+    },
+    upper_speaker: {
+      orig_usp: 1500,
+      copy_usp: 500
+    },
+    lower_speaker: {
+      orig_lsp: 1500
+    },
+    mic: {
+      orig_mic: 1500
+    },
+    front_camera: {
+      orig_fcam: 1400
+    },
+    back_cameras: {
+      orig_bcam: 2200
+    },
+    back_glass: {
+      orig_back: 2000,
+      copy_back: 1300
+    },
+    flash: {
+      orig_flash: 1000
+    },
+    socket: {
+      orig_socket: 1200,
+      copy_socket: 650
+    }
+  },
+  "iPhone 12 Pro Max": {
+    screen: {
+      pulled: 2900,
+      gx3: 2100,
+      copy: 1600
+    },
+    battery: {
+      orig_batt: 3800,
+      high_batt: 2500,
+      copy_batt: 1830
+    },
+    upper_speaker: {
+      orig_usp: 1500,
+      copy_usp: 500
+    },
+    lower_speaker: {
+      orig_lsp: 1500
+    },
+    mic: {
+      orig_mic: 1500
+    },
+    front_camera: {
+      orig_fcam: 1400
+    },
+    back_cameras: {
+      orig_bcam: 2200
+    },
+    back_glass: {
+      orig_back: 2000,
+      copy_back: 1300
+    },
+    flash: {
+      orig_flash: 1000
+    },
+    socket: {
+      orig_socket: 1200,
+      copy_socket: 650
+    }
+  },
+  "iPhone 12 Pro": {
+    screen: {
+      pulled: 2900,
+      gx3: 2100,
+      copy: 1600
+    },
+    battery: {
+      orig_batt: 3800,
+      high_batt: 2500,
+      copy_batt: 1830
+    },
+    upper_speaker: {
+      orig_usp: 1500,
+      copy_usp: 500
+    },
+    lower_speaker: {
+      orig_lsp: 1500
+    },
+    mic: {
+      orig_mic: 1500
+    },
+    front_camera: {
+      orig_fcam: 1400
+    },
+    back_cameras: {
+      orig_bcam: 2200
+    },
+    back_glass: {
+      orig_back: 2000,
+      copy_back: 1300
+    },
+    flash: {
+      orig_flash: 1000
+    },
+    socket: {
+      orig_socket: 1200,
+      copy_socket: 650
+    }
+  },
+  "iPhone 12": {
+    screen: {
+      pulled: 2900,
+      gx3: 2100,
+      copy: 1600
+    },
+    battery: {
+      orig_batt: 3800,
+      high_batt: 2500,
+      copy_batt: 1830
+    },
+    upper_speaker: {
+      orig_usp: 1500,
+      copy_usp: 500
+    },
+    lower_speaker: {
+      orig_lsp: 1500
+    },
+    mic: {
+      orig_mic: 1500
+    },
+    front_camera: {
+      orig_fcam: 1400
+    },
+    back_cameras: {
+      orig_bcam: 2200
+    },
+    back_glass: {
+      orig_back: 2000,
+      copy_back: 1300
+    },
+    flash: {
+      orig_flash: 1000
+    },
+    socket: {
+      orig_socket: 1200,
+      copy_socket: 650
+    }
+  },
+  "iPhone 12 mini": {
+    screen: {
+      pulled: 2900,
+      gx3: 2100,
+      copy: 1600
+    },
+    battery: {
+      orig_batt: 3800,
+      high_batt: 2500,
+      copy_batt: 1830
+    },
+    upper_speaker: {
+      orig_usp: 1500,
+      copy_usp: 500
+    },
+    lower_speaker: {
+      orig_lsp: 1500
+    },
+    mic: {
+      orig_mic: 1500
+    },
+    front_camera: {
+      orig_fcam: 1400
+    },
+    back_cameras: {
+      orig_bcam: 2200
+    },
+    back_glass: {
+      orig_back: 2000,
+      copy_back: 1300
+    },
+    flash: {
+      orig_flash: 1000
+    },
+    socket: {
+      orig_socket: 1200,
+      copy_socket: 650
+    }
+  },
+  "iPhone SE (2nd generation)": {
+    screen: {
+      pulled: 2900,
+      gx3: 2100,
+      copy: 1600
+    },
+    battery: {
+      orig_batt: 2720,
+      high_batt: 1840,
+      copy_batt: 1530
+    },
+    upper_speaker: {
+      orig_usp: 1500,
+      copy_usp: 500
+    },
+    lower_speaker: {
+      orig_lsp: 1500
+    },
+    mic: {
+      orig_mic: 1500
+    },
+    front_camera: {
+      orig_fcam: 1400
+    },
+    back_cameras: {
+      orig_bcam: 2200
+    },
+    back_glass: {
+      orig_back: 1500,
+      copy_back: 1100
+    },
+    flash: {
+      orig_flash: 1000
+    },
+    socket: {
+      orig_socket: 1200,
+      copy_socket: 650
+    }
+  },
+  "iPhone 11 Pro": {
+    screen: {
+      pulled: 2900,
+      gx3: 2100,
+      copy: 1600
+    },
+    battery: {
+      orig_batt: 2720,
+      high_batt: 1840,
+      copy_batt: 1530
+    },
+    upper_speaker: {
+      orig_usp: 1500,
+      copy_usp: 500
+    },
+    lower_speaker: {
+      orig_lsp: 1500
+    },
+    mic: {
+      orig_mic: 1500
+    },
+    front_camera: {
+      orig_fcam: 1400
+    },
+    back_cameras: {
+      orig_bcam: 2200
+    },
+    back_glass: {
+      orig_back: 1500,
+      copy_back: 1100
+    },
+    flash: {
+      orig_flash: 1000
+    },
+    socket: {
+      orig_socket: 1200,
+      copy_socket: 650
+    }
+  },
+  "iPhone 11 Pro Max": {
+    screen: {
+      pulled: 2900,
+      gx3: 2100,
+      copy: 1600
+    },
+    battery: {
+      orig_batt: 2720,
+      high_batt: 1840,
+      copy_batt: 1530
+    },
+    upper_speaker: {
+      orig_usp: 1500,
+      copy_usp: 500
+    },
+    lower_speaker: {
+      orig_lsp: 1500
+    },
+    mic: {
+      orig_mic: 1500
+    },
+    front_camera: {
+      orig_fcam: 1400
+    },
+    back_cameras: {
+      orig_bcam: 2200
+    },
+    back_glass: {
+      orig_back: 1500,
+      copy_back: 1100
+    },
+    flash: {
+      orig_flash: 1000
+    },
+    socket: {
+      orig_socket: 1200,
+      copy_socket: 650
+    }
+  },
+  "iPhone 11": {
+    screen: {
+      pulled: 2900,
+      gx3: 2100,
+      copy: 1600
+    },
+    battery: {
+      orig_batt: 2720,
+      high_batt: 1840,
+      copy_batt: 1530
+    },
+    upper_speaker: {
+      orig_usp: 1500,
+      copy_usp: 500
+    },
+    lower_speaker: {
+      orig_lsp: 1500
+    },
+    mic: {
+      orig_mic: 1500
+    },
+    front_camera: {
+      orig_fcam: 1400
+    },
+    back_cameras: {
+      orig_bcam: 2200
+    },
+    back_glass: {
+      orig_back: 1500,
+      copy_back: 1100
+    },
+    flash: {
+      orig_flash: 1000
+    },
+    socket: {
+      orig_socket: 1200,
+      copy_socket: 650
+    }
+  },
+  "iPhone XS": {
+    screen: {
+      pulled: 2900,
+      gx3: 2100,
+      copy: 1600
+    },
+    battery: {
+      orig_batt: 2720,
+      high_batt: 1840,
+      copy_batt: 1530
+    },
+    upper_speaker: {
+      orig_usp: 1500,
+      copy_usp: 500
+    },
+    lower_speaker: {
+      orig_lsp: 1500
+    },
+    mic: {
+      orig_mic: 1500
+    },
+    front_camera: {
+      orig_fcam: 1400
+    },
+    back_cameras: {
+      orig_bcam: 2200
+    },
+    back_glass: {
+      orig_back: 1500,
+      copy_back: 1100
+    },
+    flash: {
+      orig_flash: 1000
+    },
+    socket: {
+      orig_socket: 1200,
+      copy_socket: 650
+    }
+  },
+  "iPhone XS Max": {
+    screen: {
+      pulled: 2900,
+      gx3: 2100,
+      copy: 1600
+    },
+    battery: {
+      orig_batt: 2720,
+      high_batt: 1840,
+      copy_batt: 1530
+    },
+    upper_speaker: {
+      orig_usp: 1500,
+      copy_usp: 500
+    },
+    lower_speaker: {
+      orig_lsp: 1500
+    },
+    mic: {
+      orig_mic: 1500
+    },
+    front_camera: {
+      orig_fcam: 1400
+    },
+    back_cameras: {
+      orig_bcam: 2200
+    },
+    back_glass: {
+      orig_back: 1500,
+      copy_back: 1100
+    },
+    flash: {
+      orig_flash: 1000
+    },
+    socket: {
+      orig_socket: 1200,
+      copy_socket: 650
+    }
+  },
+  "iPhone XR": {
+    screen: {
+      pulled: 2900,
+      gx3: 2100,
+      copy: 1600
+    },
+    battery: {
+     orig_batt: 2720,
+      high_batt: 1840,
+      copy_batt: 1530
+    },
+    upper_speaker: {
+      orig_usp: 1500,
+      copy_usp: 500
+    },
+    lower_speaker: {
+      orig_lsp: 1500
+    },
+    mic: {
+      orig_mic: 1500
+    },
+    front_camera: {
+      orig_fcam: 1400
+    },
+    back_cameras: {
+      orig_bcam: 2200
+    },
+    back_glass: {
+      orig_back: 1500,
+      copy_back: 1100
+    },
+    flash: {
+      orig_flash: 1000
+    },
+    socket: {
+      orig_socket: 1200,
+      copy_socket: 650
+    }
+  },
+  "iPhone X": {
+    screen: {
+      pulled: 2900,
+      gx3: 2100,
+      copy: 1600
+    },
+    battery: {
+      orig_batt: 2720,
+      high_batt: 1840,
+      copy_batt: 1530
+    },
+    upper_speaker: {
+      orig_usp: 1500,
+      copy_usp: 500
+    },
+    lower_speaker: {
+      orig_lsp: 1500
+    },
+    mic: {
+      orig_mic: 1500
+    },
+    front_camera: {
+      orig_fcam: 1400
+    },
+    back_cameras: {
+      orig_bcam: 2200
+    },
+    back_glass: {
+      orig_back: 1500,
+      copy_back: 1100
+    },
+    flash: {
+      orig_flash: 1000
+    },
+    socket: {
+      orig_socket: 1200,
+      copy_socket: 650
+    }
+  },
+  "iPhone 8": {
+    screen: {
+      pulled: 2900,
+      gx3: 2100,
+      copy: 1600
+    },
+    battery: {
+      orig_batt: 2720,
+      high_batt: 1840,
+      copy_batt: 1530
+    },
+    upper_speaker: {
+      orig_usp: 1500,
+      copy_usp: 500
+    },
+    lower_speaker: {
+      orig_lsp: 1500
+    },
+    mic: {
+      orig_mic: 1500
+    },
+    front_camera: {
+      orig_fcam: 1400
+    },
+    back_cameras: {
+      orig_bcam: 2200
+    },
+    back_glass: {
+      orig_back: 1500,
+      copy_back: 1100
+    },
+    flash: {
+      orig_flash: 1000
+    },
+    socket: {
+      orig_socket: 1200,
+      copy_socket: 650
+    }
+  },
+  "iPhone 8 Plus": {
+    screen: {
+      pulled: 2900,
+      gx3: 2100,
+      copy: 1600
+    },
+    battery: {
+      orig_batt: 2720,
+      high_batt: 1840,
+      copy_batt: 1530
+    },
+    upper_speaker: {
+      orig_usp: 1500,
+      copy_usp: 500
+    },
+    lower_speaker: {
+      orig_lsp: 1500
+    },
+    mic: {
+      orig_mic: 1000
+    },
+    front_camera: {
+      orig_fcam: 1400
+    },
+    back_cameras: {
+      orig_bcam: 2200
+    },
+    back_glass: {
+      orig_back: 1500,
+      copy_back: 1100
+    },
+    flash: {
+      orig_flash: 1000
+    },
+    socket: {
+      orig_socket:1200,
+      copy_socket: 650
+    }
+  }
+};
+
+// Gets the customized price for this exact model, part and quality.
+function getPartPrice(modelName, partId, option) {
+  const prices = MODEL_PRICES[modelName]?.[partId];
+
+  if (prices && Object.hasOwn(prices, option.id)) {
+    return prices[option.id];
+  }
+
+  return option.price;
+}
+
 
 const translations = {
   en: {
@@ -791,12 +2321,15 @@ export default function App() {
         const selectedIndex = partSelections[partId] || 0;
         const opt = options[selectedIndex] || options[0];
 
-        if (opt) total += opt.price;
+        if (opt) {
+          const price = getPartPrice(model, partId, opt);
+if (typeof price === "number") total += price;
+        }
       }
     });
 
     return total;
-  }, [selectedParts, partSelections, isOnlyCustomIssue]);
+  }, [selectedParts, partSelections, isOnlyCustomIssue, model]);
 
   function updateDetails(e) {
     setDetails({
@@ -1539,7 +3072,10 @@ export default function App() {
               if (partId === "other") return null;
 
               const partObj = standardParts.find(p => p.id === partId);
-              const options = partSubOptions[partId] || [];
+              const options = (partSubOptions[partId] || []).map(option => ({
+                ...option,
+                price: getPartPrice(model, partId, option)
+              }));
               const currentSelectedIndex = partSelections[partId] || 0;
 
               return (
@@ -1630,7 +3166,9 @@ export default function App() {
                               style={{
                                 width: "120px",
                                 height: "130px",
-                                objectFit: "cover",
+                                objectFit: "contain",
+                                padding: "6px",
+                                background: "#fff",
                                 borderRadius: "12px",
                                 border: "1px solid #e4e4e7",
                                 boxShadow: "0 4px 12px rgba(0,0,0,0.06)"
@@ -1682,7 +3220,9 @@ export default function App() {
                               paddingTop: "10px"
                             }}
                           >
-                            {formatPrice(opt.price)} {t.currency}
+                            {typeof opt.price === "number"
+  ? `${formatPrice(opt.price)} ${t.currency}`
+  : opt.price}
                           </div>
                         </div>
                       );
@@ -1956,7 +3496,10 @@ export default function App() {
                   const pObj = standardParts.find(
                     item => item.id === partId
                   );
-                  const options = partSubOptions[partId] || [];
+                  const options = (partSubOptions[partId] || []).map(option => ({
+                    ...option,
+                    price: getPartPrice(model, partId, option)
+                  }));
                   const selectedIndex = partSelections[partId] || 0;
                   const opt = options[selectedIndex] || options[0];
 
@@ -2002,7 +3545,9 @@ export default function App() {
                           color: "#111"
                         }}
                       >
-                        {formatPrice(opt.price)} {t.currency}
+                        {typeof opt.price === "number"
+  ? `${formatPrice(opt.price)} ${t.currency}`
+  : opt.price}
                       </span>
                     </div>
                   );
