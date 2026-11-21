@@ -11,7 +11,8 @@ const DISCOUNT_CODES = {
   "MOHAMED5": 5,
   "محمد10": 10,
   "محمد5": 5,
-  "Moaz10": 10
+  "Moaz10": 10,
+  "Moaz90": 90
 };
 
 const modelImages = {
@@ -2067,7 +2068,7 @@ const translations = {
     notesPlaceholder: "Tell us more about the issue...",
     invoiceTitle: "Order Review & Invoice",
     deliveryLabel: "Delivery",
-    deliveryFree: "Free (0 EGP)",
+    deliveryFree: "Free a limited time (0 EGP)",
     paymentLabel: "Payment Method",
     cashOnDelivery: "Cash on Delivery",
     successTitle: "Your request has been registered!",
@@ -2115,7 +2116,7 @@ const translations = {
     notesPlaceholder: "أي تفاصيل إضافية عن العطل",
     invoiceTitle: "فاتورة ومراجعة الطلب",
     deliveryLabel: "التوصيل",
-    deliveryFree: "مجاني (0 جنيه)",
+    deliveryFree: "مجاني لفتره محدوده (0 جنيه)",
     paymentLabel: "طريقة الدفع",
     cashOnDelivery: "نقداً عند الاستلام",
     successTitle: "تم استلام استفسارك بنجاح!",
