@@ -88,6 +88,14 @@ function sameOrigin(req, res, next) {
   }
 }
 
+// تحديد ما إذا كان الطلب شراء قطع فقط
+function isPurchaseOrder(order) {
+  return (
+    order?.fulfillmentType === 'partOnly' ||
+    order?.details?.fulfillmentType === 'partOnly'
+  );
+}
+
 const activeFilter = {
   $or: [
     { workflowStatus: 'new' },
@@ -142,6 +150,7 @@ function taskOf(order) {
 }
 
 function transition(order, action, at, reason = '') {
+  // تأجيل الطلب
   if (action === 'postpone') {
     if (
       order.assignedCourier !== COURIER_ID ||
@@ -166,9 +175,29 @@ function transition(order, action, at, reason = '') {
     };
   }
 
+  // تسليم طلب شراء فقط مباشرة للعميل
+  // لا يُسمح بهذه الخطوة إلا للطلبات المصنفة partOnly
+  if (action === 'deliver_purchase') {
+    if (
+      order.assignedCourier !== COURIER_ID ||
+      !isPurchaseOrder(order) ||
+      order.workflowStatus !== 'new'
+    ) {
+      return null;
+    }
+
+    return {
+      workflowStatus: 'completed',
+      courierStage: 'delivered',
+      deliveredAt: at
+    };
+  }
+
+  // باقي خطوات طلبات الصيانة
   if (
     order.assignedCourier !== COURIER_ID ||
-    taskOf(order) !== action
+    taskOf(order) !== action ||
+    isPurchaseOrder(order)
   ) {
     return null;
   }
@@ -271,6 +300,7 @@ app.get('/api/courier', courierOnly, async (req, res) => {
         model: 1,
         details: 1,
         totalPrice: 1,
+        fulfillmentType: 1,
         workflowStatus: 1,
         courierStage: 1,
         workflowVersion: 1,
@@ -326,6 +356,7 @@ app.patch(
         'drop_center',
         'pickup_center',
         'deliver_client',
+        'deliver_purchase',
         'postpone'
       ].includes(action) ||
       (action === 'postpone' && (!reason || reason.length > 500))
@@ -607,6 +638,29 @@ input:focus-visible {
   color: #234eae;
 }
 .card.delivered .tag { background: #ccecd7; color: #116337; }
+
+/* تمييز طلبات الشراء فقط */
+.tag.purchase-tag {
+  background: #fff0d6;
+  color: #8a5200;
+  font-weight: bold;
+  border: 1px solid #f3d39a;
+}
+.card.purchase-card {
+  border-color: #efcf91;
+}
+.card.purchase-card .card-head {
+  background: #fffaf0;
+  border-bottom-color: #f3e4c5;
+}
+.card.purchase-card.delivered {
+  background: #e8f6ec;
+  border-color: #b9ddc5;
+}
+.card.purchase-card.delivered .card-head {
+  background: #e8f6ec;
+  border-bottom-color: #b9ddc5;
+}
 .card-body { padding: 20px; }
 .customer {
   margin: 0 0 16px;
@@ -657,6 +711,13 @@ input:focus-visible {
 }
 .action:hover { background: #174bd5; }
 .action.postpone { margin-top: 10px; }
+.action.purchase-delivery {
+  background: #16834b;
+  border-color: #16834b;
+}
+.action.purchase-delivery:hover {
+  background: #106b3c;
+}
 .hint {
   font-size: 11px;
   line-height: 1.8;
@@ -720,12 +781,11 @@ input:focus-visible {
 <main class="shell">
   <header class="brand">
     <div class="reset-brand">
-  <span class="reset-brand-icon">
-    <img src="/reset-logo.svg" alt="" />
-  </span>
-
-  <span class="reset-brand-name">Reset</span>
-</div>
+      <span class="reset-brand-icon">
+        <img src="/reset-logo.svg" alt="" />
+      </span>
+      <span class="reset-brand-name">Reset</span>
+    </div>
     <span class="badge">مساحة المندوب الخاصة</span>
   </header>
 
@@ -778,7 +838,7 @@ input:focus-visible {
   </div>
 
   <div class="footer">
-    بعد تسليم الجهاز للصيانة يختفي من مهامك حتى تعيد الإدارة إسناده إليك.
+    بعد تسليم جهاز الصيانة لمركز الصيانة يختفي من مهامك حتى تعيد الإدارة إسناده إليك.
   </div>
 </main>
 
@@ -808,6 +868,12 @@ const stages = {
   }
 };
 
+const purchaseStage = {
+  title: 'طلب شراء فقط',
+  button: 'تم تسليم الطلب للعميل',
+  hint: 'أكد التسليم بعد تسليم القطعة أو الطلب للعميل فعليًا.'
+};
+
 let view = 'active';
 let page = 1;
 let pages = 1;
@@ -828,7 +894,17 @@ function tell(text, error = false) {
   el('notice').className = 'notice' + (error ? ' error' : '');
 }
 
+// تحديد طلب الشراء داخل المتصفح
+function isPurchase(order) {
+  return (
+    order?.fulfillmentType === 'partOnly' ||
+    order?.details?.fulfillmentType === 'partOnly'
+  );
+}
+
 function task(order) {
+  if (isPurchase(order)) return '';
+
   if (order.workflowStatus === 'new') return 'pickup_client';
 
   if (
@@ -933,17 +1009,32 @@ function field(parent, label, value, wide = false) {
 
 function card(order) {
   const done = order.workflowStatus === 'completed';
+  const purchase = isPurchase(order);
   const stage = task(order);
-  const info = stages[stage];
+  const info = purchase ? purchaseStage : stages[stage];
   const details = order.details || {};
   const extra = colorAndNotes(details);
 
-  const article = node('article', 'card' + (done ? ' delivered' : ''));
+  const article = node(
+    'article',
+    'card' +
+      (done ? ' delivered' : '') +
+      (purchase ? ' purchase-card' : '')
+  );
+
   const head = node('div', 'card-head');
 
   head.append(
     node('span', 'order-no', order.orderNo || 'طلب بدون رقم'),
-    node('span', 'tag', done ? '✓ تم التسليم للعميل' : info.title)
+    node(
+      'span',
+      'tag' + (purchase ? ' purchase-tag' : ''),
+      purchase
+        ? 'طلب شراء فقط'
+        : done
+          ? '✓ تم التسليم للعميل'
+          : info.title
+    )
   );
 
   const body = node('div', 'card-body');
@@ -1003,6 +1094,7 @@ function card(order) {
   }
 
   body.append(contact);
+
   const foot = node('div', 'card-foot');
 
   if (done) {
@@ -1014,17 +1106,42 @@ function card(order) {
       )
     );
   } else {
-    const button = node('button', 'action', info.button);
-    button.type = 'button';
-    button.disabled = busy;
-    button.addEventListener('click', () => confirmStep(order, stage));
+    if (purchase) {
+      // طلب شراء فقط: زر التسليم المباشر وزر التأجيل
+      const button = node(
+        'button',
+        'action purchase-delivery',
+        'تم تسليم الطلب للعميل'
+      );
 
-    const postpone = node('button', 'action postpone', 'تأجيل');
-    postpone.type = 'button';
-    postpone.disabled = busy;
-    postpone.addEventListener('click', () => postponeOrder(order));
+      button.type = 'button';
+      button.disabled = busy;
+      button.addEventListener('click', () => confirmPurchaseDelivery(order));
 
-    foot.append(button, postpone, node('p', 'hint', info.hint));
+      const postpone = node('button', 'action postpone', 'تأجيل');
+      postpone.type = 'button';
+      postpone.disabled = busy;
+      postpone.addEventListener('click', () => postponeOrder(order));
+
+      foot.append(
+        button,
+        postpone,
+        node('p', 'hint', purchaseStage.hint)
+      );
+    } else if (info) {
+      // طلب صيانة: نفس خطوات العمل القديمة
+      const button = node('button', 'action', info.button);
+      button.type = 'button';
+      button.disabled = busy;
+      button.addEventListener('click', () => confirmStep(order, stage));
+
+      const postpone = node('button', 'action postpone', 'تأجيل');
+      postpone.type = 'button';
+      postpone.disabled = busy;
+      postpone.addEventListener('click', () => postponeOrder(order));
+
+      foot.append(button, postpone, node('p', 'hint', info.hint));
+    }
   }
 
   article.append(head, body, foot);
@@ -1078,6 +1195,23 @@ function render(data) {
   if (view === 'today') {
     rows.forEach(order => list.append(card(order)));
   } else {
+    // عرض طلبات الشراء فقط في مجموعة مستقلة
+    const purchases = rows.filter(order => isPurchase(order));
+
+    if (purchases.length) {
+      const title = node('h2', 'group-title');
+      title.append(
+        node('span', 'step-number', '🛍'),
+        document.createTextNode(
+          'طلبات شراء فقط · ' + purchases.length
+        )
+      );
+
+      list.append(title);
+      purchases.forEach(order => list.append(card(order)));
+    }
+
+    // مجموعات طلبات الصيانة بنفس ترتيبها القديم
     Object.entries(stages).forEach(([key, info], index) => {
       const group = rows.filter(order => task(order) === key);
       if (!group.length) return;
@@ -1132,8 +1266,10 @@ async function api(options = {}) {
 
 async function load(silent = false) {
   if (busy) return;
+
   busy = true;
   controls();
+
   if (!silent) tell('');
 
   try {
@@ -1190,10 +1326,60 @@ async function postponeOrder(order) {
 
     saved = true;
     render(await api());
+
     tell('تم تأجيل الطلب وإرساله للإدارة. سيعود لمهامك بعد إعادة إسناده.');
   } catch (error) {
     tell(
       (saved ? 'تم حفظ التأجيل، لكن تعذّر تحديث العرض. ' : '') +
+      error.message,
+      true
+    );
+  } finally {
+    finish();
+  }
+}
+
+// تأكيد تسليم طلب شراء فقط مباشرة للعميل
+async function confirmPurchaseDelivery(order) {
+  if (
+    busy ||
+    !isPurchase(order) ||
+    order.workflowStatus !== 'new' ||
+    !window.confirm(
+      'تأكيد تسليم طلب الشراء ' + (order.orderNo || '') +
+      ' للعميل؟\nسيتم نقل الطلب مباشرة إلى «تم تسليمها اليوم».'
+    )
+  ) {
+    return;
+  }
+
+  busy = true;
+  controls();
+  tell('');
+
+  let saved = false;
+
+  try {
+    await api({
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Admin-Action': 'courier-handoff'
+      },
+      body: JSON.stringify({
+        id: order._id,
+        version: order.workflowVersion || 0,
+        action: 'deliver_purchase'
+      })
+    });
+
+    saved = true;
+    render(await api());
+
+    tell('تم تسليم طلب الشراء للعميل بنجاح. ستجد الطلب في «تم تسليمها اليوم».');
+  } catch (error) {
+    tell(
+      (saved ? 'تم حفظ التسليم، لكن تعذّر تحديث العرض. ' : '') +
       error.message,
       true
     );
@@ -1216,6 +1402,7 @@ async function confirmStep(order, action) {
   busy = true;
   controls();
   tell('');
+
   let saved = false;
 
   try {
@@ -1258,6 +1445,7 @@ el('refresh').addEventListener('click', () => load());
 for (const name of ['active', 'today']) {
   el(name + 'Tab').addEventListener('click', () => {
     if (busy) return;
+
     view = name;
     page = 1;
     load();
