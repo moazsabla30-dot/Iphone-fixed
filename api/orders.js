@@ -120,12 +120,36 @@ async function connectDatabase() {
 const COURIER_ID = 'primary';
 const PAGE_SIZE = 50;
 
+const NEW_WORKFLOW_FILTER = {
+  $or: [
+    { workflowStatus: 'new' },
+    { workflowStatus: { $exists: false } },
+    { workflowStatus: null }
+  ]
+};
+
+// الطلبات القديمة التي لا تحتوي على fulfillmentType تُعامل كطلبات صيانة.
 const VIEW_FILTERS = {
-  new: {
-    $or: [
-      { workflowStatus: 'new' },
-      { workflowStatus: { $exists: false } },
-      { workflowStatus: null }
+  new_repair: {
+    $and: [
+      NEW_WORKFLOW_FILTER,
+      {
+        $nor: [
+          { fulfillmentType: 'partOnly' },
+          { 'details.fulfillmentType': 'partOnly' }
+        ]
+      }
+    ]
+  },
+  new_purchase: {
+    $and: [
+      NEW_WORKFLOW_FILTER,
+      {
+        $or: [
+          { fulfillmentType: 'partOnly' },
+          { 'details.fulfillmentType': 'partOnly' }
+        ]
+      }
     ]
   },
   with_courier: {
@@ -239,7 +263,7 @@ app.get('/api/orders', adminOnly, async (req, res) => {
     await connectDatabase();
 
     const collection = mongoose.connection.collection('orders');
-    const status = String(req.query.status || 'new');
+    const status = String(req.query.status || 'new_repair');
 
     if (!STATUSES.includes(status)) {
       return res.status(400).json({
@@ -296,6 +320,7 @@ app.get('/api/orders', adminOnly, async (req, res) => {
       projection: {
         orderNo: 1,
         model: 1,
+        fulfillmentType: 1,
         selectedParts: 1,
         partNotes: 1,
         totalPrice: 1,
@@ -493,8 +518,7 @@ app.delete(
           error: 'معرّف الطلب غير صحيح.'
         });
       }
-
-      await connectDatabase();
+            await connectDatabase();
 
       const result = await mongoose.connection
         .collection('orders')
@@ -888,6 +912,27 @@ h1 { margin: 0 0 5px; font-size: 28px; letter-spacing: -.7px; }
   gap: 9px;
   margin: 18px 0;
 }
+.order-type-badge {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  margin-top: 7px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.5;
+}
+.order-type-badge.repair {
+  color: #1d4ed8;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+}
+.order-type-badge.purchase {
+  color: #047857;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+}
 .status-tab {
   flex: 1 1 160px;
   background: white;
@@ -1115,7 +1160,8 @@ const lastUpdated = document.getElementById('lastUpdated');
 const listStatus = document.getElementById('listStatus');
 
 const labels = {
-  new: 'طلبات جديدة',
+  new_repair: 'طلبات صيانة',
+  new_purchase: 'طلبات شراء',
   with_courier: 'مع المندوب — للصيانة',
   repair: 'في مركز الصيانة',
   ready: 'جاهز — بانتظار المندوب',
@@ -1124,7 +1170,7 @@ const labels = {
   failed: 'تأجيل'
 };
 
-let activeStatus = 'new';
+let activeStatus = 'new_repair';
 let counts = {};
 let filteredTotal = 0;
 let page = 1;
@@ -1157,7 +1203,16 @@ function viewOf(order) {
       : 'ready';
   }
 
+  if (status === 'new') {
+    return isPurchaseOrder(order) ? 'new_purchase' : 'new_repair';
+  }
+
   return status;
+}
+
+function isPurchaseOrder(order) {
+  return order?.fulfillmentType === 'partOnly' ||
+    order?.details?.fulfillmentType === 'partOnly';
 }
 
 function eligible(order) {
@@ -1176,7 +1231,7 @@ function updateControls() {
 
   prevPage.disabled = busy || page <= 1;
   nextPage.disabled = busy || page >= pages;
-  batch.hidden = !['new', 'repair'].includes(activeStatus);
+  batch.hidden = !['new_repair', 'new_purchase', 'repair'].includes(activeStatus);
 
   const eligibleOrders = orders.filter(eligible);
   selectPage.disabled = busy || !eligibleOrders.length;
@@ -1190,7 +1245,9 @@ function updateControls() {
 
   batchAction.textContent = activeStatus === 'repair'
     ? 'جاهز للتسليم — إسناد للمندوب'
-    : 'إسناد للمندوب للاستلام';
+    : activeStatus === 'new_purchase'
+      ? 'إسناد للمندوب لتوصيل قطعة الغيار'
+      : 'إسناد للمندوب للاستلام';
 
   batchAction.disabled = busy || selected.size === 0;
 
@@ -1229,12 +1286,13 @@ function renderTabs() {
 
 function workflowDetails(order, card, head, body, actions) {
   const status = viewOf(order);
+  const workflowStatus = order.workflowStatus || 'new';
   card.classList.add('state-' + status);
 
   const info = element('div', 'workflow-info');
   let text = labels[status] || status;
 
-  if (status === 'new' && order.assignedCourier) {
+  if (workflowStatus === 'new' && order.assignedCourier) {
     text += ' — بانتظار استلام المندوب';
   }
 
@@ -1300,8 +1358,14 @@ function workflowDetails(order, card, head, body, actions) {
     actions.append(button);
   }
 
-  if (status === 'new' && !order.assignedCourier) {
-    actionButton('إسناد للمندوب للاستلام', 'assign', 'btn-primary');
+  if (workflowStatus === 'new' && !order.assignedCourier) {
+    actionButton(
+      isPurchaseOrder(order)
+        ? 'إسناد للمندوب لتوصيل قطعة الغيار'
+        : 'إسناد للمندوب للاستلام',
+      'assign',
+      'btn-primary'
+    );
   }
 
   if (status === 'repair' && order.courierStage === 'in_center') {
@@ -1342,7 +1406,9 @@ async function changeWorkflow(action, chosen) {
     }
   } else {
     const messages = {
-      assign: 'إسناد الطلبات المحددة للمندوب ليستلم الأجهزة من العملاء؟',
+      assign: activeStatus === 'new_purchase'
+        ? 'إسناد الطلبات المحددة للمندوب لتوصيل قطع الغيار للعملاء؟'
+        : 'إسناد الطلبات المحددة للمندوب ليستلم الأجهزة من العملاء؟',
       dispatch:
         'هل الأجهزة المحددة جاهزة لإرجاعها للعملاء؟ ستظهر للمندوب، وتظل في المركز حتى يؤكد استلامها.',
       retry: 'إعادة إسناد الطلب المؤجل للمندوب لاستكمال المهمة؟'
@@ -1485,8 +1551,7 @@ function phoneDigits(value) {
 
 function field(parent, label, value, wide) {
   const box = element('div', 'field' + (wide ? ' wide' : ''));
-
-  box.append(
+    box.append(
     element('span', 'field-label', label),
     element(
       'div',
@@ -1591,7 +1656,9 @@ function createRepairsSection(order) {
     element(
       'span',
       'repairs-title',
-      translate('الإصلاحات المطلوبة', 'Required Repairs')
+      isPurchaseOrder(order)
+        ? translate('قطع الغيار المطلوبة', 'Spare Parts Ordered')
+        : translate('الإصلاحات المطلوبة', 'Required Repairs')
     )
   );
 
@@ -1691,6 +1758,11 @@ function render() {
 
     identity.append(
       element('span', 'order-number', order.orderNo || 'طلب بدون رقم'),
+      element(
+        'span',
+        'order-type-badge ' + (isPurchaseOrder(order) ? 'purchase' : 'repair'),
+        isPurchaseOrder(order) ? 'طلب شراء قطعة غيار' : 'طلب صيانة'
+      ),
       element('div', 'order-date', dateText(order.createdAt))
     );
 
