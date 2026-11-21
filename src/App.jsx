@@ -5,6 +5,15 @@ import RepairComparison from "./RepairComparison";
 
 const myWhatsAppNumber = "201097829312";
 
+// أكواد الخصم المفعّلة. أضف أي كود جديد هنا مع نسبة الخصم الخاصة به.
+const DISCOUNT_CODES = {
+  "MOHAMED10": 10,
+  "MOHAMED5": 5,
+  "محمد10": 10,
+  "محمد5": 5,
+  "Moaz10": 10
+};
+
 const modelImages = {
   "iPhone 18 Pro Max": "https://cdsassets.apple.com/live/7WUAS350/images/iphone/iphone-18-pro-max-colors.png",
   "iPhone 18 Pro": "https://cdsassets.apple.com/live/7WUAS350/images/iphone/iphone-18-pro-colors.png",
@@ -50,7 +59,7 @@ const modelImages = {
 const models = Object.keys(modelImages);
 
 const standardParts = [
-   { id: "battery", nameAr: "بطارية", nameEn: "Battery" },
+  { id: "battery", nameAr: "بطارية", nameEn: "Battery" },
   { id: "screen", nameAr: "شاشة", nameEn: "Screen" },
   { id: "front_glass", nameAr: "باغة الشاشة", nameEn: "Front Glass" },
   { id: "touch", nameAr: "تاتش الشاشة", nameEn: "Touch Digitizer" },
@@ -1060,10 +1069,10 @@ const MODEL_PRICES = {
     },
   
     front_glass: {
-      single_glass: 4500
+      single_glass: "السعر يحدد عند الطلب"
     },
     touch: {
-      single_touch: 4500
+      single_touch: "السعر يحدد عند الطلب"
     }},
   "iPhone 14 Plus": {
     screen: {
@@ -2510,6 +2519,10 @@ html{scroll-behavior:smooth}
 
 export default function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [contactOpen, setContactOpen] = useState(false);
+  const [discountCodeInput, setDiscountCodeInput] = useState("");
+  const [appliedDiscount, setAppliedDiscount] = useState(null);
+  const [discountMessage, setDiscountMessage] = useState("");
   const [language, setLanguage] = useState(() => {
     try {
       return localStorage.getItem("ifix-language") === "ar" ? "ar" : "en";
@@ -2589,6 +2602,42 @@ if (typeof price === "number") total += price;
     return total + (fulfillmentType === "repair" ? 100 : 0);
   }, [selectedParts, partSelections, isOnlyCustomIssue, model, fulfillmentType]);
 
+  const discountAmount = appliedDiscount
+    ? Math.round(totalPrice * appliedDiscount.percent) / 100
+    : 0;
+  const finalTotalPrice = Math.max(0, totalPrice - discountAmount);
+
+  function applyDiscountCode() {
+    const enteredCode = discountCodeInput.trim().replace(/\s+/g, "").toUpperCase();
+    const matchedEntry = Object.entries(DISCOUNT_CODES).find(
+      ([code]) => code.replace(/\s+/g, "").toUpperCase() === enteredCode
+    );
+
+    if (!enteredCode) {
+      setAppliedDiscount(null);
+      setDiscountMessage(isArabic ? "اكتب كود الخصم الأول." : "Please enter a discount code.");
+      return;
+    }
+
+    if (!matchedEntry) {
+      setAppliedDiscount(null);
+      setDiscountMessage(isArabic ? "كود الخصم غير صحيح أو غير متاح." : "Invalid or unavailable discount code.");
+      return;
+    }
+
+    const [code, percent] = matchedEntry;
+    setAppliedDiscount({ code, percent });
+    setDiscountMessage(isArabic
+      ? `تم تفعيل خصم ${percent}% بنجاح.`
+      : `${percent}% discount applied successfully.`);
+  }
+
+  function removeDiscountCode() {
+    setAppliedDiscount(null);
+    setDiscountCodeInput("");
+    setDiscountMessage("");
+  }
+
   function updateDetails(e) {
     setDetails({
       ...details,
@@ -2630,7 +2679,11 @@ if (typeof price === "number") total += price;
           selectedParts,
           partNotes,
           fulfillmentType: fulfillmentType || "repair",
-          totalPrice,
+          totalPrice: finalTotalPrice,
+          originalTotalPrice: totalPrice,
+          discountCode: appliedDiscount?.code || "",
+          discountPercent: appliedDiscount?.percent || 0,
+          discountAmount,
           details: {
             ...details,
             deviceColor: needsDeviceColor ? deviceColor.trim() : "",
@@ -2685,6 +2738,9 @@ if (typeof price === "number") total += price;
     setPartNotes({});
     setPartSelections({});
     setOrderNo("");
+    setDiscountCodeInput("");
+    setAppliedDiscount(null);
+    setDiscountMessage("");
     setDetails({
       name: "",
       phone: "",
@@ -2699,6 +2755,115 @@ if (typeof price === "number") total += price;
   return (
     <main dir={isArabic ? "rtl" : "ltr"}>
       <style>{wizardStyles}</style>
+
+      {/* Floating customer support button - fixed while scrolling */}
+      <div
+        style={{
+          position: "fixed",
+          left: "20px",
+          bottom: "26px",
+          zIndex: 99999,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "flex-start",
+          gap: "10px",
+          direction: "ltr"
+        }}
+      >
+        {contactOpen && (
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "9px",
+              marginBottom: "2px",
+              animation: "ifixContactIn .18s ease-out"
+            }}
+          >
+            <a
+              href={`tel:+${myWhatsAppNumber}`}
+              aria-label={isArabic ? "اتصال بخدمة العملاء" : "Call customer service"}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+                padding: "11px 15px",
+                borderRadius: "30px",
+                background: "#111827",
+                color: "#fff",
+                textDecoration: "none",
+                boxShadow: "0 5px 18px rgba(0,0,0,.2)",
+                fontSize: "13px",
+                fontWeight: 800,
+                whiteSpace: "nowrap"
+              }}
+            >
+              <span style={{ fontSize: "19px" }} aria-hidden="true">📞</span>
+              {isArabic ? "اتصال بخدمة العملاء" : "Call customer service"}
+            </a>
+
+            <a
+              href={`https://wa.me/${myWhatsAppNumber}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={isArabic ? "راسلنا على واتساب" : "Message us on WhatsApp"}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+                padding: "11px 15px",
+                borderRadius: "30px",
+                background: "#25D366",
+                color: "#fff",
+                textDecoration: "none",
+                boxShadow: "0 5px 18px rgba(0,0,0,.18)",
+                fontSize: "13px",
+                fontWeight: 800,
+                whiteSpace: "nowrap"
+              }}
+            >
+              <span style={{ fontSize: "19px" }} aria-hidden="true">☘</span>
+              {isArabic ? "ابعتلنا واتساب" : "Chat on WhatsApp"}
+            </a>
+          </div>
+        )}
+
+        <button
+          type="button"
+          onClick={() => setContactOpen(open => !open)}
+          aria-expanded={contactOpen}
+          aria-label={isArabic ? "تواصل معنا" : "Contact us"}
+          title={isArabic ? "تواصل معنا" : "Contact us"}
+          style={{
+            width: "58px",
+            height: "58px",
+            border: "3px solid #fff",
+            borderRadius: "50%",
+            background: "linear-gradient(135deg, #ffe66d 0%, #ffbd3f 100%)",
+            color: "#172033",
+            display: "grid",
+            placeItems: "center",
+            cursor: "pointer",
+            boxShadow: "0 5px 20px rgba(0,0,0,.25)",
+            fontSize: "25px",
+            transition: "transform .2s ease, background .2s ease"
+          }}
+        >
+          {contactOpen ? (
+            <span aria-hidden="true" style={{ fontSize: "31px", lineHeight: 1 }}>×</span>
+          ) : (
+            <svg aria-hidden="true" viewBox="0 0 24 24" width="29" height="29" fill="none">
+              <path d="M7.1 3.8 9.4 3.3c.6-.1 1.2.2 1.4.8l1.1 2.7c.2.5.1 1-.3 1.4l-1.3 1.2a14.2 14.2 0 0 0 4.3 4.3l1.2-1.3c.4-.4.9-.5 1.4-.3l2.7 1.1c.6.2.9.8.8 1.4l-.5 2.3c-.2.8-.9 1.3-1.7 1.3C10.5 18.2 5.8 13.5 5.8 5.5c0-.8.5-1.5 1.3-1.7Z" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          )}
+        </button>
+      </div>
+      <style>{`
+        @keyframes ifixContactIn {
+          from { opacity: 0; transform: translateY(8px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
 
       <header className="header">
         <div className="ifix-brand-menu">
@@ -3700,7 +3865,7 @@ if (typeof price === "number") total += price;
               </h3>
 
               <p style={{ fontSize: "0.85rem", color: "#71717a" }}>
-                Reset Repair Invoice & Summary
+                iFix Repair Invoice & Summary
               </p>
             </div>
 
@@ -3911,7 +4076,7 @@ if (typeof price === "number") total += price;
                     color: "#111"
                   }}
                 >
-                  {isArabic ? "الإجمالي النهائي" : "Total Amount"}
+                  {isArabic ? "الإجمالي قبل الخصم" : "Subtotal"}
                 </span>
 
                 <span
@@ -3923,6 +4088,58 @@ if (typeof price === "number") total += price;
                 >
                   {formatPrice(totalPrice)} {t.currency}
                 </span>
+              </div>
+            </div>
+
+            <div style={{
+              padding: "20px", border: "2px solid #f59e0b", borderRadius: "16px",
+              background: "linear-gradient(135deg, #fffbeb 0%, #fff7d6 100%)",
+              boxShadow: "0 8px 24px rgba(245,158,11,.14)", marginBottom: "18px"
+            }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "11px", marginBottom: "13px" }}>
+                <span aria-hidden="true" style={{ width: "42px", height: "42px", flex: "0 0 42px", display: "grid", placeItems: "center", borderRadius: "12px", background: "#f59e0b", color: "#fff", fontSize: "23px" }}>%</span>
+                <div>
+                  <label htmlFor="ifix-discount-code" style={{ display: "block", fontWeight: 900, color: "#78350f", fontSize: "17px" }}>
+                    {isArabic ? "عندك كود خصم؟ استخدمه هنا" : "Have a discount code? Use it here"}
+                  </label>
+                  <span style={{ display: "block", color: "#92400e", fontSize: "12px", marginTop: "2px" }}>
+                    {isArabic ? "اكتب الكود واحصل على خصم من إجمالي طلبك" : "Enter your code and save on your order"}
+                  </span>
+                </div>
+              </div>
+              <div style={{ display: "flex", gap: "9px", flexWrap: "wrap" }}>
+                <input
+                  id="ifix-discount-code"
+                  type="text"
+                  value={discountCodeInput}
+                  onChange={e => { setDiscountCodeInput(e.target.value); if (appliedDiscount) setAppliedDiscount(null); setDiscountMessage(""); }}
+                  placeholder={isArabic ? "اكتب كود الخصم هنا" : "Enter your discount code"}
+                  autoComplete="off"
+                  style={{ flex: "1 1 180px", minWidth: 0, padding: "14px", border: "2px solid #fbbf24", borderRadius: "11px", background: "#fff", color: "#422006", font: "inherit", fontWeight: 800, fontSize: "15px", direction: "auto", boxShadow: "inset 0 1px 3px rgba(0,0,0,.04)" }}
+                />
+                {appliedDiscount ? (
+                  <button type="button" onClick={removeDiscountCode} style={{ padding: "12px 17px", border: "1px solid #fecaca", borderRadius: "11px", background: "#fff1f2", color: "#b91c1c", fontWeight: 900, cursor: "pointer" }}>
+                    {isArabic ? "إلغاء الكود" : "Remove code"}
+                  </button>
+                ) : (
+                  <button type="button" onClick={applyDiscountCode} style={{ padding: "12px 20px", border: 0, borderRadius: "11px", background: "#b45309", color: "#fff", fontWeight: 900, cursor: "pointer", boxShadow: "0 4px 10px rgba(180,83,9,.2)" }}>
+                    {isArabic ? "تفعيل الخصم" : "Apply discount"}
+                  </button>
+                )}
+              </div>
+              {discountMessage && <p role="status" style={{ margin: "11px 0 0", color: appliedDiscount ? "#166534" : "#b91c1c", fontSize: "13px", fontWeight: 800 }}>{discountMessage}</p>}
+            </div>
+
+            <div style={{ padding: "13px 16px", border: "1px solid #d1fae5", borderRadius: "14px", background: "#f0fdf4", marginBottom: "24px" }}>
+              {appliedDiscount && (
+                <div style={{ display: "flex", justifyContent: "space-between", gap: "12px", color: "#15803d", fontWeight: 800, marginBottom: "9px" }}>
+                  <span>{isArabic ? `خصم الكود (${appliedDiscount.percent}%)` : `Discount (${appliedDiscount.percent}%)`}</span>
+                  <span>- {formatPrice(discountAmount)} {t.currency}</span>
+                </div>
+              )}
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px" }}>
+                <strong style={{ color: "#111", fontSize: "1rem" }}>{isArabic ? "الإجمالي بعد الخصم" : "Total after discount"}</strong>
+                <strong style={{ color: "#16a34a", fontSize: "1.4rem" }}>{formatPrice(finalTotalPrice)} {t.currency}</strong>
               </div>
             </div>
 
@@ -4285,16 +4502,12 @@ if (typeof price === "number") total += price;
           <a href="#policies">{isArabic ? "سياسة الخصوصية" : "Privacy Policy"}</a>
           <a href="#policies">{isArabic ? "سياسة الصيانة والضمان" : "Repair & Warranty"}</a>
         </div>
-        <a className="reset-brand" href="#top" aria-label="Reset">
-  <span className="reset-brand-icon">
-    <img src="/reset-logo.svg" alt="" />
-  </span>
-
-  <span className="reset-brand-name">Reset</span>
-</a>
+        <a className="logo" href="#top">
+          <b>i</b> Fix
+        </a>
 
         <span>
-          © {new Date().getFullYear()} Reset — {t.copyright}
+          © {new Date().getFullYear()} iFix — {t.copyright}
         </span>
       </footer>
     </main>
