@@ -3700,7 +3700,7 @@ if (typeof price === "number") total += price;
               </h3>
 
               <p style={{ fontSize: "0.85rem", color: "#71717a" }}>
-                iFix Repair Invoice & Summary
+                Reset Repair Invoice & Summary
               </p>
             </div>
 
@@ -4285,12 +4285,16 @@ if (typeof price === "number") total += price;
           <a href="#policies">{isArabic ? "سياسة الخصوصية" : "Privacy Policy"}</a>
           <a href="#policies">{isArabic ? "سياسة الصيانة والضمان" : "Repair & Warranty"}</a>
         </div>
-        <a className="logo" href="#top">
-          <b>i</b> Fix
-        </a>
+        <a className="reset-brand" href="#top" aria-label="Reset">
+  <span className="reset-brand-icon">
+    <img src="/reset-logo.svg" alt="" />
+  </span>
+
+  <span className="reset-brand-name">Reset</span>
+</a>
 
         <span>
-          © {new Date().getFullYear()} iFix — {t.copyright}
+          © {new Date().getFullYear()} Reset — {t.copyright}
         </span>
       </footer>
     </main>
