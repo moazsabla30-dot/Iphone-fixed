@@ -50,8 +50,10 @@ const modelImages = {
 const models = Object.keys(modelImages);
 
 const standardParts = [
+   { id: "battery", nameAr: "بطارية", nameEn: "Battery" },
   { id: "screen", nameAr: "شاشة", nameEn: "Screen" },
-  { id: "battery", nameAr: "بطارية", nameEn: "Battery" },
+  { id: "front_glass", nameAr: "باغة الشاشة", nameEn: "Front Glass" },
+  { id: "touch", nameAr: "تاتش الشاشة", nameEn: "Touch Digitizer" },
   { id: "upper_speaker", nameAr: "سماعة علوية", nameEn: "Upper Speaker" },
   { id: "lower_speaker", nameAr: "سماعة سفلية", nameEn: "Lower Speaker" },
   { id: "mic", nameAr: "مايك", nameEn: "Microphone" },
@@ -93,6 +95,28 @@ const partSubOptions = {
       descAr: "جودة مقبولة وسعر اقتصادي مناسب",
       descEn: "Acceptable quality and suitable economic price",
       image: "https://cart-products.cdn.ifixit.com/cart-products/DIiI4jEvMccgQ5eP.large"
+    }
+  ],
+  front_glass: [
+    {
+      id: "single_glass",
+      nameAr: "باغة أمامية",
+      nameEn: "Front Outer Glass",
+      price: "السعر يحدد عند الطلب",
+      descAr: "الزجاج الخارجي الأمامي فقط، وليس الشاشة كاملة.",
+      descEn: "Front outer glass only, not the complete display assembly.",
+      image: "https://d57avc95tvxyg.cloudfront.net/images/thumbnails/1001/1001/detailed/11943/replacement_front_glass_for_apple_iphone_16_black_by_maxbhi_com_16678_0.jpg?t=1736323059"
+    }
+  ],
+  touch: [
+    {
+      id: "single_touch",
+      nameAr: "تاتش الشاشة",
+      nameEn: "Touch Digitizer",
+      price: "السعر يحدد عند الطلب",
+      descAr: "طبقة اللمس / وحدة التاتش. التوافق وطريقة الإصلاح يختلفان حسب الموديل.",
+      descEn: "Touch digitizer assembly. Compatibility and repair method vary by model.",
+      image: "https://i.ebayimg.com/images/g/Y8oAAOSw6yRnIwCt/s-l1200.jpg"
     }
   ],
   battery: [
@@ -270,8 +294,13 @@ const MODEL_PRICES = {
     socket: {
       orig_socket: "سيتوفر قريبا",
       copy_socket: "سيتوفر قريبا"
-    }
-  },
+    },
+    front_glass: {
+      single_glass: "السعر يحدد عند الطلب"
+    },
+    touch: {
+      single_touch: "السعر يحدد عند الطلب"
+    }},
   "iPhone 18 Pro": {
     screen: {
       pulled: "سيتوفر قريبا",
@@ -309,8 +338,13 @@ const MODEL_PRICES = {
     socket: {
       orig_socket: "سيتوفر قريبا",
       copy_socket: "سيتوفر قريبا"
-    }
-  },
+    },
+    front_glass: {
+      single_glass: "السعر يحدد عند الطلب"
+    },
+    touch: {
+      single_touch: "السعر يحدد عند الطلب"
+    }},
   "iPhone 17e": {
     screen: {
       pulled: 2900,
@@ -348,8 +382,14 @@ const MODEL_PRICES = {
     socket: {
       orig_socket: 1700,
       copy_socket: 650
-    }
-  },
+    },
+  
+    front_glass: {
+      single_glass: "السعر يحدد عند الطلب"
+    },
+    touch: {
+      single_touch: "السعر يحدد عند الطلب"
+    }},
   "iPhone 17 Pro Max": {
     screen: {
       pulled: 2900,
@@ -387,8 +427,14 @@ const MODEL_PRICES = {
     socket: {
       orig_socket: 1800,
       copy_socket: 650
-    }
-  },
+    },
+  
+    front_glass: {
+      single_glass: "السعر يحدد عند الطلب"
+    },
+    touch: {
+      single_touch: "السعر يحدد عند الطلب"
+    }},
   "iPhone 17 Pro": {
     screen: {
       pulled: 2900,
@@ -426,8 +472,14 @@ const MODEL_PRICES = {
     socket: {
       orig_socket: 1800,
       copy_socket: 650
-    }
-  },
+    },
+  
+    front_glass: {
+      single_glass: "السعر يحدد عند الطلب"
+    },
+    touch: {
+      single_touch: "السعر يحدد عند الطلب"
+    }},
   "iPhone 17": {
     screen: {
       pulled: 2900,
@@ -465,8 +517,14 @@ const MODEL_PRICES = {
     socket: {
       orig_socket: 1700,
       copy_socket: 650
-    }
-  },
+    },
+  
+    front_glass: {
+      single_glass: "السعر يحدد عند الطلب"
+    },
+    touch: {
+      single_touch: "السعر يحدد عند الطلب"
+    }},
   "iPhone Air": {
     screen: {
       pulled: 2900,
@@ -504,8 +562,14 @@ const MODEL_PRICES = {
     socket: {
       orig_socket: 1500,
       copy_socket: 650
-    }
-  },
+    },
+  
+    front_glass: {
+      single_glass: "السعر يحدد عند الطلب"
+    },
+    touch: {
+      single_touch: "السعر يحدد عند الطلب"
+    }},
   "iPhone 16e": {
     screen: {
       pulled: 2900,
@@ -543,8 +607,14 @@ const MODEL_PRICES = {
     socket: {
       orig_socket: 1400,
       copy_socket: 650
-    }
-  },
+    },
+  
+    front_glass: {
+      single_glass: "السعر يحدد عند الطلب"
+    },
+    touch: {
+      single_touch: "السعر يحدد عند الطلب"
+    }},
   "iPhone 16 Pro Max": {
     screen: {
       pulled: 2900,
@@ -582,8 +652,14 @@ const MODEL_PRICES = {
     socket: {
       orig_socket: 1400,
       copy_socket: 650
-    }
-  },
+    },
+  
+    front_glass: {
+      single_glass: "السعر يحدد عند الطلب"
+    },
+    touch: {
+      single_touch: "السعر يحدد عند الطلب"
+    }},
   "iPhone 16 Pro": {
     screen: {
       pulled: 2900,
@@ -621,8 +697,14 @@ const MODEL_PRICES = {
     socket: {
       orig_socket: 1400,
       copy_socket: 650
-    }
-  },
+    },
+  
+    front_glass: {
+      single_glass: "السعر يحدد عند الطلب"
+    },
+    touch: {
+      single_touch: "السعر يحدد عند الطلب"
+    }},
   "iPhone 16 Plus": {
     screen: {
       pulled: 2900,
@@ -660,8 +742,14 @@ const MODEL_PRICES = {
     socket: {
       orig_socket: 1400,
       copy_socket: 650
-    }
-  },
+    },
+  
+    front_glass: {
+      single_glass: "السعر يحدد عند الطلب"
+    },
+    touch: {
+      single_touch: "السعر يحدد عند الطلب"
+    }},
   "iPhone 16": {
     screen: {
       pulled: 2900,
@@ -699,8 +787,14 @@ const MODEL_PRICES = {
     socket: {
       orig_socket: 1400,
       copy_socket: 650
-    }
-  },
+    },
+  
+    front_glass: {
+      single_glass: "السعر يحدد عند الطلب"
+    },
+    touch: {
+      single_touch: "السعر يحدد عند الطلب"
+    }},
   "iPhone 15 Pro Max": {
     screen: {
       pulled: 2900,
@@ -738,8 +832,14 @@ const MODEL_PRICES = {
     socket: {
       orig_socket: 1400,
       copy_socket: 650
-    }
-  },
+    },
+  
+    front_glass: {
+      single_glass: "السعر يحدد عند الطلب"
+    },
+    touch: {
+      single_touch: "السعر يحدد عند الطلب"
+    }},
   "iPhone 15 Pro": {
     screen: {
       pulled: 2900,
@@ -777,8 +877,14 @@ const MODEL_PRICES = {
     socket: {
       orig_socket: 1400,
       copy_socket: 650
-    }
-  },
+    },
+  
+    front_glass: {
+      single_glass: "السعر يحدد عند الطلب"
+    },
+    touch: {
+      single_touch: "السعر يحدد عند الطلب"
+    }},
   "iPhone 15 Plus": {
     screen: {
       pulled: 2900,
@@ -816,8 +922,14 @@ const MODEL_PRICES = {
     socket: {
       orig_socket: 1400,
       copy_socket: 650
-    }
-  },
+    },
+  
+    front_glass: {
+      single_glass: "السعر يحدد عند الطلب"
+    },
+    touch: {
+      single_touch: "السعر يحدد عند الطلب"
+    }},
   "iPhone 15": {
     screen: {
       pulled: 2900,
@@ -855,8 +967,14 @@ const MODEL_PRICES = {
     socket: {
       orig_socket: 1400,
       copy_socket: 650
-    }
-  },
+    },
+  
+    front_glass: {
+      single_glass: "السعر يحدد عند الطلب"
+    },
+    touch: {
+      single_touch: "السعر يحدد عند الطلب"
+    }},
   "iPhone 14 Pro Max": {
     screen: {
       pulled: 2900,
@@ -894,8 +1012,14 @@ const MODEL_PRICES = {
     socket: {
       orig_socket: 1200,
       copy_socket: 650
-    }
-  },
+    },
+  
+    front_glass: {
+      single_glass: "السعر يحدد عند الطلب"
+    },
+    touch: {
+      single_touch: "السعر يحدد عند الطلب"
+    }},
   "iPhone 14 Pro": {
     screen: {
       pulled: 2900,
@@ -933,8 +1057,14 @@ const MODEL_PRICES = {
     socket: {
       orig_socket: 1400,
       copy_socket: 650
-    }
-  },
+    },
+  
+    front_glass: {
+      single_glass: 4500
+    },
+    touch: {
+      single_touch: 4500
+    }},
   "iPhone 14 Plus": {
     screen: {
       pulled: 2900,
@@ -972,8 +1102,14 @@ const MODEL_PRICES = {
     socket: {
       orig_socket: 1400,
       copy_socket: 650
-    }
-  },
+    },
+  
+    front_glass: {
+      single_glass: "السعر يحدد عند الطلب"
+    },
+    touch: {
+      single_touch: "السعر يحدد عند الطلب"
+    }},
   "iPhone 14": {
     screen: {
       pulled: 2900,
@@ -1011,8 +1147,14 @@ const MODEL_PRICES = {
     socket: {
       orig_socket: 1400,
       copy_socket: 650
-    }
-  },
+    },
+  
+    front_glass: {
+      single_glass: "السعر يحدد عند الطلب"
+    },
+    touch: {
+      single_touch: "السعر يحدد عند الطلب"
+    }},
   "iPhone SE (3rd generation)": {
     screen: {
       pulled: 2900,
@@ -1050,8 +1192,14 @@ const MODEL_PRICES = {
     socket: {
       orig_socket: 1200,
       copy_socket: 650
-    }
-  },
+    },
+  
+    front_glass: {
+      single_glass: "السعر يحدد عند الطلب"
+    },
+    touch: {
+      single_touch: "السعر يحدد عند الطلب"
+    }},
   "iPhone 13 Pro Max": {
     screen: {
       pulled: 2900,
@@ -1089,8 +1237,14 @@ const MODEL_PRICES = {
     socket: {
       orig_socket: 1200,
       copy_socket: 650
-    }
-  },
+    },
+  
+    front_glass: {
+      single_glass: "السعر يحدد عند الطلب"
+    },
+    touch: {
+      single_touch: "السعر يحدد عند الطلب"
+    }},
   "iPhone 13 Pro": {
     screen: {
       pulled: 2900,
@@ -1128,8 +1282,14 @@ const MODEL_PRICES = {
     socket: {
       orig_socket: 1200,
       copy_socket: 650
-    }
-  },
+    },
+  
+    front_glass: {
+      single_glass: "السعر يحدد عند الطلب"
+    },
+    touch: {
+      single_touch: "السعر يحدد عند الطلب"
+    }},
   "iPhone 13": {
     screen: {
       pulled: 2900,
@@ -1167,8 +1327,14 @@ const MODEL_PRICES = {
     socket: {
       orig_socket: 1200,
       copy_socket: 650
-    }
-  },
+    },
+  
+    front_glass: {
+      single_glass: "السعر يحدد عند الطلب"
+    },
+    touch: {
+      single_touch: "السعر يحدد عند الطلب"
+    }},
   "iPhone 13 mini": {
     screen: {
       pulled: 2900,
@@ -1206,8 +1372,14 @@ const MODEL_PRICES = {
     socket: {
       orig_socket: 1200,
       copy_socket: 650
-    }
-  },
+    },
+  
+    front_glass: {
+      single_glass: "السعر يحدد عند الطلب"
+    },
+    touch: {
+      single_touch: "السعر يحدد عند الطلب"
+    }},
   "iPhone 12 Pro Max": {
     screen: {
       pulled: 2900,
@@ -1245,8 +1417,14 @@ const MODEL_PRICES = {
     socket: {
       orig_socket: 1200,
       copy_socket: 650
-    }
-  },
+    },
+  
+    front_glass: {
+      single_glass: "السعر يحدد عند الطلب"
+    },
+    touch: {
+      single_touch: "السعر يحدد عند الطلب"
+    }},
   "iPhone 12 Pro": {
     screen: {
       pulled: 2900,
@@ -1284,8 +1462,14 @@ const MODEL_PRICES = {
     socket: {
       orig_socket: 1200,
       copy_socket: 650
-    }
-  },
+    },
+  
+    front_glass: {
+      single_glass: "السعر يحدد عند الطلب"
+    },
+    touch: {
+      single_touch: "السعر يحدد عند الطلب"
+    }},
   "iPhone 12": {
     screen: {
       pulled: 2900,
@@ -1323,8 +1507,14 @@ const MODEL_PRICES = {
     socket: {
       orig_socket: 1200,
       copy_socket: 650
-    }
-  },
+    },
+  
+    front_glass: {
+      single_glass: "السعر يحدد عند الطلب"
+    },
+    touch: {
+      single_touch: "السعر يحدد عند الطلب"
+    }},
   "iPhone 12 mini": {
     screen: {
       pulled: 2900,
@@ -1362,8 +1552,14 @@ const MODEL_PRICES = {
     socket: {
       orig_socket: 1200,
       copy_socket: 650
-    }
-  },
+    },
+  
+    front_glass: {
+      single_glass: "السعر يحدد عند الطلب"
+    },
+    touch: {
+      single_touch: "السعر يحدد عند الطلب"
+    }},
   "iPhone SE (2nd generation)": {
     screen: {
       pulled: 2900,
@@ -1401,8 +1597,14 @@ const MODEL_PRICES = {
     socket: {
       orig_socket: 1200,
       copy_socket: 650
-    }
-  },
+    },
+  
+    front_glass: {
+      single_glass: "السعر يحدد عند الطلب"
+    },
+    touch: {
+      single_touch: "السعر يحدد عند الطلب"
+    }},
   "iPhone 11 Pro": {
     screen: {
       pulled: 2900,
@@ -1440,8 +1642,14 @@ const MODEL_PRICES = {
     socket: {
       orig_socket: 1200,
       copy_socket: 650
-    }
-  },
+    },
+  
+    front_glass: {
+      single_glass: "السعر يحدد عند الطلب"
+    },
+    touch: {
+      single_touch: "السعر يحدد عند الطلب"
+    }},
   "iPhone 11 Pro Max": {
     screen: {
       pulled: 2900,
@@ -1479,8 +1687,14 @@ const MODEL_PRICES = {
     socket: {
       orig_socket: 1200,
       copy_socket: 650
-    }
-  },
+    },
+  
+    front_glass: {
+      single_glass: "السعر يحدد عند الطلب"
+    },
+    touch: {
+      single_touch: "السعر يحدد عند الطلب"
+    }},
   "iPhone 11": {
     screen: {
       pulled: 2900,
@@ -1518,8 +1732,14 @@ const MODEL_PRICES = {
     socket: {
       orig_socket: 1200,
       copy_socket: 650
-    }
-  },
+    },
+  
+    front_glass: {
+      single_glass: "السعر يحدد عند الطلب"
+    },
+    touch: {
+      single_touch: "السعر يحدد عند الطلب"
+    }},
   "iPhone XS": {
     screen: {
       pulled: 2900,
@@ -1557,8 +1777,14 @@ const MODEL_PRICES = {
     socket: {
       orig_socket: 1200,
       copy_socket: 650
-    }
-  },
+    },
+  
+    front_glass: {
+      single_glass: "السعر يحدد عند الطلب"
+    },
+    touch: {
+      single_touch: "السعر يحدد عند الطلب"
+    }},
   "iPhone XS Max": {
     screen: {
       pulled: 2900,
@@ -1596,8 +1822,14 @@ const MODEL_PRICES = {
     socket: {
       orig_socket: 1200,
       copy_socket: 650
-    }
-  },
+    },
+  
+    front_glass: {
+      single_glass: "السعر يحدد عند الطلب"
+    },
+    touch: {
+      single_touch: "السعر يحدد عند الطلب"
+    }},
   "iPhone XR": {
     screen: {
       pulled: 2900,
@@ -1635,8 +1867,14 @@ const MODEL_PRICES = {
     socket: {
       orig_socket: 1200,
       copy_socket: 650
-    }
-  },
+    },
+  
+    front_glass: {
+      single_glass: "السعر يحدد عند الطلب"
+    },
+    touch: {
+      single_touch: "السعر يحدد عند الطلب"
+    }},
   "iPhone X": {
     screen: {
       pulled: 2900,
@@ -1674,8 +1912,14 @@ const MODEL_PRICES = {
     socket: {
       orig_socket: 1200,
       copy_socket: 650
-    }
-  },
+    },
+  
+    front_glass: {
+      single_glass: "السعر يحدد عند الطلب"
+    },
+    touch: {
+      single_touch: "السعر يحدد عند الطلب"
+    }},
   "iPhone 8": {
     screen: {
       pulled: 2900,
@@ -1713,8 +1957,14 @@ const MODEL_PRICES = {
     socket: {
       orig_socket: 1200,
       copy_socket: 650
-    }
-  },
+    },
+  
+    front_glass: {
+      single_glass: "السعر يحدد عند الطلب"
+    },
+    touch: {
+      single_touch: "السعر يحدد عند الطلب"
+    }},
   "iPhone 8 Plus": {
     screen: {
       pulled: 2900,
@@ -1752,8 +2002,13 @@ const MODEL_PRICES = {
     socket: {
       orig_socket:1200,
       copy_socket: 650
-    }
-  }
+    },
+    front_glass: {
+      single_glass: "السعر يحدد عند الطلب"
+    },
+    touch: {
+      single_touch: "السعر يحدد عند الطلب"
+    }}
 };
 
 // Gets the customized price for this exact model, part and quality.
@@ -2271,6 +2526,8 @@ export default function App() {
   const [devicePickerOpen, setDevicePickerOpen] = useState(false);
   const [modelSearch, setModelSearch] = useState("");
   const [deviceColor, setDeviceColor] = useState("");
+  const [fulfillmentType, setFulfillmentType] = useState(""); // "repair" or "partOnly"
+  const needsDeviceColor = selectedParts.includes("back_glass");
   const [submitting, setSubmitting] = useState(false);
   const [orderNo, setOrderNo] = useState("");
 
@@ -2328,8 +2585,9 @@ if (typeof price === "number") total += price;
       }
     });
 
-    return total;
-  }, [selectedParts, partSelections, isOnlyCustomIssue, model]);
+    // Add the 100 EGP installation fee only when the customer chooses device repair.
+    return total + (fulfillmentType === "repair" ? 100 : 0);
+  }, [selectedParts, partSelections, isOnlyCustomIssue, model, fulfillmentType]);
 
   function updateDetails(e) {
     setDetails({
@@ -2343,7 +2601,7 @@ if (typeof price === "number") total += price;
 
     if (submitLock.current) return;
 
-    if (!model || !deviceColor.trim() || selectedParts.length === 0) {
+    if (!model || (needsDeviceColor && !deviceColor.trim()) || selectedParts.length === 0) {
       setStep(
         !model
           ? "device"
@@ -2371,13 +2629,19 @@ if (typeof price === "number") total += price;
           model,
           selectedParts,
           partNotes,
+          fulfillmentType: fulfillmentType || "repair",
           totalPrice,
           details: {
             ...details,
-            deviceColor: deviceColor.trim(),
+            deviceColor: needsDeviceColor ? deviceColor.trim() : "",
+            fulfillmentType: fulfillmentType || "repair",
             notes: [
-              (isArabic ? "لون الجهاز: " : "Device color: ") +
-                deviceColor.trim(),
+              (fulfillmentType === "partOnly"
+                ? (isArabic ? "نوع الطلب: قطعة غيار فقط" : "Order type: Spare part only")
+                : (isArabic ? "نوع الطلب: صيانة الجهاز مع الاستلام والتوصيل" : "Order type: Device repair with pickup and return")),
+              ...(needsDeviceColor && deviceColor.trim()
+                ? [(isArabic ? "لون الجهاز: " : "Device color: ") + deviceColor.trim()]
+                : []),
               details.notes.trim()
             ]
               .filter(Boolean)
@@ -2413,6 +2677,7 @@ if (typeof price === "number") total += price;
   function resetOrder() {
     setStep("device");
     setDeviceColor("");
+    setFulfillmentType("");
     setDevicePickerOpen(false);
     setModelSearch("");
     setModel("");
@@ -2798,6 +3063,7 @@ if (typeof price === "number") total += price;
                         );
                       } else {
                         setSelectedParts([...selectedParts, "other"]);
+                        setFulfillmentType("repair");
                       }
                     }}
                     style={{
@@ -2840,6 +3106,36 @@ if (typeof price === "number") total += price;
                 );
               })()}
             </div>
+
+            {selectedParts.length > 0 && (
+              <div style={{ marginTop: "20px" }}>
+                <h4 style={{ fontSize: "0.95rem", fontWeight: 800, marginBottom: "10px" }}>
+                  {isArabic ? "اختار طريقة الحصول على الخدمة:" : "Choose how you would like to receive the service:"}
+                </h4>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "12px" }}>
+                  <label onClick={() => setFulfillmentType("repair")} style={{ padding: "18px", border: fulfillmentType === "repair" ? "2px solid #2563eb" : "1px solid #bfdbfe", borderRadius: "14px", background: fulfillmentType === "repair" ? "linear-gradient(135deg, #dbeafe 0%, #eff6ff 100%)" : "#f8fbff", boxShadow: fulfillmentType === "repair" ? "0 5px 16px rgba(37, 99, 235, 0.13)" : "0 2px 8px rgba(37, 99, 235, 0.05)", cursor: "pointer", display: "flex", gap: "12px", alignItems: "flex-start", transition: "all 0.2s ease" }}>
+                    <input type="radio" name="fulfillmentType" checked={fulfillmentType === "repair"} onChange={() => setFulfillmentType("repair")} style={{ marginTop: "4px", accentColor: "#2563eb" }} />
+                    <span style={{ flex: 1 }}>
+                      <strong style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "8px", color: "#1e3a8a" }}>
+                        {isArabic ? "إرسال الجهاز للصيانة" : "Full device repair service"}
+                        <span style={{ display: "inline-block", padding: "4px 9px", borderRadius: "999px", background: "#2563eb", color: "#fff", fontSize: "0.78rem", fontWeight: 800, whiteSpace: "nowrap" }}>
+                          {isArabic ? "+ 100 جنيه تركيب" : "+ 100 EGP installation"}
+                        </span>
+                      </strong>
+                      <small style={{ display: "block", color: "#475569", marginTop: "7px", lineHeight: 1.6 }}>{isArabic ? "مندوب يستلم الآيفون من عنوانك، ونقوم بصيانته ثم إعادته إليك." : "A courier collects your iPhone, we repair it, then deliver it back to you."}</small>
+                    </span>
+                  </label>
+                  <label onClick={() => setFulfillmentType("partOnly")} style={{ padding: "18px", border: fulfillmentType === "partOnly" ? "2px solid #059669" : "1px solid #a7f3d0", borderRadius: "14px", background: fulfillmentType === "partOnly" ? "linear-gradient(135deg, #d1fae5 0%, #ecfdf5 100%)" : "#f7fefa", boxShadow: fulfillmentType === "partOnly" ? "0 5px 16px rgba(5, 150, 105, 0.13)" : "0 2px 8px rgba(5, 150, 105, 0.05)", cursor: "pointer", display: "flex", gap: "12px", alignItems: "flex-start", opacity: selectedParts.includes("other") ? 0.5 : 1, transition: "all 0.2s ease" }}>
+                    <input type="radio" name="fulfillmentType" checked={fulfillmentType === "partOnly"} disabled={selectedParts.includes("other")} onChange={() => setFulfillmentType("partOnly")} style={{ marginTop: "4px", accentColor: "#059669" }} />
+                    <span style={{ flex: 1 }}>
+                      <strong style={{ display: "block", color: "#065f46" }}>{isArabic ? "طلب قطعة الغيار فقط" : "Spare part only"}</strong>
+                      <small style={{ display: "block", color: "#475569", marginTop: "7px", lineHeight: 1.6 }}>{isArabic ? "نرسل لك قطعة الغيار إلى عنوانك، ويمكنك تركيبها لدى الفني الذي تختاره." : "We deliver the spare part to your address so you can have it installed by your own technician."}</small>
+                    </span>
+                  </label>
+                </div>
+                {selectedParts.includes("other") && <small style={{ color: "#777", display: "block", marginTop: "8px" }}>{isArabic ? "طلب قطعة الغيار فقط متاح عند اختيار قطعة محددة، وليس عند اختيار عطل آخر." : "Spare-part-only orders are available for specific parts, not custom issues."}</small>}
+              </div>
+            )}
 
             {selectedParts.length > 0 && (
               <div style={{ marginTop: "20px" }}>
@@ -2960,12 +3256,21 @@ if (typeof price === "number") total += price;
                   }
                 }
 
-                setStep(isOnlyCustomIssue ? "color" : "selectQuality");
+                if (isOnlyCustomIssue) {
+                  setFulfillmentType("repair");
+                  setStep("details");
+                  return;
+                }
+
+                if (!fulfillmentType) {
+                  alert(isArabic ? "برجاء اختيار طريقة الحصول على الخدمة" : "Please choose a service option");
+                  return;
+                }
+
+                setStep("selectQuality");
               }}
             >
-              {isOnlyCustomIssue
-  ? (isArabic ? "التالي: لون الجهاز ←" : "Next: device color →")
-  : (isArabic ? "التالي: نوع القطعة ←" : "Next: part quality →")}
+              {isArabic ? "التالي ←" : "Continue →"}
             </button>
 
             <button
@@ -3031,9 +3336,7 @@ if (typeof price === "number") total += price;
   <button
     type="button"
     className="ifix-back"
-    onClick={() =>
-      setStep(isOnlyCustomIssue ? "choose" : "selectQuality")
-    }
+    onClick={() => setStep("selectQuality")}
   >
     {t.backButton}
   </button>
@@ -3250,9 +3553,9 @@ if (typeof price === "number") total += price;
 <button
   type="button"
   className="black-btn full"
-  onClick={() => setStep("color")}
+  onClick={() => setStep(needsDeviceColor ? "color" : "details")}
 >
-  {isArabic ? "التالي: لون الجهاز ←" : "Next: device color →"}
+  {isArabic ? "التالي: بيانات العميل ←" : "Next: customer details →"}
 </button>
             </div>
           </div>
@@ -3340,7 +3643,7 @@ if (typeof price === "number") total += price;
               <button
                 type="button"
                 className="light-btn"
-                onClick={() => setStep("color")}
+                onClick={() => setStep(isOnlyCustomIssue ? "choose" : needsDeviceColor ? "color" : "selectQuality")}
               >
                 {t.backButton}
               </button>
@@ -3441,9 +3744,16 @@ if (typeof price === "number") total += price;
                 </span>
               </div>
 
+              {needsDeviceColor && (
+                <div className="ifix-color-summary">
+                  <span>{isArabic ? "لون الجهاز" : "Device color"}</span>
+                  <strong>{deviceColor}</strong>
+                </div>
+              )}
+
               <div className="ifix-color-summary">
-                <span>{isArabic ? "لون الجهاز" : "Device color"}</span>
-                <strong>{deviceColor}</strong>
+                <span>{isArabic ? "طريقة الطلب" : "Service type"}</span>
+                <strong>{fulfillmentType === "partOnly" ? (isArabic ? "قطعة غيار فقط" : "Spare part only") : (isArabic ? "صيانة مع استلام وإرجاع الجهاز" : "Repair with pickup and return")}</strong>
               </div>
 
               <div style={{ marginBottom: "16px" }}>
@@ -3739,7 +4049,7 @@ if (typeof price === "number") total += price;
                 lineHeight: "1.6"
               }}
             >
-              {t.courierDispatchText}
+              {fulfillmentType === "partOnly" ? (isArabic ? "تم استلام طلب قطعة الغيار فقط، وسنتواصل معك لتأكيد التوصيل." : "Your spare-part order has been received. We will contact you to confirm delivery.") : t.courierDispatchText}
             </p>
 
             <div
@@ -3801,9 +4111,15 @@ if (typeof price === "number") total += price;
                 <strong style={{ color: "#111" }}>{model}</strong>
               </div>
 
+              {needsDeviceColor && (
+                <div className="ifix-color-summary">
+                  <span>{isArabic ? "لون الجهاز" : "Device color"}</span>
+                  <strong>{deviceColor}</strong>
+                </div>
+              )}
               <div className="ifix-color-summary">
-                <span>{isArabic ? "لون الجهاز" : "Device color"}</span>
-                <strong>{deviceColor}</strong>
+                <span>{isArabic ? "طريقة الطلب" : "Service type"}</span>
+                <strong>{fulfillmentType === "partOnly" ? (isArabic ? "قطعة غيار فقط" : "Spare part only") : (isArabic ? "صيانة مع استلام وإرجاع الجهاز" : "Repair with pickup and return")}</strong>
               </div>
             </div>
 
@@ -3903,8 +4219,8 @@ if (typeof price === "number") total += price;
             <a
               href={`https://wa.me/${myWhatsAppNumber}?text=${encodeURIComponent(
                 isArabic
-                  ? `مرحباً، أنا ${details.name} (رقمي: ${details.phone} - واتساب: ${details.whatsapp})، وموديل جهازي ${model} ولونه ${deviceColor} وعطل جهازي هو: ${partNotes.other}`
-                  : `Hello, I am ${details.name} (Phone: ${details.phone} - WA: ${details.whatsapp}), my device is ${model}, color: ${deviceColor}, and issue is: ${partNotes.other}`
+                  ? `مرحباً، أنا ${details.name} (رقمي: ${details.phone} - واتساب: ${details.whatsapp})، وموديل جهازي ${model} ${needsDeviceColor ? `ولونه ${deviceColor} ` : ""}وعطل جهازي هو: ${partNotes.other}`
+                  : `Hello, I am ${details.name} (Phone: ${details.phone} - WA: ${details.whatsapp}), my device is ${model}, ${needsDeviceColor ? `color: ${deviceColor}, ` : ""}and issue is: ${partNotes.other}`
               )}`}
               target="_blank"
               rel="noopener noreferrer"
