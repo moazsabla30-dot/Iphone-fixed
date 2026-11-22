@@ -1,3 +1,4 @@
+
 import { useEffect, useMemo, useRef, useState } from "react";
 import "./App.css";
 import RepairComparison from "./RepairComparison";
@@ -390,6 +391,7 @@ const MODEL_PRICES = {
       orig_socket: 1700,
       copy_socket: 650
     },
+  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -434,6 +436,7 @@ const MODEL_PRICES = {
       orig_socket: 1800,
       copy_socket: 650
     },
+  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -447,7 +450,7 @@ const MODEL_PRICES = {
       copy: 1600
     },
     battery: {
-      orig_batt: 5800,
+     orig_batt: 5800,
       high_batt: 4300,
       copy_batt: 3000
     },
@@ -478,6 +481,7 @@ const MODEL_PRICES = {
       orig_socket: 1800,
       copy_socket: 650
     },
+  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -522,6 +526,7 @@ const MODEL_PRICES = {
       orig_socket: 1700,
       copy_socket: 650
     },
+  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -566,6 +571,7 @@ const MODEL_PRICES = {
       orig_socket: 1500,
       copy_socket: 650
     },
+  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -610,6 +616,7 @@ const MODEL_PRICES = {
       orig_socket: 1400,
       copy_socket: 650
     },
+  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -654,6 +661,7 @@ const MODEL_PRICES = {
       orig_socket: 1400,
       copy_socket: 650
     },
+  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -698,6 +706,7 @@ const MODEL_PRICES = {
       orig_socket: 1400,
       copy_socket: 650
     },
+  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -711,7 +720,7 @@ const MODEL_PRICES = {
       copy: 1600
     },
     battery: {
-      orig_batt: 4750,
+     orig_batt: 4750,
       high_batt: 3200,
       copy_batt: 2500
     },
@@ -742,6 +751,7 @@ const MODEL_PRICES = {
       orig_socket: 1400,
       copy_socket: 650
     },
+  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -786,6 +796,7 @@ const MODEL_PRICES = {
       orig_socket: 1400,
       copy_socket: 650
     },
+  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -830,6 +841,7 @@ const MODEL_PRICES = {
       orig_socket: 1400,
       copy_socket: 650
     },
+  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -874,6 +886,7 @@ const MODEL_PRICES = {
       orig_socket: 1400,
       copy_socket: 650
     },
+  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -918,6 +931,7 @@ const MODEL_PRICES = {
       orig_socket: 1400,
       copy_socket: 650
     },
+  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -962,6 +976,7 @@ const MODEL_PRICES = {
       orig_socket: 1400,
       copy_socket: 650
     },
+  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -1006,6 +1021,7 @@ const MODEL_PRICES = {
       orig_socket: 1200,
       copy_socket: 650
     },
+  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -1050,6 +1066,7 @@ const MODEL_PRICES = {
       orig_socket: 1400,
       copy_socket: 650
     },
+  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -1094,6 +1111,7 @@ const MODEL_PRICES = {
       orig_socket: 1400,
       copy_socket: 650
     },
+  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -1138,6 +1156,7 @@ const MODEL_PRICES = {
       orig_socket: 1400,
       copy_socket: 650
     },
+  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -1182,6 +1201,7 @@ const MODEL_PRICES = {
       orig_socket: 1200,
       copy_socket: 650
     },
+  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -1195,7 +1215,7 @@ const MODEL_PRICES = {
       copy: 1600
     },
     battery: {
-      orig_batt: 3800,
+     orig_batt: 3800,
       high_batt: 2500,
       copy_batt: 1830
     },
@@ -1226,6 +1246,7 @@ const MODEL_PRICES = {
       orig_socket: 1200,
       copy_socket: 650
     },
+  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -1270,6 +1291,7 @@ const MODEL_PRICES = {
       orig_socket: 1200,
       copy_socket: 650
     },
+  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -1314,6 +1336,7 @@ const MODEL_PRICES = {
       orig_socket: 1200,
       copy_socket: 650
     },
+  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -1358,6 +1381,7 @@ const MODEL_PRICES = {
       orig_socket: 1200,
       copy_socket: 650
     },
+  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -1402,6 +1426,7 @@ const MODEL_PRICES = {
       orig_socket: 1200,
       copy_socket: 650
     },
+  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -1446,6 +1471,7 @@ const MODEL_PRICES = {
       orig_socket: 1200,
       copy_socket: 650
     },
+  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -1490,6 +1516,7 @@ const MODEL_PRICES = {
       orig_socket: 1200,
       copy_socket: 650
     },
+  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -1534,6 +1561,7 @@ const MODEL_PRICES = {
       orig_socket: 1200,
       copy_socket: 650
     },
+  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -1578,6 +1606,7 @@ const MODEL_PRICES = {
       orig_socket: 1200,
       copy_socket: 650
     },
+  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -1622,6 +1651,7 @@ const MODEL_PRICES = {
       orig_socket: 1200,
       copy_socket: 650
     },
+  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -1666,6 +1696,7 @@ const MODEL_PRICES = {
       orig_socket: 1200,
       copy_socket: 650
     },
+  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -1710,6 +1741,7 @@ const MODEL_PRICES = {
       orig_socket: 1200,
       copy_socket: 650
     },
+  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -1754,6 +1786,7 @@ const MODEL_PRICES = {
       orig_socket: 1200,
       copy_socket: 650
     },
+  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -1798,6 +1831,7 @@ const MODEL_PRICES = {
       orig_socket: 1200,
       copy_socket: 650
     },
+  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -1811,7 +1845,7 @@ const MODEL_PRICES = {
       copy: 1600
     },
     battery: {
-      orig_batt: 2720,
+     orig_batt: 2720,
       high_batt: 1840,
       copy_batt: 1530
     },
@@ -1842,6 +1876,7 @@ const MODEL_PRICES = {
       orig_socket: 1200,
       copy_socket: 650
     },
+  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -1886,6 +1921,7 @@ const MODEL_PRICES = {
       orig_socket: 1200,
       copy_socket: 650
     },
+  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -1930,6 +1966,7 @@ const MODEL_PRICES = {
       orig_socket: 1200,
       copy_socket: 650
     },
+  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -1971,7 +2008,7 @@ const MODEL_PRICES = {
       orig_flash: 1000
     },
     socket: {
-      orig_socket: 1200,
+      orig_socket:1200,
       copy_socket: 650
     },
     front_glass: {
@@ -2195,7 +2232,7 @@ function PoliciesSection({ isArabic }) {
       ["الأسعار والمواعيد", "الأسعار المعروضة تقديرية أو مرتبطة بالاختيارات المحددة في الموقع، ويُؤكد السعر النهائي قبل تنفيذ الإصلاح. تتوقف مدة التنفيذ على التشخيص وتوفر القطع وظروف الاستلام والتسليم، ولا يُعد أي موعد ضمانًا إلا إذا تم تأكيده للعميل."],
       ["بيانات الجهاز", "يُنصح بعمل نسخة احتياطية من البيانات قبل تسليم الجهاز وإزالة أي معلومات شديدة الحساسية متى أمكن. قد تتطلب بعض الاختبارات فتح قفل الجهاز بموافقة العميل؛ ولا ينبغي مشاركة كلمة مرور حساب Apple ID."],
       ["حالة الجهاز", "يُفضّل توثيق الحالة الظاهرة للجهاز وملحقاته عند الاستلام، وإبلاغ العميل بالأعطال أو التلفيات المكتشفة أثناء الفحص قبل أي عمل إضافي."],
-      ["الإلغاء والتواصل", "يمكن طلب إلغاء الصيانة قبل بدء العمل. وتُوضَّح للعميل أي رسوم فحص أو انتقال أو أعمال نُفذت بالفعل، إن وُجدت، قبل تحصيلها وبما يتفق مع القانون."],
+      ["الإلغاء والتواصل", "يمكن طلب إلغاء الصيانة قبل بدء العمل. وتُوضَّح للعميل أي رسوم فحص أو انتقال أو أعمال نُفذت بالفعل، إن وُجدت، قبل تحصيلها وبما يتفق مع القانون."],
     ]},
     { title: "سياسة الخصوصية", items: [
       ["البيانات التي نجمعها", "قد نطلب الاسم ورقم الهاتف ورقم واتساب وعنوان الاستلام وموديل الجهاز ولونه ووصف العطل وملاحظات الطلب؛ وذلك لمعالجة طلب الصيانة والتواصل بشأنه."],
@@ -2607,56 +2644,6 @@ if (typeof price === "number") total += price;
     });
   }
 
-  // يبني رابط واتساب العميل برسالة الترحيب والفاتورة
-  function buildCustomerWhatsAppLink(orderNumber) {
-    let waDigits = (details.whatsapp || "").replace(/\D/g, "");
-    if (waDigits.startsWith("00")) waDigits = waDigits.slice(2);
-    else if (waDigits.startsWith("0")) waDigits = "20" + waDigits.slice(1);
-    else if (!waDigits.startsWith("20")) waDigits = "20" + waDigits;
-
-    const partLines = selectedParts.map(partId => {
-      if (partId === "other") {
-        return `• ${t.otherIssueLabel}: ${partNotes.other || ""} (يحدد بعد الفحص)`;
-      }
-      const pObj = standardParts.find(item => item.id === partId);
-      const opts = partSubOptions[partId] || [];
-      const opt = opts[partSelections[partId] || 0] || opts[0];
-      const price = opt ? getPartPrice(model, partId, opt) : "";
-      const priceText = typeof price === "number" ? `${formatPrice(price)} ${t.currency}` : price;
-      return `• ${pObj?.nameAr} (${opt?.nameAr || ""}): ${priceText}`;
-    });
-
-    const invoiceText = [
-      `أهلاً بيك يا فندم 👋`,
-      `تم استلام طلبك في ريسيت بنجاح ✅ شكراً لثقتك فينا.`,
-      ``,
-      `🧾 *فاتورة الطلب*`,
-      `رقم الطلب: ${orderNumber}`,
-      `الموديل: ${model}`,
-      ...(needsDeviceColor && deviceColor ? [`اللون: ${deviceColor}`] : []),
-      `نوع الطلب: ${fulfillmentType === "partOnly" ? "قطعة غيار فقط" : "صيانة مع استلام وإرجاع الجهاز"}`,
-      ``,
-      `*القطع المطلوبة:*`,
-      ...partLines,
-      ``,
-      `🚚 التوصيل: مجاني`,
-      ...(fulfillmentType === "repair" ? [`رسوم خدمة الصيانة: ${formatPrice(100)} ${t.currency}`] : []),
-      `الإجمالي قبل الخصم: ${formatPrice(totalPrice)} ${t.currency}`,
-      ...(appliedDiscount
-        ? [`الخصم (${appliedDiscount.percent}%): -${formatPrice(discountAmount)} ${t.currency}`]
-        : []),
-      `*الإجمالي النهائي: ${formatPrice(finalTotalPrice)} ${t.currency}*`,
-      ``,
-      `💵 الدفع: نقداً عند الاستلام`,
-      `📞 ${details.phone}`,
-      `📍 ${details.address}`,
-      ``,
-      `هنتواصل معاك في أقرب وقت لتأكيد الموعد 🙏`
-    ].join("\n");
-
-    return `https://wa.me/${waDigits}?text=${encodeURIComponent(invoiceText)}`;
-  }
-
   async function submitOrder(e) {
     e.preventDefault();
 
@@ -2677,11 +2664,7 @@ if (typeof price === "number") total += price;
     setSubmitting(true);
 
     const generatedOrderNo =
-      "RST-" + Math.floor(100000 + Math.random() * 900000);
-
-    // نفتح تبويب واتساب فوراً مع ضغطة الزرار (عشان المتصفح ما يمنعه)،
-    // وبعد ما الطلب يتسجل بنحط فيه رابط الرسالة.
-    const waWindow = !isOnlyCustomIssue ? window.open("", "_blank") : null;
+      "IFX-" + Math.floor(100000 + Math.random() * 900000);
 
     try {
       const response = await fetch("/api/orders", {
@@ -2725,16 +2708,10 @@ if (typeof price === "number") total += price;
         throw new Error(data.error || "Order saving failed");
       }
 
-      if (waWindow && !waWindow.closed) {
-        waWindow.location.href = buildCustomerWhatsAppLink(generatedOrderNo);
-      }
-
       setOrderNo(generatedOrderNo);
       setStep(isOnlyCustomIssue ? "customDone" : "done");
     } catch (error) {
       console.error("Error submitting order:", error);
-
-      if (waWindow && !waWindow.closed) waWindow.close();
 
       alert(
         "لم نتمكن من تأكيد حفظ الطلب. احتفظ ببياناتك وتواصل معنا للتأكد قبل إعادة الإرسال."
@@ -4265,174 +4242,159 @@ if (typeof price === "number") total += price;
         )}
 
         {/* نجاح الطلب */}
-        {step === "done" && (() => {
-          const customerWhatsAppLink = buildCustomerWhatsAppLink(orderNo);
-
-          return (
-            <div
-              className="card done"
+        {step === "done" && (
+          <div
+            className="card done"
+            style={{
+              textAlign: "center",
+              maxWidth: "550px",
+              margin: "0 auto",
+              padding: "40px 20px"
+            }}
+          >
+            <b
+              className="check"
               style={{
-                textAlign: "center",
-                maxWidth: "550px",
-                margin: "0 auto",
-                padding: "40px 20px"
+                fontSize: "2.5rem",
+                display: "inline-block",
+                marginBottom: "10px"
               }}
             >
-              <b
-                className="check"
-                style={{
-                  fontSize: "2.5rem",
-                  display: "inline-block",
-                  marginBottom: "10px"
-                }}
-              >
-                ✓
-              </b>
+              ✓
+            </b>
 
-              <h3
-                style={{
-                  fontSize: "1.6rem",
-                  fontWeight: 900,
-                  marginBottom: "10px",
-                  color: "#111"
-                }}
-              >
-                {t.successTitle}
-              </h3>
+            <h3
+              style={{
+                fontSize: "1.6rem",
+                fontWeight: 900,
+                marginBottom: "10px",
+                color: "#111"
+              }}
+            >
+              {t.successTitle}
+            </h3>
 
-              <p
-                style={{
-                  fontSize: "1rem",
-                  fontWeight: "bold",
-                  color: "#16a34a",
-                  margin: "10px 0 20px",
-                  lineHeight: "1.6"
-                }}
-              >
-                {fulfillmentType === "partOnly"
-                  ? (isArabic
-                      ? "تم استلام طلب قطعة الغيار فقط، وسنتواصل معك لتأكيد التوصيل."
-                      : "Your spare-part order has been received. We will contact you to confirm delivery.")
-                  : t.courierDispatchText}
-              </p>
+            <p
+              style={{
+                fontSize: "1rem",
+                fontWeight: "bold",
+                color: "#16a34a",
+                margin: "10px 0 20px",
+                lineHeight: "1.6"
+              }}
+            >
+              {fulfillmentType === "partOnly" ? (isArabic ? "تم استلام طلب قطعة الغيار فقط، وسنتواصل معك لتأكيد التوصيل." : "Your spare-part order has been received. We will contact you to confirm delivery.") : t.courierDispatchText}
+            </p>
 
+            <div
+              style={{
+                backgroundColor: "#f4f4f5",
+                padding: "16px",
+                borderRadius: "14px",
+                margin: "20px 0",
+                textAlign: "right",
+                display: "flex",
+                flexDirection: "column",
+                gap: "8px"
+              }}
+            >
               <div
-                style={{
-                  backgroundColor: "#f4f4f5",
-                  padding: "16px",
-                  borderRadius: "14px",
-                  margin: "20px 0",
-                  textAlign: "right",
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "8px"
-                }}
+                style={{ display: "flex", justifyContent: "space-between" }}
               >
-                <div style={{ display: "flex", justifyContent: "space-between" }}>
-                  <span style={{ color: "#71717a", fontSize: "0.85rem" }}>{t.orderNumber}</span>
-                  <strong style={{ color: "#111" }}>{orderNo}</strong>
-                </div>
-
-                <div style={{ display: "flex", justifyContent: "space-between" }}>
-                  <span style={{ color: "#71717a", fontSize: "0.85rem" }}>
-                    {isArabic ? "العميل:" : "Customer:"}
-                  </span>
-                  <strong style={{ color: "#111" }}>{details.name}</strong>
-                </div>
-
-                <div style={{ display: "flex", justifyContent: "space-between" }}>
-                  <span style={{ color: "#71717a", fontSize: "0.85rem" }}>
-                    {isArabic ? "الهاتف:" : "Phone:"}
-                  </span>
-                  <strong style={{ color: "#111" }}>{details.phone}</strong>
-                </div>
-
-                <div style={{ display: "flex", justifyContent: "space-between" }}>
-                  <span style={{ color: "#71717a", fontSize: "0.85rem" }}>
-                    {isArabic ? "واتساب:" : "WhatsApp:"}
-                  </span>
-                  <strong style={{ color: "#111" }}>{details.whatsapp}</strong>
-                </div>
-
-                <div style={{ display: "flex", justifyContent: "space-between" }}>
-                  <span style={{ color: "#71717a", fontSize: "0.85rem" }}>
-                    {isArabic ? "الموديل:" : "Model:"}
-                  </span>
-                  <strong style={{ color: "#111" }}>{model}</strong>
-                </div>
-
-                {needsDeviceColor && (
-                  <div className="ifix-color-summary">
-                    <span>{isArabic ? "لون الجهاز" : "Device color"}</span>
-                    <strong>{deviceColor}</strong>
-                  </div>
-                )}
-
-                <div className="ifix-color-summary">
-                  <span>{isArabic ? "طريقة الطلب" : "Service type"}</span>
-                  <strong>
-                    {fulfillmentType === "partOnly"
-                      ? (isArabic ? "قطعة غيار فقط" : "Spare part only")
-                      : (isArabic ? "صيانة مع استلام وإرجاع الجهاز" : "Repair with pickup and return")}
-                  </strong>
-                </div>
-              </div>
-
-              <div
-                style={{
-                  fontSize: "1.2rem",
-                  fontWeight: 900,
-                  marginBottom: "20px",
-                  color: "#111"
-                }}
-              >
-                {formatPrice(finalTotalPrice)} {t.currency}{" "}
-                <span style={{ fontSize: "0.85rem", color: "#666", fontWeight: "normal" }}>
-                  ({t.approximate})
+                <span style={{ color: "#71717a", fontSize: "0.85rem" }}>
+                  {t.orderNumber}
                 </span>
+                <strong style={{ color: "#111" }}>{orderNo}</strong>
               </div>
 
-              <a
-                href={customerWhatsAppLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: "10px",
-                  backgroundColor: "#25D366",
-                  color: "#fff",
-                  padding: "14px 20px",
-                  borderRadius: "12px",
-                  fontWeight: "bold",
-                  textDecoration: "none",
-                  marginBottom: "12px",
-                  boxShadow: "0 4px 14px rgba(37,211,102,0.35)"
-                }}
+              <div
+                style={{ display: "flex", justifyContent: "space-between" }}
               >
-                {isArabic ? "📲 لو الواتساب ما اتفتحش، دوس هنا لاستلام الفاتورة" : "📲 WhatsApp didn’t open? Tap here to get your invoice"}
-              </a>
+                <span style={{ color: "#71717a", fontSize: "0.85rem" }}>
+                  {isArabic ? "العميل:" : "Customer:"}
+                </span>
+                <strong style={{ color: "#111" }}>{details.name}</strong>
+              </div>
 
-              <button
-                type="button"
-                className="black-btn full"
-                style={{
-                  padding: "14px",
-                  borderRadius: "12px",
-                  backgroundColor: "#000",
-                  color: "#fff",
-                  fontWeight: "bold",
-                  border: "none",
-                  cursor: "pointer"
-                }}
-                onClick={resetOrder}
+              <div
+                style={{ display: "flex", justifyContent: "space-between" }}
               >
-                {t.newOrder}
-              </button>
+                <span style={{ color: "#71717a", fontSize: "0.85rem" }}>
+                  {isArabic ? "الهاتف:" : "Phone:"}
+                </span>
+                <strong style={{ color: "#111" }}>{details.phone}</strong>
+              </div>
+
+              <div
+                style={{ display: "flex", justifyContent: "space-between" }}
+              >
+                <span style={{ color: "#71717a", fontSize: "0.85rem" }}>
+                  {isArabic ? "واتساب:" : "WhatsApp:"}
+                </span>
+                <strong style={{ color: "#111" }}>
+                  {details.whatsapp}
+                </strong>
+              </div>
+
+              <div
+                style={{ display: "flex", justifyContent: "space-between" }}
+              >
+                <span style={{ color: "#71717a", fontSize: "0.85rem" }}>
+                  {isArabic ? "الموديل:" : "Model:"}
+                </span>
+                <strong style={{ color: "#111" }}>{model}</strong>
+              </div>
+
+              {needsDeviceColor && (
+                <div className="ifix-color-summary">
+                  <span>{isArabic ? "لون الجهاز" : "Device color"}</span>
+                  <strong>{deviceColor}</strong>
+                </div>
+              )}
+              <div className="ifix-color-summary">
+                <span>{isArabic ? "طريقة الطلب" : "Service type"}</span>
+                <strong>{fulfillmentType === "partOnly" ? (isArabic ? "قطعة غيار فقط" : "Spare part only") : (isArabic ? "صيانة مع استلام وإرجاع الجهاز" : "Repair with pickup and return")}</strong>
+              </div>
             </div>
-          );
-        })()}
+
+            <div
+              style={{
+                fontSize: "1.2rem",
+                fontWeight: 900,
+                marginBottom: "24px",
+                color: "#111"
+              }}
+            >
+              {formatPrice(totalPrice)} {t.currency}{" "}
+              <span
+                style={{
+                  fontSize: "0.85rem",
+                  color: "#666",
+                  fontWeight: "normal"
+                }}
+              >
+                ({t.approximate})
+              </span>
+            </div>
+
+            <button
+              type="button"
+              className="black-btn full"
+              style={{
+                padding: "14px",
+                borderRadius: "12px",
+                backgroundColor: "#000",
+                color: "#fff",
+                fontWeight: "bold",
+                border: "none",
+                cursor: "pointer"
+              }}
+              onClick={resetOrder}
+            >
+              {t.newOrder}
+            </button>
+          </div>
+        )}
 
         {/* نجاح تسجيل عطل آخر */}
         {step === "customDone" && (
