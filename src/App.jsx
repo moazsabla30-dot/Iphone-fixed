@@ -2607,6 +2607,56 @@ if (typeof price === "number") total += price;
     });
   }
 
+  // يبني رابط واتساب العميل برسالة الترحيب والفاتورة
+  function buildCustomerWhatsAppLink(orderNumber) {
+    let waDigits = (details.whatsapp || "").replace(/\D/g, "");
+    if (waDigits.startsWith("00")) waDigits = waDigits.slice(2);
+    else if (waDigits.startsWith("0")) waDigits = "20" + waDigits.slice(1);
+    else if (!waDigits.startsWith("20")) waDigits = "20" + waDigits;
+
+    const partLines = selectedParts.map(partId => {
+      if (partId === "other") {
+        return `• ${t.otherIssueLabel}: ${partNotes.other || ""} (يحدد بعد الفحص)`;
+      }
+      const pObj = standardParts.find(item => item.id === partId);
+      const opts = partSubOptions[partId] || [];
+      const opt = opts[partSelections[partId] || 0] || opts[0];
+      const price = opt ? getPartPrice(model, partId, opt) : "";
+      const priceText = typeof price === "number" ? `${formatPrice(price)} ${t.currency}` : price;
+      return `• ${pObj?.nameAr} (${opt?.nameAr || ""}): ${priceText}`;
+    });
+
+    const invoiceText = [
+      `أهلاً بيك يا فندم 👋`,
+      `تم استلام طلبك في ريسيت بنجاح ✅ شكراً لثقتك فينا.`,
+      ``,
+      `🧾 *فاتورة الطلب*`,
+      `رقم الطلب: ${orderNumber}`,
+      `الموديل: ${model}`,
+      ...(needsDeviceColor && deviceColor ? [`اللون: ${deviceColor}`] : []),
+      `نوع الطلب: ${fulfillmentType === "partOnly" ? "قطعة غيار فقط" : "صيانة مع استلام وإرجاع الجهاز"}`,
+      ``,
+      `*القطع المطلوبة:*`,
+      ...partLines,
+      ``,
+      `🚚 التوصيل: مجاني`,
+      ...(fulfillmentType === "repair" ? [`رسوم خدمة الصيانة: ${formatPrice(100)} ${t.currency}`] : []),
+      `الإجمالي قبل الخصم: ${formatPrice(totalPrice)} ${t.currency}`,
+      ...(appliedDiscount
+        ? [`الخصم (${appliedDiscount.percent}%): -${formatPrice(discountAmount)} ${t.currency}`]
+        : []),
+      `*الإجمالي النهائي: ${formatPrice(finalTotalPrice)} ${t.currency}*`,
+      ``,
+      `💵 الدفع: نقداً عند الاستلام`,
+      `📞 ${details.phone}`,
+      `📍 ${details.address}`,
+      ``,
+      `هنتواصل معاك في أقرب وقت لتأكيد الموعد 🙏`
+    ].join("\n");
+
+    return `https://wa.me/${waDigits}?text=${encodeURIComponent(invoiceText)}`;
+  }
+
   async function submitOrder(e) {
     e.preventDefault();
 
@@ -2627,7 +2677,11 @@ if (typeof price === "number") total += price;
     setSubmitting(true);
 
     const generatedOrderNo =
-      "IFX-" + Math.floor(100000 + Math.random() * 900000);
+      "RST-" + Math.floor(100000 + Math.random() * 900000);
+
+    // نفتح تبويب واتساب فوراً مع ضغطة الزرار (عشان المتصفح ما يمنعه)،
+    // وبعد ما الطلب يتسجل بنحط فيه رابط الرسالة.
+    const waWindow = !isOnlyCustomIssue ? window.open("", "_blank") : null;
 
     try {
       const response = await fetch("/api/orders", {
@@ -2671,10 +2725,16 @@ if (typeof price === "number") total += price;
         throw new Error(data.error || "Order saving failed");
       }
 
+      if (waWindow && !waWindow.closed) {
+        waWindow.location.href = buildCustomerWhatsAppLink(generatedOrderNo);
+      }
+
       setOrderNo(generatedOrderNo);
       setStep(isOnlyCustomIssue ? "customDone" : "done");
     } catch (error) {
       console.error("Error submitting order:", error);
+
+      if (waWindow && !waWindow.closed) waWindow.close();
 
       alert(
         "لم نتمكن من تأكيد حفظ الطلب. احتفظ ببياناتك وتواصل معنا للتأكد قبل إعادة الإرسال."
@@ -4206,54 +4266,7 @@ if (typeof price === "number") total += price;
 
         {/* نجاح الطلب */}
         {step === "done" && (() => {
-          // تجهيز رقم الواتساب بتاع العميل بصيغة دولية (مصر)
-          let waDigits = (details.whatsapp || "").replace(/\D/g, "");
-          if (waDigits.startsWith("00")) waDigits = waDigits.slice(2);
-          else if (waDigits.startsWith("0")) waDigits = "20" + waDigits.slice(1);
-          else if (!waDigits.startsWith("20")) waDigits = "20" + waDigits;
-
-          // نص الفاتورة
-          const partLines = selectedParts.map(partId => {
-            if (partId === "other") {
-              return `• ${t.otherIssueLabel}: ${partNotes.other || ""} (يحدد بعد الفحص)`;
-            }
-            const pObj = standardParts.find(item => item.id === partId);
-            const opts = partSubOptions[partId] || [];
-            const opt = opts[partSelections[partId] || 0] || opts[0];
-            const price = opt ? getPartPrice(model, partId, opt) : "";
-            const priceText = typeof price === "number" ? `${formatPrice(price)} ${t.currency}` : price;
-            return `• ${pObj?.nameAr} (${opt?.nameAr || ""}): ${priceText}`;
-          });
-
-          const invoiceText = [
-            `أهلاً بيك يا ${details.name} 👋`,
-            `تم استلام طلبك في iFix بنجاح ✅ شكراً لثقتك فينا.`,
-            ``,
-            `🧾 *فاتورة الطلب*`,
-            `رقم الطلب: ${orderNo}`,
-            `الموديل: ${model}`,
-            ...(needsDeviceColor && deviceColor ? [`اللون: ${deviceColor}`] : []),
-            `نوع الطلب: ${fulfillmentType === "partOnly" ? "قطعة غيار فقط" : "صيانة مع استلام وإرجاع الجهاز"}`,
-            ``,
-            `*القطع المطلوبة:*`,
-            ...partLines,
-            ``,
-            `🚚 التوصيل: مجاني`,
-            ...(fulfillmentType === "repair" ? [`رسوم خدمة الصيانة: ${formatPrice(100)} ${t.currency}`] : []),
-            `الإجمالي قبل الخصم: ${formatPrice(totalPrice)} ${t.currency}`,
-            ...(appliedDiscount
-              ? [`الخصم (${appliedDiscount.percent}%): -${formatPrice(discountAmount)} ${t.currency}`]
-              : []),
-            `*الإجمالي النهائي: ${formatPrice(finalTotalPrice)} ${t.currency}*`,
-            ``,
-            `💵 الدفع: نقداً عند الاستلام`,
-            `📞 ${details.phone}`,
-            `📍 ${details.address}`,
-            ``,
-            `هنتواصل معاك في أقرب وقت لتأكيد الموعد 🙏`
-          ].join("\n");
-
-          const customerWhatsAppLink = `https://wa.me/${waDigits}?text=${encodeURIComponent(invoiceText)}`;
+          const customerWhatsAppLink = buildCustomerWhatsAppLink(orderNo);
 
           return (
             <div
@@ -4398,7 +4411,7 @@ if (typeof price === "number") total += price;
                   boxShadow: "0 4px 14px rgba(37,211,102,0.35)"
                 }}
               >
-                {isArabic ? "📲 استلم الفاتورة على واتساب" : "📲 Get your invoice on WhatsApp"}
+                {isArabic ? "📲 لو الواتساب ما اتفتحش، دوس هنا لاستلام الفاتورة" : "📲 WhatsApp didn’t open? Tap here to get your invoice"}
               </a>
 
               <button
