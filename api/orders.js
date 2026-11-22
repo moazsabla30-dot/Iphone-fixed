@@ -324,6 +324,10 @@ app.get('/api/orders', adminOnly, async (req, res) => {
         selectedParts: 1,
         partNotes: 1,
         totalPrice: 1,
+        originalTotalPrice: 1,
+        discountCode: 1,
+        discountPercent: 1,
+        discountAmount: 1,
         details: 1,
         createdAt: 1,
         workflowStatus: 1,
@@ -518,7 +522,8 @@ app.delete(
           error: 'معرّف الطلب غير صحيح.'
         });
       }
-            await connectDatabase();
+
+      await connectDatabase();
 
       const result = await mongoose.connection
         .collection('orders')
@@ -679,6 +684,19 @@ h1 { margin: 0 0 5px; font-size: 28px; letter-spacing: -.7px; }
   border-color: #b9ddc5;
 }
 .btn-whatsapp:hover { background: #ccecd7; }
+
+/* زرار إرسال الفاتورة للعميل على واتساب: أخضر واضح بلوجو واتساب */
+.btn-send-wa {
+  color: #fff;
+  background: #25D366;
+  border-color: #1fb457;
+  box-shadow: 0 4px 12px rgba(37,211,102,.35);
+  font-size: 14px;
+  padding: 10px 20px;
+}
+.btn-send-wa:hover { background: #1fb457; }
+.btn-send-wa svg { width: 22px; height: 22px; flex: 0 0 22px; fill: currentColor; }
+.btn-send-wa .wa-icon { display: inline-flex; }
 
 .btn-postpone {
   background: #fff3db;
@@ -1469,6 +1487,8 @@ async function changeWorkflow(action, chosen) {
 const partNames = {
   screen: { ar: 'الشاشة', en: 'Display' },
   display: { ar: 'الشاشة', en: 'Display' },
+  front_glass: { ar: 'باغة الشاشة', en: 'Front Glass' },
+  touch: { ar: 'تاتش الشاشة', en: 'Touch Digitizer' },
   battery: { ar: 'البطارية', en: 'Battery' },
   socket: { ar: 'سوكت الشحن', en: 'Charging Port' },
   charging_port: { ar: 'سوكت الشحن', en: 'Charging Port' },
@@ -1482,7 +1502,9 @@ const partNames = {
   front_camera: { ar: 'الكاميرا الأمامية', en: 'Front Camera' },
   bcam: { ar: 'الكاميرا الخلفية', en: 'Back Camera' },
   back_camera: { ar: 'الكاميرا الخلفية', en: 'Back Camera' },
+  back_cameras: { ar: 'الكاميرات الخلفية', en: 'Back Cameras' },
   back: { ar: 'الظهر', en: 'Back Glass' },
+  back_glass: { ar: 'الظهر', en: 'Back Glass' },
   flash: { ar: 'الفلاش', en: 'Flash' },
   other: { ar: 'عطل آخر', en: 'Other Repair' }
 };
@@ -1551,7 +1573,7 @@ function phoneDigits(value) {
 
 function field(parent, label, value, wide) {
   const box = element('div', 'field' + (wide ? ' wide' : ''));
-    box.append(
+  box.append(
     element('span', 'field-label', label),
     element(
       'div',
@@ -1617,6 +1639,92 @@ function extractDeviceColor(details) {
     customerNotes: remainingLines.join('\n').trim()
   };
 }
+
+// ---------- رسالة واتساب للعميل (ترحيب + فاتورة ريسيت) ----------
+
+function egp(value) {
+  return Number(value).toLocaleString('en-US') + ' جنيه';
+}
+
+function invoiceMessage(order) {
+  const d = order.details || {};
+  const purchase = isPurchaseOrder(order);
+  const color = extractDeviceColor(d).deviceColor;
+  const parts = Array.isArray(order.selectedParts) ? order.selectedParts : [];
+  const finalTotal = Number(order.totalPrice);
+  const originalTotal = Number(order.originalTotalPrice);
+  const discountPercent = Number(order.discountPercent) || 0;
+  const discountAmount = Number(order.discountAmount) || 0;
+  const hasTotal = Number.isFinite(finalTotal) && finalTotal > 0;
+  const hasDiscount = discountPercent > 0 && Number.isFinite(originalTotal) && originalTotal > 0;
+
+  const lines = [
+    'أهلاً بيك يا فندم 👋',
+    'تم استلام طلبك في ريسيت بنجاح ✅ شكراً لثقتك فينا.',
+    '',
+    '🧾 *فاتورة ريسيت*',
+    'رقم الطلب: ' + (order.orderNo || '—'),
+    'الموديل: ' + (order.model || '—')
+  ];
+
+  if (color) lines.push('اللون: ' + color);
+
+  lines.push(
+    'نوع الطلب: ' + (purchase ? 'قطعة غيار فقط' : 'صيانة مع استلام وإرجاع الجهاز'),
+    '',
+    '*القطع المطلوبة:*'
+  );
+
+  if (parts.length) {
+    parts.forEach(part => {
+      const item = partNames[normalizePart(part)];
+      lines.push('• ' + (item ? item.ar : String(part).replace(/_/g, ' ')));
+    });
+  } else {
+    lines.push('—');
+  }
+
+  lines.push('', '🚚 التوصيل: مجاني');
+
+  if (!purchase) lines.push('رسوم خدمة الصيانة: ' + egp(100));
+
+  if (hasDiscount) {
+    lines.push(
+      'الإجمالي قبل الخصم: ' + egp(originalTotal),
+      'الخصم (' + discountPercent + '%): -' + egp(discountAmount)
+    );
+  }
+
+  lines.push(
+    hasTotal
+      ? '*الإجمالي النهائي: ' + egp(finalTotal) + '*'
+      : '*الإجمالي النهائي: يتحدد بعد الفحص*'
+  );
+
+  lines.push(
+    '',
+    '💵 الدفع: نقداً عند الاستلام'
+  );
+
+  if (d.phone) lines.push('📞 ' + d.phone);
+  if (d.address) lines.push('📍 ' + d.address);
+
+  lines.push(
+    '',
+    'هنتواصل معاك في أقرب وقت لتأكيد الموعد 🙏',
+    '',
+    '🎁 هنبعتلك كود خصم خاص بيك. شاركه مع أصحابك، وفي كل مرة حد منهم يستخدمه هتاخد مكافأة فلوس (مش هدايا) 💰',
+    '',
+    '🌐 ' + window.location.origin
+  );
+
+  return lines.join('\n');
+}
+
+const WHATSAPP_ICON =
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">' +
+  '<path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>' +
+  '</svg>';
 
 function createRepairItem(part, index, note) {
   const item = element('div', 'repair-item');
@@ -1795,17 +1903,31 @@ function render() {
     const actions = element('div', 'actions');
     const phone = phoneDigits(d.phone);
 
-    if (phone) {
-      const call = element('a', 'btn btn-call', 'اتصال بالعميل');
-      call.href = 'tel:' + phone;
-      actions.append(call);
-    }
-
     let whatsapp = phoneDigits(d.whatsapp || d.phone);
 
     if (whatsapp.startsWith('00')) whatsapp = whatsapp.slice(2);
     if (whatsapp.length === 11 && whatsapp.startsWith('01')) {
       whatsapp = '2' + whatsapp;
+    }
+
+    // زرار إرسال الفاتورة للعميل على رقم الواتساب بتاعه
+    if (whatsapp) {
+      const send = element('a', 'btn btn-send-wa');
+      const icon = element('span', 'wa-icon');
+      icon.innerHTML = WHATSAPP_ICON;
+      send.append(icon, document.createTextNode('إرسال الفاتورة على واتساب'));
+      send.href =
+        'https://wa.me/' + whatsapp +
+        '?text=' + encodeURIComponent(invoiceMessage(order));
+      send.target = '_blank';
+      send.rel = 'noopener noreferrer';
+      actions.append(send);
+    }
+
+    if (phone) {
+      const call = element('a', 'btn btn-call', 'اتصال بالعميل');
+      call.href = 'tel:' + phone;
+      actions.append(call);
     }
 
     if (whatsapp) {

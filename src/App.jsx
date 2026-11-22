@@ -1,4 +1,3 @@
-
 import { useEffect, useMemo, useRef, useState } from "react";
 import "./App.css";
 import RepairComparison from "./RepairComparison";
@@ -391,7 +390,6 @@ const MODEL_PRICES = {
       orig_socket: 1700,
       copy_socket: 650
     },
-  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -436,7 +434,6 @@ const MODEL_PRICES = {
       orig_socket: 1800,
       copy_socket: 650
     },
-  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -450,7 +447,7 @@ const MODEL_PRICES = {
       copy: 1600
     },
     battery: {
-     orig_batt: 5800,
+      orig_batt: 5800,
       high_batt: 4300,
       copy_batt: 3000
     },
@@ -481,7 +478,6 @@ const MODEL_PRICES = {
       orig_socket: 1800,
       copy_socket: 650
     },
-  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -526,7 +522,6 @@ const MODEL_PRICES = {
       orig_socket: 1700,
       copy_socket: 650
     },
-  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -571,7 +566,6 @@ const MODEL_PRICES = {
       orig_socket: 1500,
       copy_socket: 650
     },
-  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -616,7 +610,6 @@ const MODEL_PRICES = {
       orig_socket: 1400,
       copy_socket: 650
     },
-  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -661,7 +654,6 @@ const MODEL_PRICES = {
       orig_socket: 1400,
       copy_socket: 650
     },
-  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -706,7 +698,6 @@ const MODEL_PRICES = {
       orig_socket: 1400,
       copy_socket: 650
     },
-  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -720,7 +711,7 @@ const MODEL_PRICES = {
       copy: 1600
     },
     battery: {
-     orig_batt: 4750,
+      orig_batt: 4750,
       high_batt: 3200,
       copy_batt: 2500
     },
@@ -751,7 +742,6 @@ const MODEL_PRICES = {
       orig_socket: 1400,
       copy_socket: 650
     },
-  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -796,7 +786,6 @@ const MODEL_PRICES = {
       orig_socket: 1400,
       copy_socket: 650
     },
-  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -841,7 +830,6 @@ const MODEL_PRICES = {
       orig_socket: 1400,
       copy_socket: 650
     },
-  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -886,7 +874,6 @@ const MODEL_PRICES = {
       orig_socket: 1400,
       copy_socket: 650
     },
-  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -931,7 +918,6 @@ const MODEL_PRICES = {
       orig_socket: 1400,
       copy_socket: 650
     },
-  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -976,7 +962,6 @@ const MODEL_PRICES = {
       orig_socket: 1400,
       copy_socket: 650
     },
-  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -1021,7 +1006,6 @@ const MODEL_PRICES = {
       orig_socket: 1200,
       copy_socket: 650
     },
-  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -1066,7 +1050,6 @@ const MODEL_PRICES = {
       orig_socket: 1400,
       copy_socket: 650
     },
-  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -1111,7 +1094,6 @@ const MODEL_PRICES = {
       orig_socket: 1400,
       copy_socket: 650
     },
-  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -1156,7 +1138,6 @@ const MODEL_PRICES = {
       orig_socket: 1400,
       copy_socket: 650
     },
-  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -1201,7 +1182,6 @@ const MODEL_PRICES = {
       orig_socket: 1200,
       copy_socket: 650
     },
-  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -1215,7 +1195,7 @@ const MODEL_PRICES = {
       copy: 1600
     },
     battery: {
-     orig_batt: 3800,
+      orig_batt: 3800,
       high_batt: 2500,
       copy_batt: 1830
     },
@@ -1246,7 +1226,6 @@ const MODEL_PRICES = {
       orig_socket: 1200,
       copy_socket: 650
     },
-  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -1291,7 +1270,6 @@ const MODEL_PRICES = {
       orig_socket: 1200,
       copy_socket: 650
     },
-  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -1336,7 +1314,6 @@ const MODEL_PRICES = {
       orig_socket: 1200,
       copy_socket: 650
     },
-  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -1381,7 +1358,6 @@ const MODEL_PRICES = {
       orig_socket: 1200,
       copy_socket: 650
     },
-  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -1426,7 +1402,6 @@ const MODEL_PRICES = {
       orig_socket: 1200,
       copy_socket: 650
     },
-  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -1471,7 +1446,6 @@ const MODEL_PRICES = {
       orig_socket: 1200,
       copy_socket: 650
     },
-  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -1516,7 +1490,6 @@ const MODEL_PRICES = {
       orig_socket: 1200,
       copy_socket: 650
     },
-  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -1561,7 +1534,6 @@ const MODEL_PRICES = {
       orig_socket: 1200,
       copy_socket: 650
     },
-  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -1606,7 +1578,6 @@ const MODEL_PRICES = {
       orig_socket: 1200,
       copy_socket: 650
     },
-  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -1651,7 +1622,6 @@ const MODEL_PRICES = {
       orig_socket: 1200,
       copy_socket: 650
     },
-  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -1696,7 +1666,6 @@ const MODEL_PRICES = {
       orig_socket: 1200,
       copy_socket: 650
     },
-  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -1741,7 +1710,6 @@ const MODEL_PRICES = {
       orig_socket: 1200,
       copy_socket: 650
     },
-  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -1786,7 +1754,6 @@ const MODEL_PRICES = {
       orig_socket: 1200,
       copy_socket: 650
     },
-  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -1831,7 +1798,6 @@ const MODEL_PRICES = {
       orig_socket: 1200,
       copy_socket: 650
     },
-  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -1845,7 +1811,7 @@ const MODEL_PRICES = {
       copy: 1600
     },
     battery: {
-     orig_batt: 2720,
+      orig_batt: 2720,
       high_batt: 1840,
       copy_batt: 1530
     },
@@ -1876,7 +1842,6 @@ const MODEL_PRICES = {
       orig_socket: 1200,
       copy_socket: 650
     },
-  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -1921,7 +1886,6 @@ const MODEL_PRICES = {
       orig_socket: 1200,
       copy_socket: 650
     },
-  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -1966,7 +1930,6 @@ const MODEL_PRICES = {
       orig_socket: 1200,
       copy_socket: 650
     },
-  
     front_glass: {
       single_glass: "السعر يحدد عند الطلب"
     },
@@ -2008,7 +1971,7 @@ const MODEL_PRICES = {
       orig_flash: 1000
     },
     socket: {
-      orig_socket:1200,
+      orig_socket: 1200,
       copy_socket: 650
     },
     front_glass: {
@@ -2227,12 +2190,12 @@ function InfoSections({ isArabic }) {
 function PoliciesSection({ isArabic }) {
   const policies = isArabic ? [
     { title: "الشروط والأحكام", items: [
-      ["نطاق الخدمة", "تقدم iFix خدمة استقبال طلبات صيانة أجهزة iPhone واستلام الجهاز من العنوان المتفق عليه، وفحصه في مقر الصيانة، ثم إعادته بعد الانتهاء وفق الترتيبات المتفق عليها."],
+      ["نطاق الخدمة", "تقدم Reset خدمة استقبال طلبات صيانة أجهزة iPhone واستلام الجهاز من العنوان المتفق عليه، وفحصه في مقر الصيانة، ثم إعادته بعد الانتهاء وفق الترتيبات المتفق عليها."],
       ["طلب الصيانة والتشخيص", "إرسال الطلب لا يعني تأكيد الإصلاح أو توفر قطعة الغيار. يتحدد نوع العطل وإمكانية إصلاحه بعد الفحص، ويتم إبلاغ العميل بأي تغيير جوهري في نطاق العمل أو التكلفة قبل تنفيذه."],
       ["الأسعار والمواعيد", "الأسعار المعروضة تقديرية أو مرتبطة بالاختيارات المحددة في الموقع، ويُؤكد السعر النهائي قبل تنفيذ الإصلاح. تتوقف مدة التنفيذ على التشخيص وتوفر القطع وظروف الاستلام والتسليم، ولا يُعد أي موعد ضمانًا إلا إذا تم تأكيده للعميل."],
       ["بيانات الجهاز", "يُنصح بعمل نسخة احتياطية من البيانات قبل تسليم الجهاز وإزالة أي معلومات شديدة الحساسية متى أمكن. قد تتطلب بعض الاختبارات فتح قفل الجهاز بموافقة العميل؛ ولا ينبغي مشاركة كلمة مرور حساب Apple ID."],
       ["حالة الجهاز", "يُفضّل توثيق الحالة الظاهرة للجهاز وملحقاته عند الاستلام، وإبلاغ العميل بالأعطال أو التلفيات المكتشفة أثناء الفحص قبل أي عمل إضافي."],
-      ["الإلغاء والتواصل", "يمكن طلب إلغاء الصيانة قبل بدء العمل. وتُوضَّح للعميل أي رسوم فحص أو انتقال أو أعمال نُفذت بالفعل، إن وُجدت، قبل تحصيلها وبما يتفق مع القانون."],
+      ["الإلغاء والتواصل", "يمكن طلب إلغاء الصيانة قبل بدء العمل. وتُوضَّح للعميل أي رسوم فحص أو انتقال أو أعمال نُفذت بالفعل، إن وُجدت، قبل تحصيلها وبما يتفق مع القانون."],
     ]},
     { title: "سياسة الخصوصية", items: [
       ["البيانات التي نجمعها", "قد نطلب الاسم ورقم الهاتف ورقم واتساب وعنوان الاستلام وموديل الجهاز ولونه ووصف العطل وملاحظات الطلب؛ وذلك لمعالجة طلب الصيانة والتواصل بشأنه."],
@@ -2252,7 +2215,7 @@ function PoliciesSection({ isArabic }) {
     ]},
   ] : [
     { title: "Terms & Conditions", items: [
-      ["Service scope", "iFix accepts iPhone repair requests, arranges collection from the agreed address, inspects devices at its repair location, and coordinates return delivery."],
+      ["Service scope", "Reset accepts iPhone repair requests, arranges collection from the agreed address, inspects devices at its repair location, and coordinates return delivery."],
       ["Inspection and approval", "Submitting a request does not guarantee repair or parts availability. We explain material changes to the work or price and seek approval before proceeding."],
       ["Prices and timing", "Displayed prices depend on the selected service and may require confirmation after inspection. Timing depends on diagnosis, parts availability, and pickup and delivery arrangements."],
       ["Your data", "Back up important data before handing over your phone. Device access for testing may require your consent. Never share your Apple ID password."],
@@ -2664,7 +2627,7 @@ if (typeof price === "number") total += price;
     setSubmitting(true);
 
     const generatedOrderNo =
-      "IFX-" + Math.floor(100000 + Math.random() * 900000);
+      "RST-" + Math.floor(100000 + Math.random() * 900000);
 
     try {
       const response = await fetch("/api/orders", {
@@ -3864,7 +3827,7 @@ if (typeof price === "number") total += price;
               </h3>
 
               <p style={{ fontSize: "0.85rem", color: "#71717a" }}>
-                iFix Repair Invoice & Summary
+                Reset Repair Invoice & Summary
               </p>
             </div>
 
