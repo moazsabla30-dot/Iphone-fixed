@@ -58,10 +58,10 @@ const modelImages = {
 const models = Object.keys(modelImages);
 
 const standardParts = [
+  { id: "battery", nameAr: "بطارية", nameEn: "Battery" },
   { id: "screen", nameAr: "شاشة", nameEn: "Screen" },
   { id: "front_glass", nameAr: "باغة الشاشة", nameEn: "Front Glass" },
   { id: "touch", nameAr: "تاتش الشاشة", nameEn: "Touch Digitizer" },
-  { id: "battery", nameAr: "بطارية", nameEn: "Battery" },
   { id: "upper_speaker", nameAr: "سماعة علوية", nameEn: "Upper Speaker" },
   { id: "lower_speaker", nameAr: "سماعة سفلية", nameEn: "Lower Speaker" },
   { id: "mic", nameAr: "مايك", nameEn: "Microphone" },

@@ -46,7 +46,7 @@ function adminOnly(req, res, next) {
   const validPassword = matches(suppliedPassword, password);
 
   if (!validUser || !validPassword) {
-    res.set('WWW-Authenticate', 'Basic realm="iFix Admin"');
+    res.set('WWW-Authenticate', 'Basic realm="Reset Admin"');
     return res.status(401).send('Login required.');
   }
 
@@ -120,36 +120,12 @@ async function connectDatabase() {
 const COURIER_ID = 'primary';
 const PAGE_SIZE = 50;
 
-const NEW_WORKFLOW_FILTER = {
-  $or: [
-    { workflowStatus: 'new' },
-    { workflowStatus: { $exists: false } },
-    { workflowStatus: null }
-  ]
-};
-
-// الطلبات القديمة التي لا تحتوي على fulfillmentType تُعامل كطلبات صيانة.
 const VIEW_FILTERS = {
-  new_repair: {
-    $and: [
-      NEW_WORKFLOW_FILTER,
-      {
-        $nor: [
-          { fulfillmentType: 'partOnly' },
-          { 'details.fulfillmentType': 'partOnly' }
-        ]
-      }
-    ]
-  },
-  new_purchase: {
-    $and: [
-      NEW_WORKFLOW_FILTER,
-      {
-        $or: [
-          { fulfillmentType: 'partOnly' },
-          { 'details.fulfillmentType': 'partOnly' }
-        ]
-      }
+  new: {
+    $or: [
+      { workflowStatus: 'new' },
+      { workflowStatus: { $exists: false } },
+      { workflowStatus: null }
     ]
   },
   with_courier: {
@@ -263,7 +239,7 @@ app.get('/api/orders', adminOnly, async (req, res) => {
     await connectDatabase();
 
     const collection = mongoose.connection.collection('orders');
-    const status = String(req.query.status || 'new_repair');
+    const status = String(req.query.status || 'new');
 
     if (!STATUSES.includes(status)) {
       return res.status(400).json({
@@ -320,7 +296,6 @@ app.get('/api/orders', adminOnly, async (req, res) => {
       projection: {
         orderNo: 1,
         model: 1,
-        fulfillmentType: 1,
         selectedParts: 1,
         partNotes: 1,
         totalPrice: 1,
@@ -518,7 +493,8 @@ app.delete(
           error: 'معرّف الطلب غير صحيح.'
         });
       }
-            await connectDatabase();
+
+      await connectDatabase();
 
       const result = await mongoose.connection
         .collection('orders')
@@ -557,7 +533,7 @@ const adminPage = String.raw`
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
-<title>iFix | إدارة الطلبات</title>
+<title>Reset | إدارة الطلبات</title>
 
 <style>
 :root {
@@ -912,27 +888,6 @@ h1 { margin: 0 0 5px; font-size: 28px; letter-spacing: -.7px; }
   gap: 9px;
   margin: 18px 0;
 }
-.order-type-badge {
-  display: inline-flex;
-  align-items: center;
-  width: fit-content;
-  margin-top: 7px;
-  padding: 4px 9px;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 800;
-  line-height: 1.5;
-}
-.order-type-badge.repair {
-  color: #1d4ed8;
-  background: #eff6ff;
-  border: 1px solid #bfdbfe;
-}
-.order-type-badge.purchase {
-  color: #047857;
-  background: #ecfdf5;
-  border: 1px solid #a7f3d0;
-}
 .status-tab {
   flex: 1 1 160px;
   background: white;
@@ -1160,8 +1115,7 @@ const lastUpdated = document.getElementById('lastUpdated');
 const listStatus = document.getElementById('listStatus');
 
 const labels = {
-  new_repair: 'طلبات صيانة',
-  new_purchase: 'طلبات شراء',
+  new: 'طلبات جديدة',
   with_courier: 'مع المندوب — للصيانة',
   repair: 'في مركز الصيانة',
   ready: 'جاهز — بانتظار المندوب',
@@ -1170,7 +1124,7 @@ const labels = {
   failed: 'تأجيل'
 };
 
-let activeStatus = 'new_repair';
+let activeStatus = 'new';
 let counts = {};
 let filteredTotal = 0;
 let page = 1;
@@ -1203,16 +1157,7 @@ function viewOf(order) {
       : 'ready';
   }
 
-  if (status === 'new') {
-    return isPurchaseOrder(order) ? 'new_purchase' : 'new_repair';
-  }
-
   return status;
-}
-
-function isPurchaseOrder(order) {
-  return order?.fulfillmentType === 'partOnly' ||
-    order?.details?.fulfillmentType === 'partOnly';
 }
 
 function eligible(order) {
@@ -1231,7 +1176,7 @@ function updateControls() {
 
   prevPage.disabled = busy || page <= 1;
   nextPage.disabled = busy || page >= pages;
-  batch.hidden = !['new_repair', 'new_purchase', 'repair'].includes(activeStatus);
+  batch.hidden = !['new', 'repair'].includes(activeStatus);
 
   const eligibleOrders = orders.filter(eligible);
   selectPage.disabled = busy || !eligibleOrders.length;
@@ -1245,9 +1190,7 @@ function updateControls() {
 
   batchAction.textContent = activeStatus === 'repair'
     ? 'جاهز للتسليم — إسناد للمندوب'
-    : activeStatus === 'new_purchase'
-      ? 'إسناد للمندوب لتوصيل قطعة الغيار'
-      : 'إسناد للمندوب للاستلام';
+    : 'إسناد للمندوب للاستلام';
 
   batchAction.disabled = busy || selected.size === 0;
 
@@ -1286,13 +1229,12 @@ function renderTabs() {
 
 function workflowDetails(order, card, head, body, actions) {
   const status = viewOf(order);
-  const workflowStatus = order.workflowStatus || 'new';
   card.classList.add('state-' + status);
 
   const info = element('div', 'workflow-info');
   let text = labels[status] || status;
 
-  if (workflowStatus === 'new' && order.assignedCourier) {
+  if (status === 'new' && order.assignedCourier) {
     text += ' — بانتظار استلام المندوب';
   }
 
@@ -1358,14 +1300,8 @@ function workflowDetails(order, card, head, body, actions) {
     actions.append(button);
   }
 
-  if (workflowStatus === 'new' && !order.assignedCourier) {
-    actionButton(
-      isPurchaseOrder(order)
-        ? 'إسناد للمندوب لتوصيل قطعة الغيار'
-        : 'إسناد للمندوب للاستلام',
-      'assign',
-      'btn-primary'
-    );
+  if (status === 'new' && !order.assignedCourier) {
+    actionButton('إسناد للمندوب للاستلام', 'assign', 'btn-primary');
   }
 
   if (status === 'repair' && order.courierStage === 'in_center') {
@@ -1406,9 +1342,7 @@ async function changeWorkflow(action, chosen) {
     }
   } else {
     const messages = {
-      assign: activeStatus === 'new_purchase'
-        ? 'إسناد الطلبات المحددة للمندوب لتوصيل قطع الغيار للعملاء؟'
-        : 'إسناد الطلبات المحددة للمندوب ليستلم الأجهزة من العملاء؟',
+      assign: 'إسناد الطلبات المحددة للمندوب ليستلم الأجهزة من العملاء؟',
       dispatch:
         'هل الأجهزة المحددة جاهزة لإرجاعها للعملاء؟ ستظهر للمندوب، وتظل في المركز حتى يؤكد استلامها.',
       retry: 'إعادة إسناد الطلب المؤجل للمندوب لاستكمال المهمة؟'
@@ -1551,7 +1485,8 @@ function phoneDigits(value) {
 
 function field(parent, label, value, wide) {
   const box = element('div', 'field' + (wide ? ' wide' : ''));
-    box.append(
+
+  box.append(
     element('span', 'field-label', label),
     element(
       'div',
@@ -1656,9 +1591,7 @@ function createRepairsSection(order) {
     element(
       'span',
       'repairs-title',
-      isPurchaseOrder(order)
-        ? translate('قطع الغيار المطلوبة', 'Spare Parts Ordered')
-        : translate('الإصلاحات المطلوبة', 'Required Repairs')
+      translate('الإصلاحات المطلوبة', 'Required Repairs')
     )
   );
 
@@ -1758,11 +1691,6 @@ function render() {
 
     identity.append(
       element('span', 'order-number', order.orderNo || 'طلب بدون رقم'),
-      element(
-        'span',
-        'order-type-badge ' + (isPurchaseOrder(order) ? 'purchase' : 'repair'),
-        isPurchaseOrder(order) ? 'طلب شراء قطعة غيار' : 'طلب صيانة'
-      ),
       element('div', 'order-date', dateText(order.createdAt))
     );
 
@@ -1809,10 +1737,30 @@ function render() {
     }
 
     if (whatsapp) {
-      const link = element('a', 'btn btn-whatsapp', 'فتح واتساب');
-      link.href = 'https://wa.me/' + whatsapp;
+      const link = element('a', 'btn btn-whatsapp');
+      const parts = Array.isArray(order.selectedParts)
+        ? order.selectedParts.map(part => partLabel(part)).join('، ')
+        : '';
+      const { customerNotes, deviceColor } = extractDeviceColor(d);
+      const message = [
+        'أهلاً ' + (d.name || 'بحضرتك') + ' 👋',
+        'شكراً لطلبك من Reset ❤️',
+        '',
+        'تفاصيل طلبك:',
+        'رقم الطلب: ' + (order.orderNo || 'غير متاح'),
+        'الجهاز: ' + (order.model || 'غير محدد'),
+        'الخدمة: ' + (parts || 'غير محددة'),
+        'الإجمالي: ' + money(order.totalPrice),
+        deviceColor ? 'لون الجهاز: ' + deviceColor : '',
+        customerNotes ? 'ملاحظاتك: ' + customerNotes : '',
+        '',
+        'لو عندك أي استفسار، إحنا معاك.'
+      ].filter(Boolean).join('\n');
+
+      link.href = 'https://wa.me/' + whatsapp + '?text=' + encodeURIComponent(message);
       link.target = '_blank';
       link.rel = 'noopener noreferrer';
+      link.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" width="18" height="18" fill="currentColor"><path d="M20.52 3.48A11.86 11.86 0 0 0 12.07 0C5.5 0 .16 5.34.16 11.91c0 2.1.55 4.15 1.6 5.96L0 24l6.3-1.65a11.9 11.9 0 0 0 5.77 1.47h.01C18.65 23.82 24 18.48 24 11.91c0-3.18-1.24-6.17-3.48-8.43ZM12.08 21.8a9.9 9.9 0 0 1-5.04-1.38l-.36-.21-3.74.98 1-3.65-.24-.38a9.84 9.84 0 0 1-1.51-5.25c0-5.45 4.44-9.89 9.9-9.89a9.83 9.83 0 0 1 7 2.9 9.83 9.83 0 0 1 2.9 7c0 5.46-4.44 9.9-9.9 9.9Zm5.43-7.41c-.3-.15-1.77-.87-2.04-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.47-.89-.79-1.49-1.77-1.66-2.07-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.62-.92-2.22-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.49s1.07 2.89 1.22 3.09c.15.2 2.1 3.2 5.08 4.49.71.31 1.27.5 1.7.64.71.23 1.36.2 1.87.12.57-.08 1.77-.72 2.02-1.42.25-.7.25-1.3.17-1.42-.07-.13-.27-.2-.57-.35Z"/></svg><span>واتساب + الفاتورة</span>';
       actions.append(link);
     }
 
