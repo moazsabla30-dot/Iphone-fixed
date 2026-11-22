@@ -1755,7 +1755,11 @@ function render() {
         customerNotes ? 'ملاحظاتك: ' + customerNotes : '',
         '',
         'لو عندك أي استفسار، إحنا معاك.'
-      ].filter(Boolean).join('\n');
+        🎁 اكسب فلوس مع Reset!
+رشّح أصحابك لينا، وخليهم يستخدموا كود الخصم الخاص بيك عند الطلب. وكل ما حد يستخدم كودك، هتاخد مكافأة نقدية بنسبة 5% من قيمة الأوردر. يعني كل ما ترشّح ناس أكتر، تكسب أكتر! ❤️  
+      
+https://iphone-fixed-r5m1.vercel.app/
+].filter(Boolean).join('\n');
 
       link.href = 'https://wa.me/' + whatsapp + '?text=' + encodeURIComponent(message);
       link.target = '_blank';
