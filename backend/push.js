@@ -1,5 +1,5 @@
-import mongoose from 'mongoose';
-import webpush from 'web-push';
+/*import mongoose from 'mongoose';
+import webpush from 'web-push';*/
 
 webpush.setVapidDetails(
   process.env.VAPID_SUBJECT,
