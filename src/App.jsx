@@ -9,7 +9,8 @@ const DISCOUNT_CODES = {
   "MOHAMED10": 10,
   "MOHAMED5": 5,
   "محمد10": 10,
-  "محمد5": 5
+  "محمد5": 5,
+  "BEDO90": 90
 };
 
 const modelImages = {

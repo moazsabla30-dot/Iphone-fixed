@@ -426,13 +426,33 @@ app.patch(
       });
 
       if (!result.modifiedCount) {
-        return res.status(409).json({
-          success: false,
-          error: 'تم تحديث الطلب بالفعل. حدّث القائمة.'
-        });
-      }
+  return res.status(409).json({
+    success: false,
+    error: 'تم تحديث الطلب بالفعل. حدّث القائمة.'
+  });
+}
 
-      res.json({ success: true });
+// إرسال إشعار للإدارة بعد نجاح تحديث الطلب
+const courierMessages = {
+  pickup_client: 'المندوب استلم الجهاز من العميل',
+  drop_center: 'الجهاز وصل إلى مركز الصيانة',
+  pickup_center: 'المندوب استلم الجهاز من مركز الصيانة',
+  deliver_client: 'تم تسليم الجهاز للعميل',
+  deliver_purchase: 'تم تسليم طلب الشراء للعميل',
+  postpone: 'المندوب أجّل الطلب'
+};
+
+try {
+  await sendPushToAdmins({
+    title: 'تحديث جديد على Reset 📱',
+    body: `${courierMessages[action]} — الطلب رقم ${order.orderNo || ''}`,
+    url: '/api/orders'
+  });
+} catch (pushError) {
+  console.error('Courier push error:', pushError);
+}
+
+res.json({ success: true });
     } catch (error) {
       console.error('Courier update error:', error);
 

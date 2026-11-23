@@ -1,6 +1,11 @@
 import app from './index.js';
 import mongoose from 'mongoose';
 import { createHash, timingSafeEqual } from 'node:crypto';
+import {
+  savePushSubscription,
+  deletePushSubscription,
+  sendPushToAdmins
+} from './push.js';
 
 // ---------- الدخول والحماية ----------
 
@@ -94,6 +99,90 @@ function workflowOrigin(req, res, next) {
     });
   }
 }
+function pushOrigin(req, res, next) {
+  try {
+    const origin = new URL(req.headers.origin || '');
+
+    if (
+      origin.protocol !== 'https:' ||
+      origin.host !== req.headers.host ||
+      req.get('X-Admin-Action') !== 'push-subscribe'
+    ) {
+      throw new Error();
+    }
+
+    next();
+  } catch {
+    res.status(403).json({
+      success: false,
+      error: 'عملية غير مسموح بها.'
+    });
+  }
+}
+
+// إرجاع المفتاح العام للموقع
+app.get('/api/push/public-key', adminOnly, (req, res) => {
+  res.json({
+    success: true,
+    publicKey: process.env.VAPID_PUBLIC_KEY
+  });
+});
+
+// تسجيل جهاز لاستقبال الإشعارات
+app.post(
+  '/api/push/subscribe',
+  adminOnly,
+  pushOrigin,
+  async (req, res) => {
+    try {
+      const subscription = req.body;
+
+      if (
+        !subscription ||
+        typeof subscription.endpoint !== 'string' ||
+        !subscription.keys?.p256dh ||
+        !subscription.keys?.auth
+      ) {
+        return res.status(400).json({
+          success: false,
+          error: 'بيانات الاشتراك غير صحيحة.'
+        });
+      }
+
+      await connectDatabase();
+      await savePushSubscription(subscription);
+
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Push subscribe error:', error);
+      res.status(500).json({ success: false });
+    }
+  }
+);
+
+// إلغاء اشتراك الجهاز
+app.delete(
+  '/api/push/subscribe',
+  adminOnly,
+  pushOrigin,
+  async (req, res) => {
+    try {
+      const endpoint = req.body?.endpoint;
+
+      if (typeof endpoint !== 'string') {
+        return res.status(400).json({ success: false });
+      }
+
+      await connectDatabase();
+      await deletePushSubscription(endpoint);
+
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Push unsubscribe error:', error);
+      res.status(500).json({ success: false });
+    }
+  }
+);
 
 // ---------- قاعدة البيانات ----------
 
@@ -460,8 +549,21 @@ app.patch(
         });
 
         if (result.modifiedCount) {
-          changedCount++;
-        } else {
+  changedCount++;
+
+  const actionMessages = {
+    assign: 'تم إسناد طلب للمندوب',
+    dispatch: 'طلب أصبح جاهزًا للتسليم',
+    retry: 'تمت إعادة تفعيل طلب مؤجل',
+    postpone: 'تم تأجيل طلب'
+  };
+
+  sendPushToAdmins({
+    title: 'تحديث طلب على Reset',
+    body: `${actionMessages[action]} رقم ${order.orderNo || ''}`,
+    url: '/api/orders'
+  });
+} else {
           conflicts.push(item.id);
         }
       }
@@ -1091,6 +1193,9 @@ h1 { margin: 0 0 5px; font-size: 28px; letter-spacing: -.7px; }
     </div>
     <div class="toolbar">
       <button id="refresh" class="btn btn-primary">تحديث الطلبات</button>
+      <button id="enablePush" class="btn btn-primary">
+  🔔 تفعيل الإشعارات
+</button>
       <button id="clearAll" class="btn btn-clear" disabled>
         مسح الكل · Clear all
       </button>
@@ -1292,6 +1397,81 @@ function renderTabs() {
       activeStatus = key;
       page = 1;
       selected.clear();
+      const enablePush = document.getElementById('enablePush');
+
+function urlBase64ToUint8Array(base64String) {
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+
+  const base64 = (base64String + padding)
+    .replace(/-/g, '+')
+    .replace(/_/g, '/');
+
+  const raw = window.atob(base64);
+
+  return Uint8Array.from(
+    [...raw].map(char => char.charCodeAt(0))
+  );
+}
+
+enablePush.addEventListener('click', async () => {
+  try {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+      throw new Error('المتصفح لا يدعم الإشعارات.');
+    }
+
+    const permission = await Notification.requestPermission();
+
+    if (permission !== 'granted') {
+      throw new Error('يجب السماح بالإشعارات.');
+    }
+
+    const registration = await navigator.serviceWorker.register('/sw.js');
+
+    await navigator.serviceWorker.ready;
+
+    let subscription = await registration.pushManager.getSubscription();
+
+    if (!subscription) {
+      const keyResponse = await fetch('/api/push/public-key', {
+        credentials: 'same-origin'
+      });
+
+      const keyData = await keyResponse.json();
+
+      if (!keyResponse.ok || !keyData.publicKey) {
+        throw new Error('تعذر تحميل مفتاح الإشعارات.');
+      }
+
+      subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(keyData.publicKey)
+      });
+    }
+
+    const response = await fetch('/api/push/subscribe', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Admin-Action': 'push-subscribe'
+      },
+      body: JSON.stringify(subscription)
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      throw new Error('تعذر تسجيل الجهاز.');
+    }
+
+    enablePush.textContent = '✓ الإشعارات مفعّلة';
+
+    notify('تم تفعيل الإشعارات على هذا الجهاز بنجاح.', 'success');
+
+  } catch (error) {
+    notify(error.message, 'error');
+  }
+});
       loadOrders();
     });
 
